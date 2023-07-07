@@ -5,23 +5,21 @@ using UnityEngine;
 public class BulletController : MonoBehaviour
 {
     [HideInInspector]
-    private Vector3 direction;
     private float speed;
 
     private void Awake()
     {
-        direction = new Vector3(1.0f, 0.0f, 0.0f);
-        speed = 2.0f;
+        speed = 10.0f;
     }
 
     void Update()
     {
-        transform.position += direction * speed * Time.deltaTime;
+        transform.position += transform.forward * speed * Time.deltaTime;
     }
 
     private void OnCollisionExit(Collision collision)
     {
-        //Destroy(gameObject);
+        Destroy(gameObject);
         //Debug.Log("a");
     }
 
@@ -38,6 +36,7 @@ public class BulletController : MonoBehaviour
 
     private void OnTriggerExit(Collider other)
     {
+        Destroy(gameObject);
         //Debug.Log("d");
     }
 }

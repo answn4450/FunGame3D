@@ -8,11 +8,11 @@ public class ShooterController : MonoBehaviour
     public GameObject bullet;
     public GameObject bulletPrefab;
     public bool fire;
-    public bool active;
+    public bool act;
 
     private void Awake()
     {
-        fire = false;
+        fire = true;
     }
 
     void Start()
@@ -22,12 +22,17 @@ public class ShooterController : MonoBehaviour
 
     void Update()
     {
-        if (active)
+        if (act)
         {
             if (fire)
             {
                 fire = false;
                 bullet = Instantiate(PrefabManager.GetInstance().GetPrefabByName("Bullet"));
+                bullet.transform.rotation = Quaternion.Euler(
+                         0.0f,
+                         transform.rotation.eulerAngles.y,
+                         0.0f
+                         );
                 bullet.transform.position = shootHead.transform.position;
             }
         }
