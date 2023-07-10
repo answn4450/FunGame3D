@@ -1,20 +1,31 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 
+// To use this script, attach it to the GameObject that you would like to rotate towards another game object.
+// After attaching it, go to the inspector and drag the GameObject you would like to rotate towards into the target field.
+// Move the target around in the scene view to see the GameObject continuously rotate towards it.
 public class Test : MonoBehaviour
 {
-    Vector3 dir;
+    // The target marker.
+    public Transform target;
 
-    void Start()
+    // Angular speed in radians per sec.
+    public float speed = 1.0f;
+
+    void Update()
     {
-        GameObject a = GameObject.CreatePrimitive(PrimitiveType.Cube);
-        a.transform.position = transform.position;
-        
-        dir = transform.rotation.eulerAngles.normalized;
-        dir = gameObject.transform.forward;
-        Debug.Log(dir);
+        // Determine which direction to rotate towards
+        Vector3 targetDirection = target.position - transform.position;
 
-        a.transform.position += dir * 3;
+        // The step size is equal to speed times frame time.
+        float singleStep = speed * Time.deltaTime;
+
+        // Rotate the forward vector towards the target direction by one step
+        Vector3 newDirection = Vector3.RotateTowards(transform.forward, targetDirection, singleStep, 10.0f);
+
+        // Draw a ray pointing at our target in
+        Debug.DrawRay(transform.position, newDirection, Color.red);
+
+        // Calculate a rotation a step closer to the target and applies rotation to this object
+        transform.rotation = Quaternion.LookRotation(newDirection);
     }
 }

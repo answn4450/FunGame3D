@@ -15,7 +15,7 @@ public class ObstacleController : MonoBehaviour
         player = GameObject.Find("Player");
     }
 
-    void Update()
+	void Update()
     {
         if (player)
         {

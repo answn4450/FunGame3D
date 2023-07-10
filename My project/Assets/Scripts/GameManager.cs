@@ -6,7 +6,7 @@ using UnityEngine.SceneManagement;
 
 public class GameManager: MonoBehaviour
 {
-    public CameraController camera;
+    public CameraController gameCamera;
     public PlayerController player;
     public UIController uiController;
 
@@ -31,12 +31,12 @@ public class GameManager: MonoBehaviour
                 uiController.DeadCountdown(LeftCountdown);
             else
                 SceneManager.LoadScene("StartMenu");
-            
-            camera.Revolution(LeftCountdown/NewCountdown * 360.0f);
+
+            gameCamera.AroundPoint(LeftCountdown/NewCountdown * 360.0f);
         }
         else
         {
-            camera.BehindPlayer(10.0f);
+            gameCamera.BehindPlayer(10.0f);
         }
     }
 }

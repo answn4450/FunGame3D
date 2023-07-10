@@ -32,7 +32,7 @@ public class CameraController : MonoBehaviour
 			);
 	}
 
-	public void Revolution(float deg)
+	public void AroundPoint(float deg)
 	{
 		transform.localPosition = new Vector3(
 			Mathf.Cos(Mathf.Deg2Rad * deg) * Length,
@@ -50,8 +50,8 @@ public class CameraController : MonoBehaviour
 			yield return null;
 			power -= Time.deltaTime;
 			ShakePower += new Vector3(
-				Random.RandomRange(-power, power),
-				Random.RandomRange(-power, power),
+				Random.Range(-power, power),
+				Random.Range(-power, power),
 				0.0f
 				);
         }

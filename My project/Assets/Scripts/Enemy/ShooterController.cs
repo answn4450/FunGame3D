@@ -10,21 +10,28 @@ public class ShooterController : MonoBehaviour
     public bool fire;
     public bool act;
 
+    private float minLocalY;
+    private float maxLocalY;
+    private float worldY;
+
     private void Awake()
     {
         fire = true;
+        minLocalY = -1.0f;
+        maxLocalY = 1.0f;
+        worldY = 0.0f;
     }
 
     void Start()
     {
-        
+        BindLocalY();
     }
 
     void Update()
     {
         if (act)
         {
-            if (fire && transform.position.y > 0.0f)
+            if (fire && worldY > 0.0f)
             {
                 fire = false;
                 bullet = Instantiate(PrefabManager.GetInstance().GetPrefabByName("Bullet"));
@@ -39,26 +46,19 @@ public class ShooterController : MonoBehaviour
 
         if (!fire && !bullet)
             fire = true;
+
     }
 
-    public void FollowPoint(Vector3 point)
+	private void LateUpdate()
+	{
+        SetPosition();
+    }
+
+	public void FollowPoint(Vector3 point)
     {
         float t = Mathf.Clamp01(Time.deltaTime);
-        float y = Mathf.Lerp(transform.position.y, point.y, t);
-        float beforeY = transform.position.y;
 
-        transform.position = new Vector3(
-            transform.position.x,
-            y,
-            transform.position.z
-            );
-
-        if (transform.localPosition.y > 1 || transform.localPosition.y < -1)
-            transform.position = new Vector3(
-                transform.position.x,
-                beforeY,
-                transform.position.z
-                );
+        worldY = Mathf.Lerp(worldY, point.y, t);
 
         float rotateDeg = (
             Mathf.Rad2Deg * -Mathf.Atan2(
@@ -82,5 +82,30 @@ public class ShooterController : MonoBehaviour
             Mathf.Lerp(shooterDeg, rotateDeg, t),
             0.0f
             );
+    }
+
+    private void SetPosition()
+	{
+        transform.position = new Vector3(
+            transform.position.x,
+            worldY,
+            transform.position.z
+            );
+
+        if (BindLocalY() != transform.localPosition.y)
+        {
+            transform.localPosition = new Vector3(
+                transform.localPosition.x,
+                BindLocalY(),
+                transform.localPosition.z
+                );
+        }
+    }
+
+    private float BindLocalY()
+    {
+        float bindY = Mathf.Clamp(transform.localPosition.y, minLocalY, maxLocalY);
+            
+        return bindY;
     }
 }

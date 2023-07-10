@@ -7,12 +7,18 @@ public class PlayerController : MonoBehaviour
     public bool dead;
     public float size;
     private float deadSize = 0.2f;
+    private Vector3 jumpPower;
+    private Vector3 boostPower;
+    private Vector3 lastPower;
 
     private void Awake()
     {
         size = 1.0f;
         deadSize = 0.2f;
         dead = false;
+        boostPower = new Vector3(0.0f, 5.0f, 0.0f);
+        lastPower = Vector3.zero;
+        jumpPower = boostPower;
     }
 
     private void Start()
@@ -43,20 +49,43 @@ public class PlayerController : MonoBehaviour
         turnSpeed = hardTurn ? 140.0f : 90.0f;
         speed = hardTurn ? 5.0f : 10.0f;
 
-        if (Input.GetKey(KeyCode.DownArrow))
-            movement -= speed * transform.forward;
-
-        if (Input.GetKey(KeyCode.UpArrow))
-            movement += speed * transform.forward;
-
         if (Input.GetKey(KeyCode.LeftArrow))
             turnDeg -= turnSpeed;
 
         if (Input.GetKey(KeyCode.RightArrow))
             turnDeg += turnSpeed;
 
-        transform.position += movement * Time.deltaTime;
+        if (Input.GetKey(KeyCode.LeftControl))
+		{
+            if (Input.GetKey(KeyCode.UpArrow))
+                transform.position += boostPower * Time.deltaTime;
+            if (Input.GetKey(KeyCode.DownArrow))
+                transform.position -= boostPower * Time.deltaTime;
+        }
+        else
+		{
+            if (Input.GetKey(KeyCode.DownArrow))
+            {
+                movement -= speed * transform.forward;
+                lastPower = movement/2;
+                jumpPower = -boostPower;
+            }
 
+            if (Input.GetKey(KeyCode.UpArrow))
+            {
+                movement += speed * transform.forward;
+                lastPower = movement/2;
+                jumpPower = boostPower;
+            }
+        }
+
+        lastPower = lastPower.normalized * Mathf.Lerp(
+            lastPower.magnitude, 0.0f, Time.deltaTime*2
+            );
+
+        transform.position += movement * Time.deltaTime;
+        Debug.Log(lastPower.magnitude);
+        transform.position += lastPower * Time.deltaTime;
         transform.Rotate(new Vector3(0.0f, turnDeg, 0.0f) * Time.deltaTime);
     }
 
@@ -92,7 +121,7 @@ public class PlayerController : MonoBehaviour
     public void Hurt()
 	{
         if (size > deadSize)
-            size -= 1;
+            size -= 0.1f;
         if (size < deadSize)
             size = deadSize;
 	}

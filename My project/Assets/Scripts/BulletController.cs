@@ -6,15 +6,18 @@ public class BulletController : MonoBehaviour
 {
     [HideInInspector]
     private float speed;
+    private bool stop;
 
     private void Awake()
     {
         speed = 10.0f;
+        stop = false;
     }
 
     void Update()
     {
-        transform.position += transform.forward * speed * Time.deltaTime;
+        if (!stop)
+            transform.position += transform.forward * speed * Time.deltaTime;
     }
 
 
@@ -24,6 +27,7 @@ public class BulletController : MonoBehaviour
         if (other.tag == "Player")
         {
             other.GetComponent<PlayerController>().Hurt();
+            //stop = true;
         }
     }
 
