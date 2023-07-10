@@ -5,21 +5,34 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour
 {
     public bool dead;
-    private int durability;
-    private float size = 1;
+    public float size;
     private float deadSize = 0.2f;
-    private float Health = 10.0f;
-    private Vector3 TurnAxis;
 
     private void Awake()
     {
-        durability = 5;
+        size = 1.0f;
+        deadSize = 0.2f;
         dead = false;
-        TurnAxis = new Vector3(0.0f, 1.0f, 0.0f);
-        transform.localScale = new Vector3(0.0f, 0.0f, 0.0f);
+    }
+
+    private void Start()
+    {
+        SetSphere(size);
     }
 
     void Update()
+    {
+        if (!dead)
+            Move();
+
+        SphereBySize(size);
+
+        if (CheckDead())
+            Explode();
+
+    }
+
+    private void Move()
     {
         Vector3 movement = Vector3.zero;
         float turnDeg = 0.0f;
@@ -29,17 +42,13 @@ public class PlayerController : MonoBehaviour
         hardTurn = (Input.GetKey(KeyCode.LeftShift));
         turnSpeed = hardTurn ? 140.0f : 90.0f;
         speed = hardTurn ? 5.0f : 10.0f;
-        
+
         if (Input.GetKey(KeyCode.DownArrow))
-		{
             movement -= speed * transform.forward;
-            print("sadf");
-		}
 
         if (Input.GetKey(KeyCode.UpArrow))
             movement += speed * transform.forward;
 
-        
         if (Input.GetKey(KeyCode.LeftArrow))
             turnDeg -= turnSpeed;
 
@@ -51,19 +60,29 @@ public class PlayerController : MonoBehaviour
         transform.Rotate(new Vector3(0.0f, turnDeg, 0.0f) * Time.deltaTime);
     }
 
-    public void KnockBack(float _damage)
+    private void SphereBySize(float size)
+	{
+        float newSize = Mathf.Lerp(
+            transform.localScale.x,
+            size,
+            Time.deltaTime
+            );
+
+        if (Mathf.Abs(size - newSize) < 0.01)
+            newSize = size;
+
+        SetSphere(newSize);
+	}
+
+    private void SetSphere(float r)
     {
-        Health -= _damage;
+        transform.localScale = GetSphere(r);
     }
 
-    private void SetSize(float size)
-	{
-        transform.localScale = new Vector3(size, size, size);
-	}
-
-    void ChangeSize(float newSize)
-	{
-	}
+    private Vector3 GetSphere(float r)
+    {
+        return new Vector3(r, r, r);
+    }
 
     public void Explode()
 	{
@@ -72,7 +91,14 @@ public class PlayerController : MonoBehaviour
 
     public void Hurt()
 	{
-        durability -= 1;
-        Explode();
+        if (size > deadSize)
+            size -= 1;
+        if (size < deadSize)
+            size = deadSize;
 	}
+
+    private bool CheckDead()
+    {
+        return transform.localScale.x <= deadSize;
+    }
 }

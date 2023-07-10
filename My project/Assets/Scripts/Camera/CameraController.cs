@@ -7,8 +7,8 @@ public class CameraController : MonoBehaviour
 	private float baseY0;
 	private float Length;
 
-	private GameObject target;
     private PlayerController Player;
+	private Vector3 ShakePower;
 
 	private void Awake()
 	{
@@ -16,40 +16,23 @@ public class CameraController : MonoBehaviour
 		Length = 14.0f;
 	}
 
-	private void Start()
-	{
-		target = GameObject.Find("Player");
-		Player = target.GetComponent<PlayerController>();
-	}
 
-	void Update()
+	public void BehindPlayer(float deg)
 	{
-		if (true)
-		{
-		}
-		else
-		{
-			SetTransform(10.0f);
-		}
-	}
-
-	private void SetTransform(float deg)
-	{
-		transform.position = new Vector3(
-			target.transform.position.x,
-			baseY0 + Mathf.Sin(Mathf.Deg2Rad * deg) * Length + target.transform.position.y,
-			Mathf.Cos(Mathf.Deg2Rad * deg) * Length + target.transform.position.z
+		transform.localPosition = new Vector3(
+			0.0f,
+			baseY0 + Mathf.Sin(Mathf.Deg2Rad * deg) * Length,
+			-Mathf.Cos(Mathf.Deg2Rad * deg) * Length
 			);
 
-		Vector3 plrDeg = target.transform.rotation.eulerAngles;
 		transform.localRotation = Quaternion.Euler(
-			deg + plrDeg.x, 
-			plrDeg.y,
-			plrDeg.z
+			deg, 
+			0.0f,
+			0.0f
 			);
 	}
 
-	public void SetTransformByY(float deg)
+	public void Revolution(float deg)
 	{
 		transform.localPosition = new Vector3(
 			Mathf.Cos(Mathf.Deg2Rad * deg) * Length,
@@ -57,6 +40,20 @@ public class CameraController : MonoBehaviour
 			Mathf.Sin(Mathf.Deg2Rad * deg) * Length
 			);
 
-		transform.localRotation = Quaternion.Euler(0.0f, deg, 0.0f);
+		transform.localRotation = Quaternion.Euler(0.0f, -(deg + 90.0f), 0.0f);
 	}
+
+	public IEnumerator Shake(float power)
+    {
+		if (power > 0.01)
+        {
+			yield return null;
+			power -= Time.deltaTime;
+			ShakePower += new Vector3(
+				Random.RandomRange(-power, power),
+				Random.RandomRange(-power, power),
+				0.0f
+				);
+        }
+    }
 }

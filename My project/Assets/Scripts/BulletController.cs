@@ -17,28 +17,18 @@ public class BulletController : MonoBehaviour
         transform.position += transform.forward * speed * Time.deltaTime;
     }
 
-    private void OnCollisionExit(Collision collision)
-    {
-        Destroy(gameObject);
-        //Debug.Log("a");
-    }
-
-    private void OnCollisionEnter(Collision collision)
-    {
-        //Debug.Log("b");
-    }
 
     private void OnTriggerEnter(Collider other)
     {
         Destroy(gameObject);
         if (other.tag == "Player")
+        {
             other.GetComponent<PlayerController>().Hurt();
-        //Debug.Log("c");
+        }
     }
 
     private void OnTriggerExit(Collider other)
     {
         Destroy(gameObject);
-        //Debug.Log("d");
     }
 }

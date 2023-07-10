@@ -2,35 +2,41 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class GameManager: MonoBehaviour
 {
-    public CameraController Camera;
-    private PlayerController Player;
-    
+    public CameraController camera;
+    public PlayerController player;
+    public UIController uiController;
+
     private float NewCountdown;
     private float LeftCountdown;
 
-    public GameObject DeadUI;
-    public Text TextCountdown;
 
     void Awake()
     {
         NewCountdown = 10.0f;
         LeftCountdown = NewCountdown;
-        Player = GameObject.Find("Player").GetComponent<PlayerController>();
     }
 
     void Update()
     {
-        if (Player.dead)
-        {
-            DeadUI.SetActive(true);
-            TextCountdown.text = ((int)(LeftCountdown + 0.9f)).ToString();
-            LeftCountdown -= Time.deltaTime;
+        uiController.UIPlay(player);
 
-            Camera.SetTransformByY(LeftCountdown/NewCountdown*360.0f);
-		}
-        DeadUI.SetActive(false);
+        if (player.dead)
+        {
+            LeftCountdown -= Time.deltaTime;
+            if (LeftCountdown > 0)
+                uiController.DeadCountdown(LeftCountdown);
+            else
+                SceneManager.LoadScene("StartMenu");
+            
+            camera.Revolution(LeftCountdown/NewCountdown * 360.0f);
+        }
+        else
+        {
+            camera.BehindPlayer(10.0f);
+        }
     }
 }
