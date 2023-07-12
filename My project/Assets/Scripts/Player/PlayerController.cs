@@ -4,21 +4,28 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+    public CameraController playerCamera;
+    public GameObject playerPoint;
+
     public bool dead;
     public float size;
+
     private float deadSize = 0.2f;
-    private Vector3 jumpPower;
-    private Vector3 boostPower;
-    private Vector3 lastPower;
+    private float rushPower;
+    private bool unAffect;
+    private float gravityPower;
+    private int bulletCount;
+
+    private float groundY = 0.0f;
 
     private void Awake()
     {
         size = 1.0f;
         deadSize = 0.2f;
         dead = false;
-        boostPower = new Vector3(0.0f, 5.0f, 0.0f);
-        lastPower = Vector3.zero;
-        jumpPower = boostPower;
+        unAffect = false;
+        gravityPower = 9.8f;
+        bulletCount = 1;
     }
 
     private void Start()
@@ -28,65 +35,75 @@ public class PlayerController : MonoBehaviour
 
     void Update()
     {
-        if (!dead)
-            Move();
-
+        CheckDead();
         SphereBySize(size);
 
-        if (CheckDead())
-            Explode();
+        if (!CollideGround())
+            Fall();
 
+        if (dead)
+            Explode();
+        else
+            Move();
+
+        BindPosition();
+    }
+
+    private void Fall()
+    {
+        gravityPower +=  Time.deltaTime;
+        transform.position -= Vector3.up * gravityPower * gravityPower * Time.deltaTime;
+        if (CollideGround())
+        {
+            gravityPower = 9.8f;
+            playerCamera.PushXY(Vector2.down * size*10);
+        }
+    }
+
+    private bool CollideGround()
+    {
+        return transform.position.y <= size * 0.5;
+    }
+
+    private void BindPosition()
+    {
+        if (transform.position.y < size * 0.5)
+        {
+            transform.position = new Vector3(
+                transform.position.x,
+                groundY + size * 0.5f,
+                transform.position.z
+                );
+        }
     }
 
     private void Move()
     {
         Vector3 movement = Vector3.zero;
         float turnDeg = 0.0f;
-        bool hardTurn;
         float turnSpeed;
         float speed;
-        hardTurn = (Input.GetKey(KeyCode.LeftShift));
+
+        bool hardTurn = (Input.GetKey(KeyCode.LeftShift));
+        float horizontal = Input.GetAxis("Horizontal");
+        float vertical = Input.GetAxis("Vertical");
+
         turnSpeed = hardTurn ? 140.0f : 90.0f;
         speed = hardTurn ? 5.0f : 10.0f;
 
-        if (Input.GetKey(KeyCode.LeftArrow))
-            turnDeg -= turnSpeed;
+        if (horizontal != 0)
+            turnDeg += turnSpeed * horizontal;
 
-        if (Input.GetKey(KeyCode.RightArrow))
-            turnDeg += turnSpeed;
-
-        if (Input.GetKey(KeyCode.LeftControl))
-		{
-            if (Input.GetKey(KeyCode.UpArrow))
-                transform.position += boostPower * Time.deltaTime;
-            if (Input.GetKey(KeyCode.DownArrow))
-                transform.position -= boostPower * Time.deltaTime;
-        }
-        else
-		{
-            if (Input.GetKey(KeyCode.DownArrow))
-            {
-                movement -= speed * transform.forward;
-                lastPower = movement/2;
-                jumpPower = -boostPower;
-            }
-
-            if (Input.GetKey(KeyCode.UpArrow))
-            {
-                movement += speed * transform.forward;
-                lastPower = movement/2;
-                jumpPower = boostPower;
-            }
-        }
-
-        lastPower = lastPower.normalized * Mathf.Lerp(
-            lastPower.magnitude, 0.0f, Time.deltaTime*2
-            );
+        if (vertical != 0)
+            movement += speed * vertical * transform.forward;
 
         transform.position += movement * Time.deltaTime;
-        Debug.Log(lastPower.magnitude);
-        transform.position += lastPower * Time.deltaTime;
         transform.Rotate(new Vector3(0.0f, turnDeg, 0.0f) * Time.deltaTime);
+    }
+
+    private void turnByPoint(float angle)
+    {
+        //transform.RotateAround
     }
 
     private void SphereBySize(float size)
@@ -126,8 +143,17 @@ public class PlayerController : MonoBehaviour
             size = deadSize;
 	}
 
-    private bool CheckDead()
+    private void CheckDead()
     {
-        return transform.localScale.x <= deadSize;
+        dead = transform.localScale.x <= deadSize;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+    }
+
+    public void AffectPower(Vector3 power)
+    {
+        transform.position += power * Time.deltaTime;
     }
 }

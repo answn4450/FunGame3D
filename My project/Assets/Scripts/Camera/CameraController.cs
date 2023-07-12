@@ -4,22 +4,46 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
+
+	[SerializeField, Min(0f)]
+	float
+		springStrength = 100f,
+		dampingStrength = 10f,
+		jostleStrength = 40f,
+		pushStrength = 1f;
+
+	private Vector3 anchorPosition, velocity, test;
+
 	private float baseY0;
 	private float Length;
-
-    private PlayerController Player;
-	private Vector3 ShakePower;
+	private PlayerController Player;
+	private Vector3 shakePower;
 
 	private void Awake()
 	{
 		baseY0 = 2.0f;
 		Length = 14.0f;
+		anchorPosition = transform.localPosition;
+		velocity = Vector3.zero;
 	}
 
+    private void LateUpdate()
+    {
+		Vector3 displacement = anchorPosition - transform.localPosition;
+		Vector3 acceleration = springStrength * displacement - dampingStrength * velocity;
+		velocity += acceleration * Time.deltaTime;
+		transform.localPosition += velocity * Time.deltaTime;
+	}
+
+	public void PushXY(Vector2 impulse)
+	{
+		velocity.x += pushStrength * impulse.x;
+		velocity.y += pushStrength * impulse.y;
+	}
 
 	public void BehindPlayer(float deg)
 	{
-		transform.localPosition = new Vector3(
+		anchorPosition = new Vector3(
 			0.0f,
 			baseY0 + Mathf.Sin(Mathf.Deg2Rad * deg) * Length,
 			-Mathf.Cos(Mathf.Deg2Rad * deg) * Length
@@ -34,7 +58,7 @@ public class CameraController : MonoBehaviour
 
 	public void AroundPoint(float deg)
 	{
-		transform.localPosition = new Vector3(
+		anchorPosition = new Vector3(
 			Mathf.Cos(Mathf.Deg2Rad * deg) * Length,
 			baseY0,
 			Mathf.Sin(Mathf.Deg2Rad * deg) * Length
@@ -49,7 +73,7 @@ public class CameraController : MonoBehaviour
         {
 			yield return null;
 			power -= Time.deltaTime;
-			ShakePower += new Vector3(
+			shakePower += new Vector3(
 				Random.Range(-power, power),
 				Random.Range(-power, power),
 				0.0f

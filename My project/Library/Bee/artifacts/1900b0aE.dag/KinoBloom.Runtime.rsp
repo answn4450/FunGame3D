@@ -333,7 +333,7 @@
 -r:"C:/Users/SGA/Desktop/국비김문주/unity/FunGame3D/My project/Library/PackageCache/com.unity.visualscripting@1.8.0/Runtime/VisualScripting.Flow/Dependencies/NCalc/Unity.VisualScripting.Antlr3.Runtime.dll"
 -r:"Library/Bee/artifacts/1900b0aE.dag/UnityEditor.UI.ref.dll"
 -r:"Library/Bee/artifacts/1900b0aE.dag/UnityEngine.UI.ref.dll"
-"Assets/JMO Assets/Cartoon FX Remaster/Demo Assets/Kino Bloom/Bloom.cs"
+"Assets/99.Resource/JMO Assets/Cartoon FX Remaster/Demo Assets/Kino Bloom/Bloom.cs"
 -langversion:9.0
 
 /deterministic

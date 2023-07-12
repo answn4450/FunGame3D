@@ -22,8 +22,6 @@ public class GameManager: MonoBehaviour
 
     void Update()
     {
-        uiController.UIPlay(player);
-
         if (player.dead)
         {
             LeftCountdown -= Time.deltaTime;
@@ -36,6 +34,7 @@ public class GameManager: MonoBehaviour
         }
         else
         {
+            uiController.UIPlay(player);
             gameCamera.BehindPlayer(10.0f);
         }
     }
