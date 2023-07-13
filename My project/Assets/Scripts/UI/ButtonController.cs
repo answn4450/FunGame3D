@@ -14,4 +14,9 @@ public class ButtonController : MonoBehaviour
 	{
 		SceneManager.LoadScene("StartMenu");
 	}
+
+	public void ButtonTutorial()
+	{
+		SceneManager.LoadScene("Tutorial");
+	}
 }

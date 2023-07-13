@@ -2,10 +2,14 @@ using UnityEngine;
 
 public class Test : MonoBehaviour
 {
+    public Transform to;
+    
     void Update()
     {
-        transform.localPosition = Vector3.down;
-        transform.position = Vector3.up;
+        float deg = Vector3.SignedAngle(transform.position, to.position, Vector3.forward);
+        deg = Quaternion.FromToRotation(Vector3.up, to.position - transform.position).eulerAngles.z;
+        //deg = Vector3.SignedAngle(transform.up, to.position - transform.position, Vector3.left);
+        Debug.Log(deg);
     }
 
 }

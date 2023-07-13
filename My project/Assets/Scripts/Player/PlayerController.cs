@@ -4,35 +4,44 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
+
     public CameraController playerCamera;
     public GameObject playerPoint;
 
     public bool dead;
     public float size;
 
-    private float deadSize = 0.2f;
-    private float rushPower;
-    private bool unAffect;
-    private float gravityPower;
-    private int bulletCount;
+    public GameObject turnPoint;
 
+    private float deadSize = 0.2f;
+    private float gravityPower;
+
+    private float groundX0;
+    private float groundX1;
     private float groundY = 0.0f;
+
+    private float turnLength = 2.0f;
+    private Vector3 affectPower;
+    private float rushTime;
 
     private void Awake()
     {
         size = 1.0f;
         deadSize = 0.2f;
         dead = false;
-        unAffect = false;
         gravityPower = 9.8f;
-        bulletCount = 1;
+        rushTime = 4.0f;
+        affectPower = Vector3.zero;
+        /*
+        groundX0 = 
+        */
     }
 
     private void Start()
     {
         SetSphere(size);
     }
-
+    
     void Update()
     {
         CheckDead();
@@ -44,10 +53,26 @@ public class PlayerController : MonoBehaviour
         if (dead)
             Explode();
         else
+		{
             Move();
+            if (Input.GetKeyUp(KeyCode.Space))
+                StartCoroutine(Rush());
+		}
 
         BindPosition();
     }
+
+    IEnumerator Rush()
+	{
+        while (rushTime >= 0.1f)
+		{
+            yield return null;
+            
+            //transform.position += Vector3.RotateTowards(transform.forward, transform.eulerAngles.y * transform.forward, 0.2f,6.2f) * Time.deltaTime;
+            rushTime -= Time.deltaTime;
+		}
+        rushTime = 2.0f;
+	}
 
     private void Fall()
     {
@@ -67,6 +92,18 @@ public class PlayerController : MonoBehaviour
 
     private void BindPosition()
     {
+        if (transform.position.x < groundX0)
+            transform.position = new Vector3(
+                groundX0, 
+                transform.position.y, 
+                transform.position.z);
+
+        if (transform.position.x > groundX1)
+            transform.position = new Vector3(
+                groundX1,
+                transform.position.y,
+                transform.position.z);
+
         if (transform.position.y < size * 0.5)
         {
             transform.position = new Vector3(
@@ -98,12 +135,17 @@ public class PlayerController : MonoBehaviour
             movement += speed * vertical * transform.forward;
 
         transform.position += movement * Time.deltaTime;
+        
         transform.Rotate(new Vector3(0.0f, turnDeg, 0.0f) * Time.deltaTime);
+        transform.position += affectPower;
     }
 
-    private void turnByPoint(float angle)
+    private void TurnByPoint()
     {
-        //transform.RotateAround
+        if (turnLength > 1.0f)
+            turnLength -= Time.deltaTime;
+
+        float deg = Vector3.RotateTowards(transform.position, turnPoint.transform.position, 0.0f, Time.deltaTime).y;
     }
 
     private void SphereBySize(float size)
@@ -154,6 +196,6 @@ public class PlayerController : MonoBehaviour
 
     public void AffectPower(Vector3 power)
     {
-        transform.position += power * Time.deltaTime;
+        affectPower += power * Time.deltaTime;
     }
 }

@@ -1,5 +1,5 @@
 fileFormatVersion: 2
-guid: 222483e639e54c5409329fe82e5a5efa
+guid: 6f95fa52e952f4445a80f4c78bf316fa
 TrueTypeFontImporter:
   externalObjects: {}
   serializedVersion: 4
@@ -10,7 +10,9 @@ TrueTypeFontImporter:
   includeFontData: 1
   fontNames:
   - Giants
-  fallbackFontReferences: []
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: 07816f1912590dd458f84730284a1efc, type: 3}
+  - {fileID: 12800000, guid: ec46962bd5144e247ac58d6f46dbea3c, type: 3}
   customCharacters: 
   fontRenderingMode: 0
   ascentCalculationMode: 1
