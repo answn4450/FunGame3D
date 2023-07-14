@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class JumperController : MonoBehaviour
 {
+    /*
     public ItemController itemController;
     private PlayerController player;
     private float power;
@@ -39,4 +40,5 @@ public class JumperController : MonoBehaviour
         }
         power = 9.8f;
     }
+    */
 }

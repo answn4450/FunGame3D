@@ -13,11 +13,15 @@ public class GameManager: MonoBehaviour
     private float NewCountdown;
     private float LeftCountdown;
 
+    private float groundWidth;
+    private float groundHeight;
 
     void Awake()
     {
         NewCountdown = 10.0f;
         LeftCountdown = NewCountdown;
+        groundWidth = 5.0f;
+        groundHeight = 5.0f;
     }
 
     void Update()
@@ -34,6 +38,7 @@ public class GameManager: MonoBehaviour
         }
         else
         {
+            //player.BindPosition(groundWidth * 0.5f, groundHeight * 0.5f);
             uiController.UIPlay(player);
             gameCamera.BehindPlayer(10.0f);
         }

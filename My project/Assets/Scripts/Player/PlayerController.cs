@@ -16,10 +16,6 @@ public class PlayerController : MonoBehaviour
     private float deadSize = 0.2f;
     private float gravityPower;
 
-    private float groundX0;
-    private float groundX1;
-    private float groundY = 0.0f;
-
     private float turnLength = 2.0f;
     private Vector3 affectPower;
     private float rushTime;
@@ -32,9 +28,6 @@ public class PlayerController : MonoBehaviour
         gravityPower = 9.8f;
         rushTime = 4.0f;
         affectPower = Vector3.zero;
-        /*
-        groundX0 = 
-        */
     }
 
     private void Start()
@@ -47,7 +40,7 @@ public class PlayerController : MonoBehaviour
         CheckDead();
         SphereBySize(size);
 
-        if (!CollideGround())
+        if (!OnGround())
             Fall();
 
         if (dead)
@@ -55,11 +48,10 @@ public class PlayerController : MonoBehaviour
         else
 		{
             Move();
+            transform.position += affectPower;
             if (Input.GetKeyUp(KeyCode.Space))
                 StartCoroutine(Rush());
 		}
-
-        BindPosition();
     }
 
     IEnumerator Rush()
@@ -78,19 +70,19 @@ public class PlayerController : MonoBehaviour
     {
         gravityPower +=  Time.deltaTime;
         transform.position -= Vector3.up * gravityPower * gravityPower * Time.deltaTime;
-        if (CollideGround())
+        if (OnGround())
         {
             gravityPower = 9.8f;
             playerCamera.PushXY(Vector2.down * size*10);
         }
     }
 
-    private bool CollideGround()
+    private bool OnGround()
     {
         return transform.position.y <= size * 0.5;
     }
 
-    private void BindPosition()
+    public void BindPosition(float groundX0, float groundX1)
     {
         if (transform.position.x < groundX0)
             transform.position = new Vector3(
@@ -108,7 +100,7 @@ public class PlayerController : MonoBehaviour
         {
             transform.position = new Vector3(
                 transform.position.x,
-                groundY + size * 0.5f,
+                size * 0.5f,
                 transform.position.z
                 );
         }
@@ -132,12 +124,11 @@ public class PlayerController : MonoBehaviour
             turnDeg += turnSpeed * horizontal;
 
         if (vertical != 0)
-            movement += speed * vertical * transform.forward;
+            movement += speed * vertical * transform.up;
 
-        transform.position += movement * Time.deltaTime;
-        
+        transform.position += movement * 0.01f;
+        Debug.Log(transform.forward);
         transform.Rotate(new Vector3(0.0f, turnDeg, 0.0f) * Time.deltaTime);
-        transform.position += affectPower;
     }
 
     private void TurnByPoint()
