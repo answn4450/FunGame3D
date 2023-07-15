@@ -16,6 +16,12 @@ public class PrefabManager
         return Instance;
     }
 
+    public int a = 1;
+    public void test()
+	{
+
+	}
+
     // ** 데이터 저장소
     private Dictionary<string, GameObject> prototypeObjectList = new Dictionary<string, GameObject>();
 
@@ -27,6 +33,8 @@ public class PrefabManager
         // ** 불러온 데이터를 Dictionary 에 보관
         foreach (GameObject element in prefabs)
             prototypeObjectList.Add(element.name, element);
+
+        Debug.Log("asd");
     }
 
     // ** 외부에서 보관중인 Prefab을 참조 할 수 있도록 Getter를 제공.

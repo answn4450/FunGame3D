@@ -20,6 +20,8 @@ public class PlayerController : MonoBehaviour
     private Vector3 affectPower;
     private float rushTime;
 
+    private float groundX0, groundX1, groundY;
+
     private void Awake()
     {
         size = 1.0f;
@@ -28,21 +30,27 @@ public class PlayerController : MonoBehaviour
         gravityPower = 9.8f;
         rushTime = 4.0f;
         affectPower = Vector3.zero;
+
+        groundX0 = -4.0f;
+        groundX1 = 4.0f;
+        groundY = 0.0f;
     }
 
     private void Start()
     {
         SetSphere(size);
+        PrefabManager.GetInstance().a = 30;
+        PrefabManager.GetInstance().test();
     }
     
     void Update()
     {
         CheckDead();
         SphereBySize(size);
-
-        if (!OnGround())
+        
+        if (transform.position.y > groundY + size * 0.5f)
             Fall();
-
+        
         if (dead)
             Explode();
         else
@@ -51,6 +59,8 @@ public class PlayerController : MonoBehaviour
             transform.position += affectPower;
             if (Input.GetKeyUp(KeyCode.Space))
                 StartCoroutine(Rush());
+
+            BindPosition();
 		}
     }
 
@@ -70,19 +80,14 @@ public class PlayerController : MonoBehaviour
     {
         gravityPower +=  Time.deltaTime;
         transform.position -= Vector3.up * gravityPower * gravityPower * Time.deltaTime;
-        if (OnGround())
+        if (transform.position.y <= groundY + size * 0.5f)
         {
             gravityPower = 9.8f;
             playerCamera.PushXY(Vector2.down * size*10);
         }
     }
 
-    private bool OnGround()
-    {
-        return transform.position.y <= size * 0.5;
-    }
-
-    public void BindPosition(float groundX0, float groundX1)
+    private void BindPosition()
     {
         if (transform.position.x < groundX0)
             transform.position = new Vector3(
@@ -96,11 +101,11 @@ public class PlayerController : MonoBehaviour
                 transform.position.y,
                 transform.position.z);
 
-        if (transform.position.y < size * 0.5)
+        if (transform.position.y < groundY + size * 0.5)
         {
             transform.position = new Vector3(
                 transform.position.x,
-                size * 0.5f,
+                groundY + size * 0.5f,
                 transform.position.z
                 );
         }
@@ -124,10 +129,9 @@ public class PlayerController : MonoBehaviour
             turnDeg += turnSpeed * horizontal;
 
         if (vertical != 0)
-            movement += speed * vertical * transform.up;
+            movement += speed * vertical * transform.forward;
 
         transform.position += movement * 0.01f;
-        Debug.Log(transform.forward);
         transform.Rotate(new Vector3(0.0f, turnDeg, 0.0f) * Time.deltaTime);
     }
 
