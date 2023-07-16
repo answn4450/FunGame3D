@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using UnityEngine.SceneManagement;
 
 public class TutorialController : MonoBehaviour
 {
@@ -11,7 +12,6 @@ public class TutorialController : MonoBehaviour
     public GameObject player;
     public GameObject movePoint;
     public int step;
-    private string requireString;
 
     private void Awake()
     {
@@ -20,7 +20,7 @@ public class TutorialController : MonoBehaviour
 
     void Start()
     {
-        requireString = "Enter -> 넘기기";
+        requireInfo.text = "Enter -> 넘기기";
         bigInfo.GetNewText("안녕 튜토리얼");
     }
 
@@ -31,7 +31,7 @@ public class TutorialController : MonoBehaviour
             if (Input.GetKeyDown(KeyCode.Return))
             {
                 bigInfo.GetNewText("방향키 조작");
-                requireString = "Enter -> 넘기기";
+                requireInfo.text = "Enter -> 넘기기";
                 step += 1;
             }
         }
@@ -45,15 +45,23 @@ public class TutorialController : MonoBehaviour
             if (distance < movePoint.transform.localScale.x)
             {
                 bigInfo.GetNewText("터치");
-                requireString = "<- 키, ";
+                requireInfo.text =  "<- 키, ";
                 //step++;
             }
         }
-        else if (step == 1)
-        {
-
+        if (step==2)
+		{
+            if (Input.GetKeyDown(KeyCode.Return))
+			{
+                bigInfo.GetNewText("튜토리얼 종료하고 게임 시작");
+                requireInfo.text =  "Enter -> 넘기기";
+                step++;
+			}
         }
-
-        requireInfo.text = requireString;
+        if (step == 3)
+		{
+            if (Input.GetKeyDown(KeyCode.Return))
+                SceneManager.LoadScene("Play");
+        }
     }
 }
