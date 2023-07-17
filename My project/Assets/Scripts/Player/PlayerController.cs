@@ -126,10 +126,16 @@ public class PlayerController : MonoBehaviour
         speed = hardTurn ? 5.0f : 10.0f;
 
         if (horizontal != 0)
+		{
             turnDeg += turnSpeed * horizontal;
+            playerCamera.SwivelZ(horizontal);
+		}
 
         if (vertical != 0)
+		{
             movement += speed * vertical * transform.forward;
+            playerCamera.ChangeFieldView(vertical);
+		}
 
         transform.position += movement * 0.01f;
         transform.Rotate(new Vector3(0.0f, turnDeg, 0.0f) * Time.deltaTime);

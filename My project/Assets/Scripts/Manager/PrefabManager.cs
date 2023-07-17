@@ -34,7 +34,6 @@ public class PrefabManager
         foreach (GameObject element in prefabs)
             prototypeObjectList.Add(element.name, element);
 
-        Debug.Log("asd");
     }
 
     // ** 외부에서 보관중인 Prefab을 참조 할 수 있도록 Getter를 제공.
