@@ -43,7 +43,7 @@ GameObject:
   - component: {fileID: 5765362167052357172}
   - component: {fileID: 5765362167052357173}
   - component: {fileID: 5765362167052357170}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: ShootCylinder
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -59,7 +59,7 @@ Transform:
   m_GameObject: {fileID: 5765362167052357175}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: -1.55, y: 4.93, z: 4.62}
-  m_LocalScale: {x: 1, y: 5.13, z: 1}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5765362166135322571}

@@ -16,12 +16,6 @@ public class PrefabManager
         return Instance;
     }
 
-    public int a = 1;
-    public void test()
-	{
-
-	}
-
     // ** 데이터 저장소
     private Dictionary<string, GameObject> prototypeObjectList = new Dictionary<string, GameObject>();
 

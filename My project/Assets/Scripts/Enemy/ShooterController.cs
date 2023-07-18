@@ -35,12 +35,7 @@ public class ShooterController : MonoBehaviour
             {
                 fire = false;
                 bullet = Instantiate(PrefabManager.GetInstance().GetPrefabByName("Bullet"));
-                bullet.transform.rotation = Quaternion.Euler(
-                         0.0f,
-                         transform.rotation.eulerAngles.y,
-                         0.0f
-                         );
-                bullet.transform.position = shootHead.transform.position;
+                bullet.GetComponent<BulletController>().BirthBullet(shootHead);
             }
         }
 

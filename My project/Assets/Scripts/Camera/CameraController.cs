@@ -106,10 +106,10 @@ public class CameraController : MonoBehaviour
 	{
 		if (Mathf.Abs(swivelDegZ) < 20.0f)
 		{
-			swivelDegZ -= Time.deltaTime * t * 10;
+			swivelDegZ -= Time.deltaTime * t * 2;
 		}
 		else if (Mathf.Abs(swivelDegZ - t) < Mathf.Abs(swivelDegZ))
-			swivelDegZ -= Time.deltaTime * t * 10;
+			swivelDegZ -= Time.deltaTime * t * 5;
 	}
 
 	public void ChangeFieldView(float t)

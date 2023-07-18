@@ -22,6 +22,9 @@ public class PlayerController : MonoBehaviour
 
     private float groundX0, groundX1, groundY;
 
+    private GameObject bullet;
+    private List<GameObject> bullets;
+
     private void Awake()
     {
         size = 1.0f;
@@ -39,8 +42,6 @@ public class PlayerController : MonoBehaviour
     private void Start()
     {
         SetSphere(size);
-        PrefabManager.GetInstance().a = 30;
-        PrefabManager.GetInstance().test();
     }
     
     void Update()
@@ -58,10 +59,44 @@ public class PlayerController : MonoBehaviour
             Move();
             transform.position += affectPower;
             if (Input.GetKeyUp(KeyCode.Space))
-                StartCoroutine(Rush());
+                Shot();
+
+            if (Input.GetKeyDown(KeyCode.Tab))
+                PlayerIsBullet();
 
             BindPosition();
 		}
+    }
+
+    private void UpdateBullets()
+    {
+        
+    }
+
+    private void Shot()
+    {
+        GameObject a = PrefabManager.GetInstance().GetPrefabByName("Bullet");
+        bullet = Instantiate(a);
+        bullet.GetComponent<BulletController>().BirthBullet(gameObject);
+        //bullets.Add(bullet);
+    }
+
+    private void PlayerIsBullet()
+    {
+        //CFX3_Hit_SmokePuff
+        //CFX_MagicPoof
+        //CFX4 Hit B (Orange)
+        if (bullet != null)
+        {
+            Vector3 pos = bullet.transform.position;
+            bullet.transform.position = transform.position;
+            transform.position = pos;
+
+            GameObject effect = Instantiate(
+                PrefabManager.GetInstance().GetPrefabByName("CFX_MagicPoof")
+            );
+            effect.transform.position = transform.position;
+        }
     }
 
     IEnumerator Rush()

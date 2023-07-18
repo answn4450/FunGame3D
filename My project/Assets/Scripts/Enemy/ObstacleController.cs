@@ -10,6 +10,9 @@ public class ObstacleController : MonoBehaviour
     public GameObject Bottom;
     public List<GameObject> shoots = new List<GameObject>();
 
+    private float standUpY = -4.0f;
+    private float standDownY = -6.0f;
+
     void Start()
     {
         player = GameObject.Find("Player");
@@ -19,14 +22,10 @@ public class ObstacleController : MonoBehaviour
     {
         if (player)
         {
+            float destY;
             if ((transform.position - player.transform.position).magnitude < detectLength)
             {
-                transform.position = new Vector3(
-                    transform.position.x,
-                    Mathf.Lerp(transform.position.y, 5.0f, Time.deltaTime),
-                    transform.position.z
-                    );
-
+                destY = standUpY;
                 foreach (GameObject shoot in shoots)
                 {
                     shoot.GetComponent<ShooterController>().act = true;
@@ -35,12 +34,15 @@ public class ObstacleController : MonoBehaviour
             }
             else
             {
-                transform.position = new Vector3(
+                destY = standDownY;
+            }
+            /*
+            transform.position = new Vector3(
                     transform.position.x,
-                    Mathf.Lerp(transform.position.y, -5.0f, Time.deltaTime),
+                    Mathf.Lerp(transform.position.y, destY, Time.deltaTime),
                     transform.position.z
                     );
-            }
+            */
         }
     }
 }
