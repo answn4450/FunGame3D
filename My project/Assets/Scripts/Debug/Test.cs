@@ -12,13 +12,6 @@ public class Test : MonoBehaviour
             test();
     }
 
-    public void test()
-    {
-        GameObject a = PrefabManager.GetInstance().GetPrefabByName("Bullet");
-        bullet = Instantiate(a);
-        bullet.transform.position = transform.position;
-        bullet.transform.forward = transform.forward;
-    }
 
     private void OnCollisionEnter(Collision collision)
     {
@@ -44,4 +37,9 @@ public class Test : MonoBehaviour
     {
 
     }
+
+    void test()
+	{
+        Debug.Break();
+	}
 }

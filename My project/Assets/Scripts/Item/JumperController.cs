@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class JumperController : MonoBehaviour
 {
-    /*
     public ItemController itemController;
     private PlayerController player;
     private float power;
@@ -16,23 +15,19 @@ public class JumperController : MonoBehaviour
         direction = transform.localRotation * Vector3.up;
     }
 
-    void Start()
-    {
-        player = itemController.player;
-    }
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.name == "Player")
         {
-            //player.AffectPower(Vector3.up * 24.0f);
+            player = other.GetComponent<PlayerController>();
             StartCoroutine(Push());
         }
     }
 
     IEnumerator Push()
     {
-        while (power < 9.8f + 6.0f)
+        while (power < 9.8f + 5.0f)
         {
             yield return null;
             player.AffectPower(direction * power * power);
@@ -40,5 +35,4 @@ public class JumperController : MonoBehaviour
         }
         power = 9.8f;
     }
-    */
 }

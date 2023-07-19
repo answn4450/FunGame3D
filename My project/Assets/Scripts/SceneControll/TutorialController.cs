@@ -10,6 +10,8 @@ public class TutorialController : MonoBehaviour
     public Text requireInfo;
     public GameObject player;
     public GameObject movePoint;
+    [SerializeField]
+    [Range(0,7)]
     public int step;
 
     private void Awake()

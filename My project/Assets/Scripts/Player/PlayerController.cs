@@ -13,11 +13,19 @@ public class PlayerController : MonoBehaviour
 
     public GameObject turnPoint;
 
+    public string structPositionName;
+    public string structTypeName;
+    public string attackTypeName;
+
+    public int useType;
+
+    private GameObject structPrefab;
     private float deadSize = 0.2f;
     private float gravityPower;
 
     private float turnLength = 2.0f;
     private Vector3 affectPower;
+    private Vector3 structPosition;
     private float rushTime;
 
     private float groundX0, groundX1, groundY;
@@ -37,36 +45,76 @@ public class PlayerController : MonoBehaviour
         groundX0 = -4.0f;
         groundX1 = 4.0f;
         groundY = 0.0f;
+
+        structPositionName = "플레이어 앞";
+        structTypeName = "점퍼";
+        attackTypeName = "일반 총알";
+
+        useType = 0;
     }
 
     private void Start()
     {
         SetSphere(size);
+        structPrefab = PrefabManager.GetInstance().GetPrefabByName("Jumper");
+        transform.position = Vector3.zero;
     }
     
     void Update()
     {
+        Command();
         CheckDead();
         SphereBySize(size);
-        
-        if (transform.position.y > groundY + size * 0.5f)
-            Fall();
-        
+
         if (dead)
             Explode();
         else
-		{
+        {
             Move();
-            transform.position += affectPower;
-            if (Input.GetKeyUp(KeyCode.Space))
-                Shot();
-
-            if (Input.GetKeyDown(KeyCode.Tab))
-                PlayerIsBullet();
+            transform.position += affectPower * Time.deltaTime;
+            if (transform.position.y > groundY + size * 0.5f)
+            {
+                Fall();
+            }
+            collisionGround();
 
             BindPosition();
+        }
+    }
+
+    private void Command()
+	{
+        if (Input.GetKeyDown(KeyCode.Q))
+            useType = 0;
+        if (Input.GetKeyDown(KeyCode.W))
+            useType = 1;
+        if (Input.GetKeyDown(KeyCode.E))
+            useType = 2;
+
+        if (Input.GetKeyDown(KeyCode.Space))
+		{
+            if (useType == 0)
+			{
+                
+			}
+            else if (useType == 1)
+			{
+                GameObject _struct = Instantiate(structPrefab);
+                _struct.transform.position = transform.position;
+            }
+            else if (useType == 2)
+			{
+                Shot();
+            }
+        }
+
+        if (Input.GetKeyDown(KeyCode.F))
+		{
+            if (useType == 2)
+                PlayerIsBullet();
 		}
     }
+
 
     private void UpdateBullets()
     {
@@ -113,13 +161,28 @@ public class PlayerController : MonoBehaviour
 
     private void Fall()
     {
-        gravityPower +=  Time.deltaTime;
-        transform.position -= Vector3.up * gravityPower * gravityPower * Time.deltaTime;
+        if (gravityPower < 9.8f + 6.0f)
+            gravityPower += Time.deltaTime;
+        if (gravityPower > 9.8f + 6.0f)
+            gravityPower = 9.8f + 6.0f;
+
+        transform.position += Vector3.down * gravityPower * gravityPower;
+    }
+
+    private void collisionGround()
+	{
+        if (transform.position.y < groundY + size * 0.5f)
+            playerCamera.PushXY(Vector2.down * size * affectPower.y * 0.5f);
         if (transform.position.y <= groundY + size * 0.5f)
         {
-            gravityPower = 9.8f;
-            playerCamera.PushXY(Vector2.down * size*10);
+            gravityPower = 0.0f;
+            affectPower = new Vector3(
+                affectPower.x,
+                0.0f,
+                affectPower.z
+                );
         }
+
     }
 
     private void BindPosition()

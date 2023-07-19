@@ -10,6 +10,8 @@ public class BulletController : MonoBehaviour
     private string parentName;
     private bool released;
 
+    private GameObject destroyFX;
+
     private void Awake()
     {
         speed = 10.0f;
@@ -17,7 +19,12 @@ public class BulletController : MonoBehaviour
         released = false;
     }
 
-    void Update()
+	private void Start()
+	{
+        destroyFX = PrefabManager.GetInstance().GetPrefabByName("CFXR3 Hit Fire B (Air)");
+	}
+
+	void Update()
     {
         if (!stop)
             transform.position += transform.forward * speed * Time.deltaTime;
@@ -32,14 +39,16 @@ public class BulletController : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (released)
+        if (other.tag == "Struct")
+		{
+            GameObject fx = Instantiate(destroyFX);
+            fx.transform.position = transform.position;
+		}
+        else if (released)
         {
-            Destroy(gameObject);
+            StartCoroutine(KnockBack(other.gameObject, 3.0f));
             if (other.tag == "Player")
-            {
                 other.GetComponent<PlayerController>().Hurt();
-                //stop = true;
-            }
         }
     }
 
@@ -49,17 +58,29 @@ public class BulletController : MonoBehaviour
             released = true;
         else if (released)
             Destroy(gameObject);
-
-        StartCoroutine(KnockBack(other.gameObject, 1));
+    
     }
 
     IEnumerator KnockBack(GameObject hit, float t)
     {
-        while (t>0.0f && hit != null)
+        while (t>0.0f && hit != null && gameObject != null)
         {
             yield return null;
             hit.transform.position += transform.forward * t * Time.deltaTime;
             t -= Time.deltaTime;
+        }
+
+        if (gameObject!=null)
+            Destroy(gameObject);
+    }
+
+    IEnumerator test(float a)
+    {
+        while (a > 0.0f)
+        {
+            yield return null;
+            a -= Time.deltaTime;
+            Debug.Log(a);
         }
     }
 }
