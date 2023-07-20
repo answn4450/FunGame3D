@@ -11,24 +11,40 @@ public class GameManager : MonoBehaviour
     public PlayerController player;
     public UIController uiController;
     public GameObject elevator;
-
     public int stage;
+
+    private GroundController ground;
 
     private float newCountdown;
     private float leftCountdown;
 
-    private float groundWidth;
-    private float groundHeight;
     void Awake()
     {
         newCountdown = 10.0f;
         leftCountdown = newCountdown;
-        groundWidth = 5.0f;
-        groundHeight = 5.0f;
+    }
+    
+    private void Start()
+    {
+        Status.GetInstance().structureUse = 0;
+        Status.GetInstance().structureMaxUse = 5;
+
+        float groundWidth = 15.0f;
+        float groundHeight = 15.0f;
+        GameObject groundObj = Instantiate(PrefabManager.GetInstance().GetPrefabByName("Ground1x1"));
+        groundObj.name = "Ground";
+        ground = groundObj.GetComponent<GroundController>();
+        ground.SetSize(groundWidth, groundHeight);
+        Status.GetInstance().groundWidth = groundWidth;
+        Status.GetInstance().groundHeight = groundHeight;
+
     }
 
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.V))
+            SwitchScene();
+
         if ((elevator.transform.position - player.transform.position).magnitude < 1.0f)
             SwitchScene();
 
@@ -53,6 +69,9 @@ public class GameManager : MonoBehaviour
     private void SwitchScene()
 	{
         if (stage == 0)
+        {
             Status.GetInstance().endGame = true;
+            SceneManager.LoadScene("StartMenu");
+        }
 	}
 }

@@ -22,13 +22,10 @@ public class PlayerController : MonoBehaviour
     private GameObject structPrefab;
     private float deadSize = 0.2f;
     private float gravityPower;
-
+    private bool onElevator;
     private float turnLength = 2.0f;
     private Vector3 affectPower;
-    private Vector3 structPosition;
-    private float rushTime;
 
-    private float groundX0, groundX1, groundY;
 
     private GameObject bullet;
     private List<GameObject> bullets;
@@ -39,13 +36,8 @@ public class PlayerController : MonoBehaviour
         deadSize = 0.2f;
         dead = false;
         gravityPower = 9.8f;
-        rushTime = 4.0f;
         affectPower = Vector3.zero;
-
-        groundX0 = -4.0f;
-        groundX1 = 4.0f;
-        groundY = 0.0f;
-
+        onElevator = false;
         structPositionName = "플레이어 앞";
         structTypeName = "점퍼";
         attackTypeName = "일반 총알";
@@ -68,18 +60,38 @@ public class PlayerController : MonoBehaviour
 
         if (dead)
             Explode();
-        else
+        else if (!onElevator)
         {
             Move();
-            transform.position += affectPower * Time.deltaTime;
-            if (transform.position.y > groundY + size * 0.5f)
-            {
+            if (transform.position.y > size * 0.5f)
                 Fall();
-            }
-            collisionGround();
-
-            BindPosition();
+            transform.position += affectPower * Time.deltaTime;
+            affectPower *= 1 - Time.deltaTime;
+            GroundCollision();
         }
+    }
+
+    public void Explode()
+    {
+        dead = true;
+    }
+
+    public void Hurt()
+    {
+        if (size > deadSize)
+            size -= 0.1f;
+        if (size < deadSize)
+            size = deadSize;
+    }
+
+    public void AffectPower(Vector3 power)
+    {
+        affectPower += power * Time.deltaTime;
+    }
+
+    public void OnElevator(GameObject elevator)
+    {
+        onElevator = true;
     }
 
     private void Command()
@@ -99,8 +111,12 @@ public class PlayerController : MonoBehaviour
 			}
             else if (useType == 1)
 			{
-                GameObject _struct = Instantiate(structPrefab);
-                _struct.transform.position = transform.position;
+                if (Status.GetInstance().structureUse < Status.GetInstance().structureMaxUse)
+                {
+                    GameObject _struct = Instantiate(structPrefab);
+                    _struct.transform.position = transform.position;
+                    Status.GetInstance().structureUse++;
+                }
             }
             else if (useType == 2)
 			{
@@ -116,11 +132,6 @@ public class PlayerController : MonoBehaviour
     }
 
 
-    private void UpdateBullets()
-    {
-        
-    }
-
     private void Shot()
     {
         GameObject a = PrefabManager.GetInstance().GetPrefabByName("Bullet");
@@ -131,9 +142,6 @@ public class PlayerController : MonoBehaviour
 
     private void PlayerIsBullet()
     {
-        //CFX3_Hit_SmokePuff
-        //CFX_MagicPoof
-        //CFX4 Hit B (Orange)
         if (bullet != null)
         {
             Vector3 pos = bullet.transform.position;
@@ -147,18 +155,6 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    IEnumerator Rush()
-	{
-        while (rushTime >= 0.1f)
-		{
-            yield return null;
-            
-            //transform.position += Vector3.RotateTowards(transform.forward, transform.eulerAngles.y * transform.forward, 0.2f,6.2f) * Time.deltaTime;
-            rushTime -= Time.deltaTime;
-		}
-        rushTime = 2.0f;
-	}
-
     private void Fall()
     {
         if (gravityPower < 9.8f + 6.0f)
@@ -169,43 +165,37 @@ public class PlayerController : MonoBehaviour
         transform.position += Vector3.down * gravityPower * gravityPower;
     }
 
-    private void collisionGround()
-	{
-        if (transform.position.y < groundY + size * 0.5f)
-            playerCamera.PushXY(Vector2.down * size * affectPower.y * 0.5f);
-        if (transform.position.y <= groundY + size * 0.5f)
-        {
-            gravityPower = 0.0f;
-            affectPower = new Vector3(
-                affectPower.x,
-                0.0f,
-                affectPower.z
-                );
-        }
-
-    }
-
-    private void BindPosition()
+    private void GroundCollision()
     {
-        if (transform.position.x < groundX0)
-            transform.position = new Vector3(
-                groundX0, 
-                transform.position.y, 
-                transform.position.z);
+        float groundWidthHalf = Status.GetInstance().groundWidth * 0.5f;
+        float groundHeightHalf = Status.GetInstance().groundHeight * 0.5f;
 
-        if (transform.position.x > groundX1)
+        if (transform.position.x < -groundWidthHalf || transform.position.x > groundWidthHalf)
             transform.position = new Vector3(
-                groundX1,
+                Mathf.Clamp(transform.position.x, -groundWidthHalf, groundWidthHalf),
                 transform.position.y,
-                transform.position.z);
-
-        if (transform.position.y < groundY + size * 0.5)
-        {
-            transform.position = new Vector3(
-                transform.position.x,
-                groundY + size * 0.5f,
                 transform.position.z
                 );
+
+        if (transform.position.x < -groundHeightHalf || transform.position.x > groundHeightHalf)
+            transform.position = new Vector3(
+                transform.position.x,
+                transform.position.y,
+                Mathf.Clamp(transform.position.x, -groundHeightHalf, groundHeightHalf)
+                );
+
+        if (transform.position.y < size * 0.5f)
+            playerCamera.PushXY(Vector2.down * size * affectPower.y * 0.5f);
+
+        if (transform.position.y <= size * 0.5f)
+        {
+            gravityPower = 0.0f;
+            transform.position = new Vector3(
+                transform.position.x,
+                size*0.5f,
+                transform.position.z
+                );
+            affectPower -= Vector3.down * affectPower.y;
         }
     }
 
@@ -239,14 +229,6 @@ public class PlayerController : MonoBehaviour
         transform.Rotate(new Vector3(0.0f, turnDeg, 0.0f) * Time.deltaTime);
     }
 
-    private void TurnByPoint()
-    {
-        if (turnLength > 1.0f)
-            turnLength -= Time.deltaTime;
-
-        float deg = Vector3.RotateTowards(transform.position, turnPoint.transform.position, 0.0f, Time.deltaTime).y;
-    }
-
     private void SphereBySize(float size)
 	{
         float newSize = Mathf.Lerp(
@@ -271,19 +253,6 @@ public class PlayerController : MonoBehaviour
         return new Vector3(r, r, r);
     }
 
-    public void Explode()
-	{
-        dead = true;
-	}
-
-    public void Hurt()
-	{
-        if (size > deadSize)
-            size -= 0.1f;
-        if (size < deadSize)
-            size = deadSize;
-	}
-
     private void CheckDead()
     {
         dead = transform.localScale.x <= deadSize;
@@ -293,8 +262,4 @@ public class PlayerController : MonoBehaviour
     {
     }
 
-    public void AffectPower(Vector3 power)
-    {
-        affectPower += power * Time.deltaTime;
-    }
 }

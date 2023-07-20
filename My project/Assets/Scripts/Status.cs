@@ -13,4 +13,8 @@ public class Status
 	}
 
     public bool endGame = false;
+    public float groundWidth = 5.0f;
+    public float groundHeight = 5.0f;
+    public int structureUse = 0;
+    public int structureMaxUse = 0;
 }

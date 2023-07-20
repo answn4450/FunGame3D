@@ -13,6 +13,8 @@ public class UIController : MonoBehaviour
     public Text playerStructPos;
     public Text playerStructType;
     public Text playerAttackType;
+    public Text structureUseStat;
+
     public GameObject DeadUI;
 
     private void Awake()
@@ -35,6 +37,7 @@ public class UIController : MonoBehaviour
         playerStructType.GetComponent<Text>().color = player.useType == 1 ? Color.black : Color.gray;
         playerAttackType.GetComponent<Text>().color = player.useType == 2 ? Color.black : Color.gray;
 
+        structureUseStat.text = Status.GetInstance().structureUse.ToString() + " / " + Status.GetInstance().structureMaxUse.ToString();
     }
 
     public void DeadCountdown(float countdown)
