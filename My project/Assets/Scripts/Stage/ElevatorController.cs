@@ -4,37 +4,39 @@ using UnityEngine;
 
 public class ElevatorController : MonoBehaviour
 {
-    private bool peak;
+    public int destStage;
+    private bool withPlayer;
+    public bool arrive;
+
     void Start()
     {
-        peak = false;
+        arrive = true;
     }
 
-    void Update()
+    private void LateUpdate()
     {
-        
+        withPlayer = false;
     }
 
-    private void OnTriggerEnter(Collider other)
+    private bool OnTriggerExit(Collider other)
+    {
+        return true;
+    }
+
+    public void OnTriggerEnter(Collider other)
     {
         if (other.name == "Player")
-        {
-            other.GetComponent<PlayerController>().OnElevator(gameObject);
-            On();
-        }
+            withPlayer = true;
     }
 
-    IEnumerator On()
+    public bool WithPlayer()
     {
-        while (!(peak && transform.position.y > 0.0f))
-        {
-            yield return null;
-            transform.position += Vector3.up * Time.deltaTime;
-            if (transform.position.y > 10.0f)
-            {
-                peak = true;
-                transform.position -= Vector3.down * 10.0f;
-            }
-        }
+        return withPlayer;
     }
+
+    public void MoveUpDown(int dir)
+    {
+
+    }
+
 }

@@ -17,4 +17,9 @@ public class Status
     public float groundHeight = 5.0f;
     public int structureUse = 0;
     public int structureMaxUse = 0;
+    public int maxStage = 3;
+    public int currentStage = 0;
+    public bool elevatorInScene = false;
+    public ElevatorController prevElevator = null;
+    public ElevatorController nextElevator = null;
 }

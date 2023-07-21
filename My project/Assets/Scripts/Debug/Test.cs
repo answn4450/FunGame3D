@@ -12,16 +12,13 @@ public class Test : MonoBehaviour
     {
         DontDestroyOnLoad(gameObject);
         //DontDestroyOnLoad(a);
-
         a.transform.position = Vector3.zero;
     }
 
     private void Update()
     {
-
         if (Input.GetKey(KeyCode.Space))
-            a.transform.position += Vector3.one * Time.deltaTime;
-        if (Input.GetKeyUp(KeyCode.Space))
-            SceneManager.LoadScene("Test");
+        {
+        }
     }
 }

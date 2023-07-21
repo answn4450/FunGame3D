@@ -6,7 +6,6 @@ public class PlayerController : MonoBehaviour
 {
 
     public CameraController playerCamera;
-    public GameObject playerPoint;
 
     public bool dead;
     public float size;
@@ -22,13 +21,10 @@ public class PlayerController : MonoBehaviour
     private GameObject structPrefab;
     private float deadSize = 0.2f;
     private float gravityPower;
-    private bool onElevator;
-    private float turnLength = 2.0f;
     private Vector3 affectPower;
 
 
     private GameObject bullet;
-    private List<GameObject> bullets;
 
     private void Awake()
     {
@@ -37,7 +33,6 @@ public class PlayerController : MonoBehaviour
         dead = false;
         gravityPower = 9.8f;
         affectPower = Vector3.zero;
-        onElevator = false;
         structPositionName = "플레이어 앞";
         structTypeName = "점퍼";
         attackTypeName = "일반 총알";
@@ -54,26 +49,22 @@ public class PlayerController : MonoBehaviour
     
     void Update()
     {
-        Command();
         CheckDead();
         SphereBySize(size);
+    }
 
-        if (dead)
-            Explode();
-        else if (!onElevator)
-        {
-            Move();
-            if (transform.position.y > size * 0.5f)
-                Fall();
-            transform.position += affectPower * Time.deltaTime;
-            affectPower *= 1 - Time.deltaTime;
-            GroundCollision();
-        }
+    public void WithAffectPower()
+    {
+        if (transform.position.y > size * 0.5f)
+            Fall();
+        transform.position += affectPower * Time.deltaTime;
+        affectPower *= 1 - Time.deltaTime;
+        GroundCollision();
     }
 
     public void Explode()
     {
-        dead = true;
+        //dead = true;
     }
 
     public void Hurt()
@@ -89,12 +80,7 @@ public class PlayerController : MonoBehaviour
         affectPower += power * Time.deltaTime;
     }
 
-    public void OnElevator(GameObject elevator)
-    {
-        onElevator = true;
-    }
-
-    private void Command()
+    public void Command()
 	{
         if (Input.GetKeyDown(KeyCode.Q))
             useType = 0;
@@ -186,6 +172,7 @@ public class PlayerController : MonoBehaviour
 
         if (transform.position.y < size * 0.5f)
             playerCamera.PushXY(Vector2.down * size * affectPower.y * 0.5f);
+            playerCamera.PushXY(Vector2.down * size * affectPower.y * 0.5f);
 
         if (transform.position.y <= size * 0.5f)
         {
@@ -199,7 +186,7 @@ public class PlayerController : MonoBehaviour
         }
     }
 
-    private void Move()
+    public void Move()
     {
         Vector3 movement = Vector3.zero;
         float turnDeg = 0.0f;

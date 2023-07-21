@@ -4,15 +4,15 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
-
 public class GameManager : MonoBehaviour
 {
-    public CameraController gameCamera;
-    public PlayerController player;
-    public UIController uiController;
-    public GameObject elevator;
-    public int stage;
+    private CameraController gameCamera;
+    private PlayerController player;
+    private UIController uiController;
 
+    public ElevatorController prevElevator;
+    public ElevatorController nextElevator;
+    
     private GroundController ground;
 
     private float newCountdown;
@@ -29,24 +29,24 @@ public class GameManager : MonoBehaviour
         Status.GetInstance().structureUse = 0;
         Status.GetInstance().structureMaxUse = 5;
 
-        float groundWidth = 15.0f;
-        float groundHeight = 15.0f;
-        GameObject groundObj = Instantiate(PrefabManager.GetInstance().GetPrefabByName("Ground1x1"));
-        groundObj.name = "Ground";
-        ground = groundObj.GetComponent<GroundController>();
-        ground.SetSize(groundWidth, groundHeight);
-        Status.GetInstance().groundWidth = groundWidth;
-        Status.GetInstance().groundHeight = groundHeight;
+        GameObject playSet = GameObject.Find("PlaySet");
+        player = playSet.transform.GetChild(1).gameObject.GetComponent<PlayerController>();
+        gameCamera = player.transform.GetChild(0).gameObject.GetComponent<CameraController>();
+        uiController = playSet.transform.GetChild(2).gameObject.GetComponent<UIController>();
+
+        GameObject ground = GameObject.Find("Ground");
+        Status.GetInstance().groundWidth = ground.transform.localScale.x;
+        Status.GetInstance().groundHeight = ground.transform.localScale.z;
 
     }
 
     void Update()
     {
-        if (Input.GetKeyDown(KeyCode.V))
-            SwitchScene();
+        if (prevElevator.WithPlayer() && prevElevator.arrive)
+            SwitchScene(-1);
 
-        if ((elevator.transform.position - player.transform.position).magnitude < 1.0f)
-            SwitchScene();
+        if (prevElevator.WithPlayer() && nextElevator.arrive)
+            SwitchScene(1);
 
         if (player.dead)
         {
@@ -60,18 +60,27 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-            //player.BindPosition(groundWidth * 0.5f, groundHeight * 0.5f);
+            player.Move();
+            player.Command();
+            player.WithAffectPower();
             uiController.UIPlay(player);
             gameCamera.BehindPlayer(10.0f);
         }
     }
 
-    private void SwitchScene()
+    public void SwapScene()
+    {
+
+    }
+
+    private void SwitchScene(int step)
 	{
-        if (stage == 0)
-        {
+        if (Status.GetInstance().currentStage + step > Status.GetInstance().maxStage)
             Status.GetInstance().endGame = true;
-            SceneManager.LoadScene("StartMenu");
+        else
+        {
+            Status.GetInstance().currentStage += step;
+            SceneManager.LoadScene("Stage" + Status.GetInstance().currentStage.ToString());
         }
 	}
 }
