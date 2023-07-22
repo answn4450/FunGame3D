@@ -80,7 +80,7 @@ public class GameManager : MonoBehaviour
         else
         {
             Status.GetInstance().currentStage += step;
-            SceneManager.LoadScene("Stage" + Status.GetInstance().currentStage.ToString());
+            SceneManager.LoadScene("PlayLoading");
         }
 	}
 }
