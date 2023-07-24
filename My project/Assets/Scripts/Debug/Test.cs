@@ -5,20 +5,14 @@ using UnityEngine.SceneManagement;
 
 public class Test : MonoBehaviour
 {
-    private GameObject bullet;
-    public GameObject a;
-    
-    private void Start()
-    {
-        DontDestroyOnLoad(gameObject);
-        //DontDestroyOnLoad(a);
-        a.transform.position = Vector3.zero;
-    }
-
     private void Update()
     {
-        if (Input.GetKey(KeyCode.Space))
+        if (Input.GetKeyDown(KeyCode.Space))
         {
+            GameObject a= GameObject.CreatePrimitive(PrimitiveType.Cube);
+            a.AddComponent<Rigidbody>();
+            a.GetComponent<Rigidbody>().useGravity = false;
+            
         }
     }
 }

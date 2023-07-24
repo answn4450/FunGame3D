@@ -9,6 +9,7 @@ public class BulletController : MonoBehaviour
     private bool stop;
     private string parentName;
     private bool released;
+    private bool transportPlayer;
 
     private GameObject destroyFX;
 
@@ -17,6 +18,7 @@ public class BulletController : MonoBehaviour
         speed = 10.0f;
         stop = false;
         released = false;
+        transportPlayer = false;
     }
 
 	private void Start()
@@ -37,6 +39,11 @@ public class BulletController : MonoBehaviour
         parentName = parent.transform.name;
     }
 
+    public void TransportPlayer(GameObject player)
+    {
+        transportPlayer = true;
+    }
+
     private void OnTriggerEnter(Collider other)
     {
         if (other.tag == "Struct")
@@ -47,8 +54,10 @@ public class BulletController : MonoBehaviour
         else if (released)
         {
             StartCoroutine(KnockBack(other.gameObject, 3.0f));
-            if (other.tag == "Player")
+            if (other.tag == "Player" && !transportPlayer)
+            {
                 other.GetComponent<PlayerController>().Hurt();
+            }
         }
     }
 

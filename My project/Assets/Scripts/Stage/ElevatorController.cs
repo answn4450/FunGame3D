@@ -4,23 +4,17 @@ using UnityEngine;
 
 public class ElevatorController : MonoBehaviour
 {
-    public int destStage;
     private bool withPlayer;
-    public bool arrive;
 
-    void Start()
-    {
-        arrive = true;
-    }
-
-    private void LateUpdate()
+    private void Awake()
     {
         withPlayer = false;
     }
 
-    private bool OnTriggerExit(Collider other)
+    private void OnTriggerExit(Collider other)
     {
-        return true;
+        if (other.name == "Player")
+            withPlayer = false;
     }
 
     public void OnTriggerEnter(Collider other)
@@ -29,14 +23,9 @@ public class ElevatorController : MonoBehaviour
             withPlayer = true;
     }
 
-    public bool WithPlayer()
+    public bool IsWithPlayer()
     {
         return withPlayer;
-    }
-
-    public void MoveUpDown(int dir)
-    {
-
     }
 
 }

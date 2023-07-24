@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using ManualKey;
 
 public class PlayerController : MonoBehaviour
 {
@@ -15,8 +16,6 @@ public class PlayerController : MonoBehaviour
     public string structPositionName;
     public string structTypeName;
     public string attackTypeName;
-
-    public int useType;
 
     private GameObject structPrefab;
     private float deadSize = 0.2f;
@@ -36,8 +35,6 @@ public class PlayerController : MonoBehaviour
         structPositionName = "플레이어 앞";
         structTypeName = "점퍼";
         attackTypeName = "일반 총알";
-
-        useType = 0;
     }
 
     private void Start()
@@ -58,7 +55,7 @@ public class PlayerController : MonoBehaviour
         if (transform.position.y > size * 0.5f)
             Fall();
         transform.position += affectPower * Time.deltaTime;
-        affectPower *= 1 - Time.deltaTime;
+        affectPower *= (1 - Time.deltaTime);
         GroundCollision();
     }
 
@@ -82,58 +79,88 @@ public class PlayerController : MonoBehaviour
 
     public void Command()
 	{
-        if (Input.GetKeyDown(KeyCode.Q))
-            useType = 0;
-        if (Input.GetKeyDown(KeyCode.W))
-            useType = 1;
-        if (Input.GetKeyDown(KeyCode.E))
-            useType = 2;
+        if (Input.GetKey((KeyCode)KeyboardQRow.BulletIsPlayer))
+            Status.GetInstance().qRowKey = KeyboardQRow.BulletIsPlayer;
+        else if (Input.GetKey((KeyCode)KeyboardQRow.StructOnBullet))
+            Status.GetInstance().qRowKey = KeyboardQRow.StructOnBullet;
+        else if (Input.GetKey((KeyCode)KeyboardQRow.Blank))
+            Status.GetInstance().qRowKey = KeyboardQRow.Blank;
+
+        if (Input.GetKey((KeyCode)KeyboardARow.Shot))
+            Status.GetInstance().aRowKey = KeyboardARow.Shot;
+        else if (Input.GetKey((KeyCode)KeyboardARow.Dash))
+            Status.GetInstance().aRowKey = KeyboardARow.Dash;
+        else if (Input.GetKey((KeyCode)KeyboardARow.Blank))
+            Status.GetInstance().aRowKey = KeyboardARow.Blank;
 
         if (Input.GetKeyDown(KeyCode.Space))
 		{
-            if (useType == 0)
-			{
-                
-			}
-            else if (useType == 1)
-			{
-                if (Status.GetInstance().structureUse < Status.GetInstance().structureMaxUse)
-                {
-                    GameObject _struct = Instantiate(structPrefab);
-                    _struct.transform.position = transform.position;
-                    Status.GetInstance().structureUse++;
-                }
-            }
-            else if (useType == 2)
-			{
-                Shot();
-            }
+            SpaceQRow();
         }
-
-        if (Input.GetKeyDown(KeyCode.F))
-		{
-            if (useType == 2)
-                PlayerIsBullet();
-		}
     }
 
+    private void SpaceQRow()
+    {
+        switch (Status.GetInstance().qRowKey)
+        {
+            case KeyboardQRow.StructOnBullet:
+                StructOnBullet();
+                break;
+            case KeyboardQRow.BulletIsPlayer:
+                PlayerIsBullet();
+                break;
+            case KeyboardQRow.Blank:
+                SpaceARow();
+                break;
+        }
+    }
+
+    private void SpaceARow()
+    {
+        switch (Status.GetInstance().aRowKey)
+        {
+            case KeyboardARow.Shot:
+                Shot();
+                break;
+            case KeyboardARow.Dash:
+                Dash();
+                break;
+        }
+    }
+
+    private void StructOnBullet()
+    {
+        if (Status.GetInstance().structureUse < Status.GetInstance().structureMaxUse)
+        {
+            if (bullet != null)
+            {
+                GameObject _struct = Instantiate(structPrefab);
+                _struct.transform.position = bullet.transform.position;
+                Status.GetInstance().structureUse++;
+            }
+        }
+    }
+
+    private void Dash()
+    {
+        Debug.Log("Dash");
+    }
 
     private void Shot()
     {
         GameObject a = PrefabManager.GetInstance().GetPrefabByName("Bullet");
         bullet = Instantiate(a);
         bullet.GetComponent<BulletController>().BirthBullet(gameObject);
-        //bullets.Add(bullet);
     }
 
     private void PlayerIsBullet()
     {
         if (bullet != null)
         {
+            //bullet.GetComponent<BulletController>().TransportPlayer(gameObject);
             Vector3 pos = bullet.transform.position;
             bullet.transform.position = transform.position;
             transform.position = pos;
-
             GameObject effect = Instantiate(
                 PrefabManager.GetInstance().GetPrefabByName("CFX_MagicPoof")
             );
@@ -153,36 +180,40 @@ public class PlayerController : MonoBehaviour
 
     private void GroundCollision()
     {
-        float groundWidthHalf = Status.GetInstance().groundWidth * 0.5f;
-        float groundHeightHalf = Status.GetInstance().groundHeight * 0.5f;
+        float groundX0 = Status.GetInstance().groundX0 + size * 0.5f;
+        float groundX1 = Status.GetInstance().groundX1 - size * 0.5f;
+        float groundZ0 = Status.GetInstance().groundZ0 + size * 0.5f;
+        float groundZ1 = Status.GetInstance().groundZ1 - size * 0.5f;
+        float groundY = Status.GetInstance().groundY + size * 0.5f;
 
-        if (transform.position.x < -groundWidthHalf || transform.position.x > groundWidthHalf)
+        if (transform.position.x < groundX0 || transform.position.x > groundX1)
             transform.position = new Vector3(
-                Mathf.Clamp(transform.position.x, -groundWidthHalf, groundWidthHalf),
+                Mathf.Clamp(transform.position.x, groundX0, groundX1),
                 transform.position.y,
                 transform.position.z
                 );
 
-        if (transform.position.x < -groundHeightHalf || transform.position.x > groundHeightHalf)
+        if (transform.position.z < groundZ0 || transform.position.z > groundZ1)
             transform.position = new Vector3(
                 transform.position.x,
                 transform.position.y,
-                Mathf.Clamp(transform.position.x, -groundHeightHalf, groundHeightHalf)
+                Mathf.Clamp(transform.position.z, groundZ0, groundZ1)
                 );
 
-        if (transform.position.y < size * 0.5f)
-            playerCamera.PushXY(Vector2.down * size * affectPower.y * 0.5f);
+        if (transform.position.y < groundY)
             playerCamera.PushXY(Vector2.down * size * affectPower.y * 0.5f);
 
-        if (transform.position.y <= size * 0.5f)
+        if (transform.position.y <= groundY)
         {
             gravityPower = 0.0f;
             transform.position = new Vector3(
                 transform.position.x,
-                size*0.5f,
+                groundY,
                 transform.position.z
                 );
-            affectPower -= Vector3.down * affectPower.y;
+            AffectPower(
+                Mathf.Min(affectPower.y - Time.deltaTime, 0.9f) * Vector3.down
+                );
         }
     }
 

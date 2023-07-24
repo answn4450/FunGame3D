@@ -1,6 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using ManualKey;
 
 public class Status
 {
@@ -12,9 +13,16 @@ public class Status
         return Instance;
 	}
 
+    public bool gotPlaySet = false;
+
     public bool endGame = false;
-    public float groundWidth = 5.0f;
-    public float groundHeight = 5.0f;
+    
+    public float groundX0;
+    public float groundX1;
+    public float groundZ0;
+    public float groundZ1;
+    public float groundY;
+
     public int structureUse = 0;
     public int structureMaxUse = 0;
     public int maxStage = 3;
@@ -22,4 +30,7 @@ public class Status
     public bool elevatorInScene = false;
     public ElevatorController prevElevator = null;
     public ElevatorController nextElevator = null;
+
+    public KeyboardQRow qRowKey = KeyboardQRow.BulletIsPlayer;
+    public KeyboardARow aRowKey = KeyboardARow.Shot;
 }

@@ -9,33 +9,33 @@ using System;
 public class PlayLoadingManager : MonoBehaviour
 {
     private AsyncOperation asyncOperation;
-    public Text text;
-    public Text messagetext;
-    public Image progressImage;
+    public Text loadingPercent;
     public Text nextStage;
-    public GameObject playSet;
+    //public Image progressImage;
 
     IEnumerator Start()
     {
-        asyncOperation = SceneManager.LoadSceneAsync("Stage" + Status.GetInstance().currentStage.ToString());
-        nextStage.text = Status.GetInstance().currentStage.ToString() + "Ãþ";
-        asyncOperation.allowSceneActivation = false;
-
-        while (!asyncOperation.isDone)
+        if (Status.GetInstance().gotPlaySet == false)
         {
-            //print(asyncOperation.progress);
-            float progress = Mathf.Clamp01(asyncOperation.progress / 0.9f);
-            text.text = (progress * 100f).ToString() + "%";
-            progressImage.GetComponent<Image>().fillAmount = progress;
-            yield return null;
+            Status.GetInstance().gotPlaySet = true;
 
-            if (progress > 0.7f)
+            asyncOperation = SceneManager.LoadSceneAsync("Stage" + Status.GetInstance().currentStage.ToString());
+            nextStage.text = Status.GetInstance().currentStage.ToString() + "Ãþ";
+            asyncOperation.allowSceneActivation = false;
+
+            while (!asyncOperation.isDone)
             {
-                messagetext.gameObject.SetActive(true);
+                //print(asyncOperation.progress);
+                float progress = Mathf.Clamp01(asyncOperation.progress / 0.9f);
+                loadingPercent.text = (progress * 100f).ToString() + "%";
+                //progressImage.GetComponent<Image>().fillAmount = progress;
+                yield return null;
 
-                if (Input.GetKey(KeyCode.Space))
-                    asyncOperation.allowSceneActivation = true;
-                    //playSet.SetActive(true);
+                if (progress > 0.7f)
+                {
+                    if (Input.GetKey(KeyCode.Space))
+                        asyncOperation.allowSceneActivation = true;
+                }
             }
         }
     }
