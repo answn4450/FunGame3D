@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class CameraController : MonoBehaviour
 {
-
 	[SerializeField, Min(0f)]
 	float
 		springStrength = 100f,
@@ -12,21 +11,32 @@ public class CameraController : MonoBehaviour
 		jostleStrength = 40f,
 		pushStrength = 1f;
 
-	private Vector3 anchorPosition, velocity, test;
+	private Vector3 anchorPosition, velocity;
 
+	private const float basicFieldViewDegree = 50.0f;
 	private float baseY0;
 	private float Length;
 	private PlayerController Player;
-	private Vector3 shakePower;
 	private float swivelDegZ;
 	private float fieldViewDegree;
+
 	private void Awake()
 	{
 		baseY0 = 2.0f;
 		Length = 14.0f;
-		anchorPosition = transform.localPosition;
 		velocity = Vector3.zero;
-		fieldViewDegree = 60.0f;
+		fieldViewDegree = basicFieldViewDegree;
+	}
+
+	private void Start()
+	{
+		BehindPlayer(10.0f);
+		transform.localPosition = anchorPosition;
+	}
+
+	private void Update()
+	{
+		BindTransform();
 	}
 
 	private void LateUpdate()
@@ -45,17 +55,11 @@ public class CameraController : MonoBehaviour
 		GetComponent<Camera>().fieldOfView = fieldViewDegree;
 	}
 
-	private void Update()
-	{
-		BindTransform();
-	}
-
 	private void BindTransform()
 	{
 		swivelDegZ = Mathf.Lerp(swivelDegZ, 0.0f, Time.deltaTime);
-		fieldViewDegree = Mathf.Lerp(fieldViewDegree, 60.0f, Time.deltaTime);
+		fieldViewDegree = Mathf.Lerp(fieldViewDegree, basicFieldViewDegree, Time.deltaTime);
 	}
-
 	public void PushXY(Vector2 impulse)
 	{
 		velocity.x += pushStrength * impulse.x;
@@ -76,7 +80,6 @@ public class CameraController : MonoBehaviour
 			0.0f
 			);
 	}
-
 	public void AroundPoint(float deg)
 	{
 		anchorPosition = new Vector3(
@@ -86,20 +89,6 @@ public class CameraController : MonoBehaviour
 			);
 
 		transform.localRotation = Quaternion.Euler(0.0f, -(deg + 90.0f), 0.0f);
-	}
-
-	public IEnumerator Shake(float power)
-	{
-		if (power > 0.01)
-		{
-			yield return null;
-			power -= Time.deltaTime;
-			shakePower += new Vector3(
-				Random.Range(-power, power),
-				Random.Range(-power, power),
-				0.0f
-				);
-		}
 	}
 
 	public void SwivelZ(float t)
@@ -114,7 +103,7 @@ public class CameraController : MonoBehaviour
 
 	public void ChangeFieldView(float t)
 	{
-		if (Mathf.Abs(fieldViewDegree + Time.deltaTime * t * 10.0f - 60)<20.0f)
+		if (Mathf.Abs(fieldViewDegree + Time.deltaTime * t * 10.0f - basicFieldViewDegree) <20.0f)
 			fieldViewDegree += Time.deltaTime * t * 10.0f;
 	}
 }

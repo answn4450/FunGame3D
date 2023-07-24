@@ -30,6 +30,9 @@ public class BulletController : MonoBehaviour
     {
         if (!stop)
             transform.position += transform.forward * speed * Time.deltaTime;
+
+        if (OutOfBound())
+            DestroySelf();
     }
 
     public void BirthBullet(GameObject parent)
@@ -39,18 +42,16 @@ public class BulletController : MonoBehaviour
         parentName = parent.transform.name;
     }
 
-    public void TransportPlayer(GameObject player)
+    public void RideWithPlayer(GameObject player)
     {
         transportPlayer = true;
+        player.transform.position = transform.position;
     }
 
     private void OnTriggerEnter(Collider other)
     {
         if (other.tag == "Struct")
-		{
-            GameObject fx = Instantiate(destroyFX);
-            fx.transform.position = transform.position;
-		}
+            DestroySelf();
         else if (released)
         {
             StartCoroutine(KnockBack(other.gameObject, 3.0f));
@@ -66,8 +67,34 @@ public class BulletController : MonoBehaviour
         if (!released && other.transform.name == parentName)
             released = true;
         else if (released)
-            Destroy(gameObject);
-    
+		{
+            if (other.tag != "Player")
+                DestroySelf();
+            else if (!transportPlayer)
+                DestroySelf();
+        }
+    }
+
+    private void DestroySelf()
+	{
+        GameObject fx = Instantiate(destroyFX);
+        fx.transform.position = transform.position;
+        Destroy(gameObject);
+    }
+
+    private bool OutOfBound()
+	{
+        float size = transform.localScale.x;
+        if (transform.position.x + size < Status.GetInstance().groundX0)
+            return true;
+        if (transform.position.x - size > Status.GetInstance().groundX1)
+            return true;
+        if (transform.position.z + size < Status.GetInstance().groundZ0)
+            return true;
+        if (transform.position.z - size > Status.GetInstance().groundZ1)
+            return true;
+
+        return false;
     }
 
     IEnumerator KnockBack(GameObject hit, float t)
@@ -75,7 +102,8 @@ public class BulletController : MonoBehaviour
         while (t>0.0f && hit != null && gameObject != null)
         {
             yield return null;
-            hit.transform.position += transform.forward * t * Time.deltaTime;
+            if (gameObject != null)
+                hit.transform.position += transform.forward * t * Time.deltaTime;
             t -= Time.deltaTime;
         }
 

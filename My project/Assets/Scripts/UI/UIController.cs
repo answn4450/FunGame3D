@@ -39,9 +39,6 @@ public class UIController : MonoBehaviour
 
     private void SpaceInfo()
     {
-        if (Status.GetInstance().qRowKey != KeyboardQRow.Blank)
-            spaceInfo.text = Status.GetInstance().qRowKey.ToString();
-        else
-            spaceInfo.text = Status.GetInstance().aRowKey.ToString();
+        spaceInfo.text = Status.GetInstance().spaceKey.ToString();
     }
 }

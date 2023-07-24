@@ -5,13 +5,10 @@ using ManualKey;
 
 public class PlayerController : MonoBehaviour
 {
-
     public CameraController playerCamera;
 
     public bool dead;
     public float size;
-
-    public GameObject turnPoint;
 
     public string structPositionName;
     public string structTypeName;
@@ -20,18 +17,38 @@ public class PlayerController : MonoBehaviour
     private GameObject structPrefab;
     private float deadSize = 0.2f;
     private float gravityPower;
+    private float horizontal;
+    private float vertical;
+
+    private float shotTimer;
+    private float dashTimer;
+
+    private bool canDash;
+    private bool rideBullet;
+
+    private Vector3 dashPower;
     private Vector3 affectPower;
 
 
-    private GameObject bullet;
+    public GameObject bullet;
 
     private void Awake()
     {
         size = 1.0f;
         deadSize = 0.2f;
-        dead = false;
         gravityPower = 9.8f;
+        horizontal = 0.0f;
+        vertical = 0.0f;
+
+        shotTimer = 0.0f;
+        dashTimer = 0.0f;
+
         affectPower = Vector3.zero;
+        
+        dead = false;
+        canDash = true;
+        rideBullet = false;
+
         structPositionName = "플레이어 앞";
         structTypeName = "점퍼";
         attackTypeName = "일반 총알";
@@ -46,8 +63,14 @@ public class PlayerController : MonoBehaviour
     
     void Update()
     {
+        if (shotTimer > 0.0f)
+            shotTimer -= Time.deltaTime;
+        if (dashTimer > 0.0f)
+            dashTimer -= Time.deltaTime;
         CheckDead();
         SphereBySize(size);
+        if (rideBullet)
+            RideBullet();
     }
 
     public void WithAffectPower()
@@ -79,52 +102,21 @@ public class PlayerController : MonoBehaviour
 
     public void Command()
 	{
-        if (Input.GetKey((KeyCode)KeyboardQRow.BulletIsPlayer))
-            Status.GetInstance().qRowKey = KeyboardQRow.BulletIsPlayer;
-        else if (Input.GetKey((KeyCode)KeyboardQRow.StructOnBullet))
-            Status.GetInstance().qRowKey = KeyboardQRow.StructOnBullet;
-        else if (Input.GetKey((KeyCode)KeyboardQRow.Blank))
-            Status.GetInstance().qRowKey = KeyboardQRow.Blank;
+        rideBullet = Input.GetKeyDown((KeyCode)KeyboardQRow.BulletIsPlayer);
+        if (Input.GetKeyDown((KeyCode)KeyboardQRow.StructOnBullet))
+            StructOnBullet();
 
-        if (Input.GetKey((KeyCode)KeyboardARow.Shot))
-            Status.GetInstance().aRowKey = KeyboardARow.Shot;
-        else if (Input.GetKey((KeyCode)KeyboardARow.Dash))
-            Status.GetInstance().aRowKey = KeyboardARow.Dash;
-        else if (Input.GetKey((KeyCode)KeyboardARow.Blank))
-            Status.GetInstance().aRowKey = KeyboardARow.Blank;
+        if (Input.GetKeyDown((KeyCode)KeyboardARow.Shot))
+            Status.GetInstance().spaceKey = KeyboardARow.Shot;
+        else if (Input.GetKeyDown((KeyCode)KeyboardARow.Dash))
+            Status.GetInstance().spaceKey = KeyboardARow.Dash;
 
-        if (Input.GetKeyDown(KeyCode.Space))
+        if (Input.GetKey(KeyCode.Space))
 		{
-            SpaceQRow();
-        }
-    }
-
-    private void SpaceQRow()
-    {
-        switch (Status.GetInstance().qRowKey)
-        {
-            case KeyboardQRow.StructOnBullet:
-                StructOnBullet();
-                break;
-            case KeyboardQRow.BulletIsPlayer:
-                PlayerIsBullet();
-                break;
-            case KeyboardQRow.Blank:
-                SpaceARow();
-                break;
-        }
-    }
-
-    private void SpaceARow()
-    {
-        switch (Status.GetInstance().aRowKey)
-        {
-            case KeyboardARow.Shot:
+            if (Status.GetInstance().spaceKey == KeyboardARow.Shot && shotTimer <= 0)
                 Shot();
-                break;
-            case KeyboardARow.Dash:
+            else if (Status.GetInstance().spaceKey == KeyboardARow.Dash && dashTimer <= 0 && canDash)
                 Dash();
-                break;
         }
     }
 
@@ -143,7 +135,8 @@ public class PlayerController : MonoBehaviour
 
     private void Dash()
     {
-        Debug.Log("Dash");
+        dashPower = 10.0f * transform.forward;
+        StartCoroutine(StaticDash());
     }
 
     private void Shot()
@@ -151,6 +144,31 @@ public class PlayerController : MonoBehaviour
         GameObject a = PrefabManager.GetInstance().GetPrefabByName("Bullet");
         bullet = Instantiate(a);
         bullet.GetComponent<BulletController>().BirthBullet(gameObject);
+        shotTimer = 0.2f;
+    }
+
+    IEnumerator StaticDash()
+	{
+        while (dashPower.magnitude > 0.0f)
+		{
+            yield return null;
+            dashPower *= (1-Time.deltaTime);
+            AffectPower(dashPower.normalized * 2);
+            canDash = false;
+		}
+        dashTimer = 3.0f;
+        canDash = true;
+	}
+
+    private void RideBullet()
+    {
+        if (bullet != null)
+        {
+            bullet.GetComponent<BulletController>().RideWithPlayer(gameObject);
+            //Debug.Log(Time.deltaTime);
+        }
+        else
+            rideBullet = false;
     }
 
     private void PlayerIsBullet()
@@ -223,10 +241,22 @@ public class PlayerController : MonoBehaviour
         float turnDeg = 0.0f;
         float turnSpeed;
         float speed;
-
         bool hardTurn = (Input.GetKey(KeyCode.LeftShift));
-        float horizontal = Input.GetAxis("Horizontal");
-        float vertical = Input.GetAxis("Vertical");
+
+        vertical *= 0.98f;
+        horizontal *= 0.98f;
+
+        if (Input.GetKey(KeyCode.DownArrow))
+            vertical -= Time.deltaTime;
+        if(Input.GetKey(KeyCode.UpArrow))
+            vertical += Time.deltaTime;
+        if (Input.GetKey(KeyCode.LeftArrow))
+            horizontal -= Time.deltaTime;
+        if (Input.GetKey(KeyCode.RightArrow))
+            horizontal += Time.deltaTime;
+
+        vertical = Mathf.Clamp(vertical, -1.0f, 1.0f);
+        horizontal = Mathf.Clamp(horizontal, -1.0f, 1.0f);
 
         turnSpeed = hardTurn ? 140.0f : 90.0f;
         speed = hardTurn ? 5.0f : 10.0f;

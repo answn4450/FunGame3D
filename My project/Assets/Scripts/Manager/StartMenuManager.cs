@@ -17,7 +17,6 @@ public class StartMenuManager : MonoBehaviour
     {
         int loadStage = Status.GetInstance().currentStage;
         SceneManager.LoadScene("Stage" + loadStage.ToString());
-        Debug.Log("d");
     }
 
     private void SetUpPlay()

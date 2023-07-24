@@ -31,6 +31,5 @@ public class Status
     public ElevatorController prevElevator = null;
     public ElevatorController nextElevator = null;
 
-    public KeyboardQRow qRowKey = KeyboardQRow.BulletIsPlayer;
-    public KeyboardARow aRowKey = KeyboardARow.Shot;
+    public KeyboardARow spaceKey = KeyboardARow.Shot;
 }

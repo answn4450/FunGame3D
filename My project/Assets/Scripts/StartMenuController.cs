@@ -8,7 +8,7 @@ public class StartMenuController : MonoBehaviour
     public CameraController playCam;
     public Text finish;
 
-    void Update()
+	void Update()
     {
         playCam.AroundPoint(10.0f);
         finish.text = Status.GetInstance().endGame ? "완료 했음" : "완료 필요";
