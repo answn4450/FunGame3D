@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using ManualKey;
 
+
 public class Status
 {
     private static Status Instance = null;

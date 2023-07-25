@@ -30,7 +30,7 @@ public class JumperController : MonoBehaviour
         {
             yield return null;
             player.AffectPower(direction * power * power * 0.6f);
-            power += Time.deltaTime * 2;
+            power += Time.deltaTime * 4;
         }
         power = 9.8f;
     }

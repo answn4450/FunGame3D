@@ -7,12 +7,12 @@ using ManualKey;
 
 public class GameManager : MonoBehaviour
 {
-    private CameraController gameCamera;
-    private PlayerController player;
-    private UIController uiController;
     public ElevatorController prevElevator;
     public ElevatorController nextElevator;
     public GameObject ground;
+    private CameraController gameCamera;
+    private PlayerController player;
+    private UIController uiController;
 
     private float newCountdown;
     private float leftCountdown;
@@ -49,6 +49,7 @@ public class GameManager : MonoBehaviour
 
         if (player)
         {
+            uiController.UIPlay(player);
             if (player.dead)
             {
                 leftCountdown -= Time.deltaTime;
@@ -61,11 +62,13 @@ public class GameManager : MonoBehaviour
             }
             else
             {
-                player.Move();
                 player.Command();
-                player.WithAffectPower();
-                uiController.UIPlay(player);
+                player.Move();
                 gameCamera.BehindPlayer(10.0f);
+                if (player.rideBullet)
+                    player.RideBullet();
+                else
+                    player.WithAffectPower();
             }
         }
     }

@@ -14,7 +14,6 @@ namespace ManualKey
     public enum KeyboardARow
     {
         Shot = KeyCode.A,
-        Dash = KeyCode.D,
         Blank = KeyCode.S,
     }
 }

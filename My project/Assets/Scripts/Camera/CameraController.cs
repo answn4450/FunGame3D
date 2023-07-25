@@ -22,8 +22,8 @@ public class CameraController : MonoBehaviour
 
 	private void Awake()
 	{
-		baseY0 = 2.0f;
-		Length = 14.0f;
+		baseY0 = 1.0f;
+		Length = 8.0f;
 		velocity = Vector3.zero;
 		fieldViewDegree = basicFieldViewDegree;
 	}
