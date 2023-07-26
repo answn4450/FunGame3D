@@ -8,7 +8,7 @@ public class CameraController : MonoBehaviour
 	float
 		springStrength = 100f,
 		dampingStrength = 10f,
-		jostleStrength = 40f,
+		//jostleStrength = 40f,
 		pushStrength = 1f;
 
 	private Vector3 anchorPosition, velocity;

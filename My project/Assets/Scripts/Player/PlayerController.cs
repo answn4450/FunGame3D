@@ -18,10 +18,10 @@ public class PlayerController : MonoBehaviour
     private float horizontal;
     private float vertical;
 
+    private float physicsScale;
     private float shotTimer;
 
     public bool rideBullet;
-    private bool canDash;
 
     private Vector3 affectPower;
 
@@ -36,13 +36,14 @@ public class PlayerController : MonoBehaviour
         horizontal = 0.0f;
         vertical = 0.0f;
 
+        physicsScale = 0.02f;
         shotTimer = 0.0f;
 
         affectPower = Vector3.zero;
         
         dead = false;
-        canDash = true;
         rideBullet = false;
+
     }
 
     private void Start()
@@ -64,11 +65,11 @@ public class PlayerController : MonoBehaviour
 
     public void WithAffectPower()
     {
-        if (transform.position.y > size * 0.5f)
+        if (transform.position.y > size * 0.5f + Status.GetInstance().groundY)
             Fall();
+        GroundCollision();
         transform.position += affectPower * Time.deltaTime;
         affectPower *= (1 - Time.deltaTime);
-        GroundCollision();
     }
 
     public void Explode()
@@ -86,7 +87,7 @@ public class PlayerController : MonoBehaviour
 
     public void AffectPower(Vector3 power)
     {
-        affectPower += power * Time.deltaTime;
+        affectPower += power * Time.deltaTime * physicsScale;
     }
 
     public void Move()
@@ -120,7 +121,7 @@ public class PlayerController : MonoBehaviour
         if (horizontal != 0)
         {
             if (crabWalk)
-                transform.position += transform.right * horizontal * Time.deltaTime;
+                transform.position += transform.right * horizontal * speed * Time.deltaTime;
             else
             {
                 turnDeg += turnSpeed * horizontal;
@@ -226,7 +227,7 @@ public class PlayerController : MonoBehaviour
         if (gravityPower > 9.8f + 6.0f)
             gravityPower = 9.8f + 6.0f;
 
-        transform.position += Vector3.down * gravityPower * gravityPower;
+        transform.position += Vector3.down * gravityPower * gravityPower * Time.deltaTime;
     }
 
     private void GroundCollision()
@@ -256,14 +257,12 @@ public class PlayerController : MonoBehaviour
 
         if (transform.position.y <= groundY)
         {
-            gravityPower = 0.0f;
+            float bounceY = 10 * (gravityPower + affectPower.y) * (gravityPower + affectPower.y);
+            AffectPower(Vector3.up * bounceY);
             transform.position = new Vector3(
                 transform.position.x,
                 groundY,
                 transform.position.z
-                );
-            AffectPower(
-                Mathf.Min(affectPower.y - Time.deltaTime, 0.9f) * Vector3.down
                 );
         }
     }

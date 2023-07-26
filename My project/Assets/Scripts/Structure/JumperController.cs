@@ -26,11 +26,11 @@ public class JumperController : MonoBehaviour
 
     IEnumerator Push()
     {
-        while (power < 9.8f + 1.0f)
+        while (power < 9.8f + 3.0f)
         {
             yield return null;
-            player.AffectPower(direction * power * power * 0.6f);
-            power += Time.deltaTime * 4;
+            player.AffectPower(direction * power * power);
+            power += Time.deltaTime;
         }
         power = 9.8f;
     }
