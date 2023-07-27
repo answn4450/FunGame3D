@@ -12,6 +12,7 @@ public class GameManager : MonoBehaviour
     public GameObject ground;
     private CameraController gameCamera;
     private PlayerController player;
+    private PlayerEyeController playerEye;
     private UIController uiController;
 
     private float newCountdown;
@@ -34,18 +35,22 @@ public class GameManager : MonoBehaviour
         Status.GetInstance().groundY = ground.transform.position.y + 0.5f;
         
         GameObject playSet = GameObject.Find("PlaySet");
-        player = playSet.transform.GetChild(1).gameObject.GetComponent<PlayerController>();
-        gameCamera = player.transform.GetChild(0).gameObject.GetComponent<CameraController>();
+        GameObject playerSet = GameObject.Find("PlayerSet");
+        
         uiController = playSet.transform.GetChild(2).gameObject.GetComponent<UIController>();
+        
+        player = playerSet.transform.GetChild(0).gameObject.GetComponent<PlayerController>();
+        playerEye = playerSet.transform.GetChild(1).gameObject.GetComponent<PlayerEyeController>();
+        gameCamera = playerEye.transform.GetChild(0).gameObject.GetComponent<CameraController>();
     }
 
     void Update()
     {
         if (prevElevator != null && prevElevator.IsWithPlayer())
-            SwitchScene(-1);
+            prevElevator.MovePlayer();
 
         if (nextElevator != null && nextElevator.IsWithPlayer())
-            SwitchScene(1);
+            nextElevator.MovePlayer();
 
         if (player)
         {
@@ -72,21 +77,4 @@ public class GameManager : MonoBehaviour
             }
         }
     }
-
-
-    private void SwitchScene(int step)
-	{
-        int nextStage = Status.GetInstance().currentStage + step;
-        if (nextStage >= Status.GetInstance().maxStage)
-        {
-            Status.GetInstance().endGame = true;
-            SceneManager.LoadScene("StartMenu");
-            Destroy(gameObject);
-        }
-        else if (nextStage >= 0)
-        {
-            Status.GetInstance().currentStage = nextStage;
-            SceneManager.LoadScene("Stage" + nextStage.ToString());
-        }
-	}
 }

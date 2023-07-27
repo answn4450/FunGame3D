@@ -852,9 +852,15 @@ PrefabInstance:
       propertyPath: m_Name
       value: PlaySet
       objectReference: {fileID: 0}
+    - target: {fileID: 3001018382612723088, guid: e322e337acbf99540b317bd50009e9a2, type: 3}
+      propertyPath: m_Name
+      value: PlayerSet
+      objectReference: {fileID: 0}
     - target: {fileID: 3001018382649543238, guid: e322e337acbf99540b317bd50009e9a2, type: 3}
       propertyPath: m_ClearFlags
       value: 2
       objectReference: {fileID: 0}
-    m_RemovedComponents: []
+    m_RemovedComponents:
+    - {fileID: 1859601662760280478, guid: e322e337acbf99540b317bd50009e9a2, type: 3}
+    - {fileID: 4932013435047561052, guid: e322e337acbf99540b317bd50009e9a2, type: 3}
   m_SourcePrefab: {fileID: 100100000, guid: e322e337acbf99540b317bd50009e9a2, type: 3}

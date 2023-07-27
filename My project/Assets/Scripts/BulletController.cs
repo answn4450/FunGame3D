@@ -59,6 +59,8 @@ public class BulletController : MonoBehaviour
             {
                 other.GetComponent<PlayerController>().Hurt();
             }
+            else if (other.transform.GetComponent<FollowerController>())
+                other.transform.GetComponent<FollowerController>().Hurt();
         }
     }
 

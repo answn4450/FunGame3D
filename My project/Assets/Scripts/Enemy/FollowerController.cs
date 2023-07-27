@@ -13,13 +13,17 @@ public class FollowerController : MonoBehaviour
     public int familyCount;
     public int maxFamilyCount;
     private GameObject destroyFX;
-
+    private bool dead;
+    private float size;
+    private const float deadSize = 0.2f;
     private void Awake()
     {
         parent = null;
         child = null;
         familyCount = 1;
-        maxFamilyCount = 2;
+        maxFamilyCount = 12;
+        dead = false;
+        size = 1.0f;
     }
 
     void Start()
@@ -33,9 +37,19 @@ public class FollowerController : MonoBehaviour
     void Update()
     {
         FollowTarget(player.transform.position);
+        CheckDead();
+        SphereBySize(size);
+        if (dead)
+            Explode();
     }
 
-    private void FollowTarget(Vector3 position)
+	private void OnTriggerEnter(Collider other)
+	{
+        if (other.tag == "Player")
+            other.transform.GetComponent<PlayerController>().Hurt();
+	}
+
+	private void FollowTarget(Vector3 position)
     {
         Vector3 direction = position - transform.position;
         float step = Time.deltaTime * 0.01f;
@@ -58,10 +72,33 @@ public class FollowerController : MonoBehaviour
         while (true)
         {
             yield return familyCount <= maxFamilyCount ? new WaitForSeconds(3.0f) : null;
-            Breeding();
-            if (familyCount > maxFamilyCount && !parent)
-                Explode();
+            if (!parent)
+			{
+                if (familyCount < maxFamilyCount)
+                    DoubleBreeding(familyCount);
+                if (familyCount > maxFamilyCount)
+                    Explode();
+			}
         }
+    }
+
+    private void DoubleBreeding(int count)
+	{
+        if (count > 0)
+		{
+            --count;
+            Breeding();
+            child.DoubleBreeding(count);
+		}
+	}
+
+    public void Hurt()
+    {
+        if (size > deadSize)
+            size -= 0.1f;
+        if (size < deadSize)
+            size = deadSize;
+
     }
 
     private void Breeding()
@@ -105,4 +142,35 @@ public class FollowerController : MonoBehaviour
             parent.PassFamilyCountToChild(_newCount);
     }
 
+    private void SetSphere(float r)
+    {
+        transform.localScale = GetSphere(r);
+    }
+
+    private void CheckDead()
+    {
+        bool before = dead;
+        dead = size <= deadSize;
+        if (dead && !before)
+            Explode();
+    }
+
+    private Vector3 GetSphere(float r)
+    {
+        return new Vector3(r, r, r);
+    }
+
+    private void SphereBySize(float size)
+    {
+        float newSize = Mathf.Lerp(
+            transform.localScale.x,
+            size,
+            Time.deltaTime
+            );
+
+        if (Mathf.Abs(size - newSize) < 0.01)
+            newSize = size;
+
+        SetSphere(newSize);
+    }
 }
