@@ -6,19 +6,8 @@ using StructureCollision;
 
 public class Test : MonoBehaviour
 {
-    public Test child;
-    public int b;
-
-    private void Start()
+    private void Update()
     {
-        StartCoroutine(a());
-    }
-
-    IEnumerator a()
-    {
-        while (true)
-        {
-            yield return null;
-        }
+        Debug.Log(transform.position);
     }
 }

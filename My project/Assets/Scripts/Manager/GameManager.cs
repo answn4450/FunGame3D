@@ -9,7 +9,7 @@ public class GameManager : MonoBehaviour
 {
     public ElevatorController prevElevator;
     public ElevatorController nextElevator;
-    public GameObject ground;
+    public GroundManager ground;
     private CameraController gameCamera;
     private PlayerController player;
     private PlayerEyeController playerEye;
@@ -22,10 +22,6 @@ public class GameManager : MonoBehaviour
     {
         newCountdown = 10.0f;
         leftCountdown = newCountdown;
-    }
-    
-    private void Start()
-    {
         Status.GetInstance().structureUse = 0;
         Status.GetInstance().structureMaxUse = 5;
         Status.GetInstance().groundX0 = ground.transform.position.x - ground.transform.localScale.x * 0.5f;
@@ -33,6 +29,11 @@ public class GameManager : MonoBehaviour
         Status.GetInstance().groundZ0 = ground.transform.position.z - ground.transform.localScale.z * 0.5f;
         Status.GetInstance().groundZ1 = ground.transform.position.z + ground.transform.localScale.z * 0.5f;
         Status.GetInstance().groundY = ground.transform.position.y + 0.5f;
+    }
+    
+    private void Start()
+    {
+        transform.position = Vector3.zero;
         
         GameObject playSet = GameObject.Find("PlaySet");
         GameObject playerSet = GameObject.Find("PlayerSet");
@@ -67,13 +68,17 @@ public class GameManager : MonoBehaviour
             }
             else
             {
+                ground.UpDownByPlayer(player);
                 player.Command();
                 player.Move();
-                gameCamera.BehindPlayer(10.0f);
+
                 if (player.rideBullet)
                     player.RideBullet();
                 else
                     player.WithAffectPower();
+                
+                gameCamera.BehindPlayer(10.0f);
+                player.BindPosition();
             }
         }
     }

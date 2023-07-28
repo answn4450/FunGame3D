@@ -59,6 +59,8 @@ public class BulletController : MonoBehaviour
             {
                 other.GetComponent<PlayerController>().Hurt();
             }
+            else if (other.tag == "Ground")
+                other.GetComponent<GroundController>().SqueezeGround();
             else if (other.transform.GetComponent<FollowerController>())
                 other.transform.GetComponent<FollowerController>().Hurt();
         }

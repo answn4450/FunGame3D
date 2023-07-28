@@ -6,6 +6,7 @@ TagManager:
   tags:
   - Struct
   - FxTemporaire
+  - Ground
   layers:
   - Default
   - TransparentFX
