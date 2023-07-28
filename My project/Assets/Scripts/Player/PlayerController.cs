@@ -159,17 +159,12 @@ public class PlayerController : MonoBehaviour
 
     public void AffectPower(Vector3 power)
     {
-        affectPower += power * Time.deltaTime * physicsScale;
+        affectPower += CollideReflect(power * Time.deltaTime * physicsScale);
     }
 
     public void Explode()
     {
         Instantiate(explodeFX, transform.position, transform.rotation);
-    }
-
-    private bool FallCheck()
-    {
-        return false;
     }
 
     public void RideBullet()
@@ -185,8 +180,7 @@ public class PlayerController : MonoBehaviour
 
     private void SafeMove(Vector3 movement)
     {
-        Vector3 dir = movement * Time.deltaTime;
-        transform.position += dir;
+        transform.position += CollideReflect(movement);
     }
 
     private Vector3 GetMovement()
@@ -340,6 +334,27 @@ public class PlayerController : MonoBehaviour
                 );
         }
     }
+
+    private Vector3 CollideReflect(Vector3 inMove)
+	{
+        //inMove += inMove.normalized * size * 0.5f;
+        Vector3 outDirection = inMove.normalized;
+        float outDistance = inMove.magnitude;
+        int onGroundIndexX = Tools.GetInstance().GetGroundIndexX(transform.position.x);
+        int onGroundIndexZ = Tools.GetInstance().GetGroundIndexZ(transform.position.z);
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position, inMove, out hit, inMove.magnitude, groundMask))
+        {
+            int collideGroundIndexX = Tools.GetInstance().GetGroundIndexX(hit.transform.position.x);
+            int collideGroundIndexZ = Tools.GetInstance().GetGroundIndexZ(hit.transform.position.z);
+            //if (onGroundIndexX == collideGroundIndexX && onGroundIndexZ == collideGroundIndexZ)
+                return outDirection * outDistance * Time.deltaTime;
+        }
+        else
+            return outDirection * outDistance * Time.deltaTime;
+	}
+
+    
 
     private void GroundGravityCollision()
     {

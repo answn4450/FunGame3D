@@ -23,6 +23,7 @@ public class Status
     public float groundZ0;
     public float groundZ1;
     public float groundY;
+    public float groundY1;
 
     public int structureUse = 0;
     public int structureMaxUse = 0;

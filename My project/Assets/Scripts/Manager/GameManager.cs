@@ -68,7 +68,8 @@ public class GameManager : MonoBehaviour
             }
             else
             {
-                ground.UpDownByPlayer(player);
+                ground.UpDownOrSqueeze(player);
+                
                 player.Command();
                 player.Move();
 

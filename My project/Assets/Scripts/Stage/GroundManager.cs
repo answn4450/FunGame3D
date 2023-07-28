@@ -41,22 +41,16 @@ public class GroundManager : MonoBehaviour
         }
     }
 
-    public void UpDownByPlayer(PlayerController player)
+    public void UpDownOrSqueeze(PlayerController player)
     {
         for (int x = 0; x < sizeX; ++x)
         {
             for (int z = 0; z < sizeZ; ++z)
             {
-                groundList[x][z].UpDownByTarget(player.transform);
+                //groundList[x][z].UpDownByTarget(player.transform);
+                groundList[x][z].UpDownOrSqueeze(player);
             }
         }
-    }
-
-    public void SqueezeGround(Vector3 position)
-    {
-        GroundController ground = FindGround(position);
-        if (ground)
-            ground.SqueezeGround();
     }
 
     private GroundController FindGround(Vector3 position)
