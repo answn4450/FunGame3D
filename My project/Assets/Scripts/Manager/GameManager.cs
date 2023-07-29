@@ -24,11 +24,8 @@ public class GameManager : MonoBehaviour
         leftCountdown = newCountdown;
         Status.GetInstance().structureUse = 0;
         Status.GetInstance().structureMaxUse = 5;
-        Status.GetInstance().groundX0 = ground.transform.position.x - ground.transform.localScale.x * 0.5f;
-        Status.GetInstance().groundX1 = ground.transform.position.x + ground.transform.localScale.x * 0.5f;
-        Status.GetInstance().groundZ0 = ground.transform.position.z - ground.transform.localScale.z * 0.5f;
-        Status.GetInstance().groundZ1 = ground.transform.position.z + ground.transform.localScale.z * 0.5f;
-        Status.GetInstance().groundY = ground.transform.position.y + 0.5f;
+
+        Ground.GetInstance().SetGroundWithPannel(ground);
     }
     
     private void Start()
@@ -43,6 +40,8 @@ public class GameManager : MonoBehaviour
         player = playerSet.transform.GetChild(0).gameObject.GetComponent<PlayerController>();
         playerEye = playerSet.transform.GetChild(1).gameObject.GetComponent<PlayerEyeController>();
         gameCamera = playerEye.transform.GetChild(0).gameObject.GetComponent<CameraController>();
+
+        ground.CreateGrounds();
     }
 
     void Update()
@@ -68,18 +67,19 @@ public class GameManager : MonoBehaviour
             }
             else
             {
-                ground.UpDownOrSqueeze(player);
-                
                 player.Command();
-                player.Move();
+                player.CommandMove();
 
                 if (player.rideBullet)
                     player.RideBullet();
                 else
+				{
                     player.WithAffectPower();
+				}
                 
                 gameCamera.BehindPlayer(10.0f);
-                player.BindPosition();
+                
+                ground.UpDownOrSqueeze(player);
             }
         }
     }

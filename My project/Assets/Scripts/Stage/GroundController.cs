@@ -5,45 +5,53 @@ using UnityEngine;
 public class GroundController : MonoBehaviour
 {
     public int maxSizeY;
+    private float groundX;
+    private float groundZ;
     private float speed;
     private float distCheck;
 
     private void Awake()
     {
-        speed = 0.1f;
+        speed = 0.8f;
         distCheck = 2.0f;
     }
 
-    public void UpDownOrSqueeze(PlayerController player)
+    public void SetWithIndex(int indexX, int indexZ)
     {
-        float changeY = UpDownByTarget(player.transform) * speed * Time.deltaTime;
-         
-        float radius = player.transform.localScale.x * 0.5f;
-        float topY = transform.position.y + transform.localScale.y * 0.5f;
-        float maxWorldY = topY - transform.localScale.y + maxSizeY;
-        float liftPlayerY = topY - player.transform.position.y + radius;
-        float emptySpaceY = Mathf.Max(maxWorldY - topY - player.size * 2.0f, 0.0f);
+        groundX = Ground.GetInstance().groundX0 + indexX + 0.5f;
+        groundZ = Ground.GetInstance().groundZ0 + indexZ + 0.5f;
 
-        bool playerAtDown;
+        transform.position = new Vector3(
+            groundX,
+            Ground.GetInstance().groundY0 + 0.5f,
+            groundZ
+            );
+    }
 
-        playerAtDown = Tools.GetInstance().SameGround(player.transform, transform);
-        playerAtDown = playerAtDown && player.transform.position.y - radius < topY;
-        
-        if (playerAtDown)
-        {
-            bool needSqueeze;
-            if (needSqueeze = changeY > emptySpaceY)
-                changeY = emptySpaceY;
-            
-            liftPlayerY += changeY;
-            player.transform.position += Vector3.up * liftPlayerY;
-            
-            //if (needSqueeze)
-            //    player.Hurt();
+    public void UpDownOrSqueeze(PlayerController player)
+	{
+        float power = speed * Time.deltaTime;
+        float newHeight = transform.localScale.y + UpDownByTarget(player.transform) * power;
+        float radius = player.transform.localScale.y * 0.5f;
+
+        if (Tools.GetInstance().SameGround(player.transform, transform))
+		{
+            float maxHeight = Ground.GetInstance().groundHeight - radius * 2.0f;
+            if (newHeight > maxHeight)
+			{
+                player.Hurt((newHeight - maxHeight) * Time.deltaTime);
+                newHeight = maxHeight;
+			}
+
+            if (player.transform.position.y - radius < Ground.GetInstance().groundY0 + newHeight)
+                player.transform.position = new Vector3(
+                    player.transform.position.x,
+                    Ground.GetInstance().groundY0 + newHeight + radius,
+                    player.transform.position.z
+                    );
         }
-        
-        SetSizePlusMinus(changeY);
 
+        SetSize(newHeight);
     }
 
     public void DownSize(float size)
@@ -65,24 +73,38 @@ public class GroundController : MonoBehaviour
         Vector3 distVector = player.position - transform.position;
         distVector.y = 0;
         float changeY = distCheck - distVector.magnitude;
-        float topY = transform.localScale.y + transform.position.y;
-        if (topY + changeY < Status.GetInstance().groundY)
-            return Status.GetInstance().groundY - topY; 
-        if (topY + changeY > maxSizeY)
-            return maxSizeY - transform.localScale.y;
+        float availableY = Ground.GetInstance().groundHeight - transform.localScale.y;
+        if (changeY > availableY)
+            return availableY; 
+        if (changeY + transform.localScale.y < 1.0f)
+            return (1.0f - transform.localScale.y);
         else
             return changeY;
     }
 
     private void SetSizePlusMinus(float plusMinus)
     {
-        if (transform.localScale.y + 0.5f + plusMinus > maxSizeY)
-            plusMinus = maxSizeY - transform.localScale.y - 0.5f;
-        if (transform.localScale.y + plusMinus < 1.0f)
-            plusMinus = 1.0f - transform.localScale.y;
+        float height = transform.localScale.y + plusMinus;
+        SetSize(height);
+    }
 
-        Vector3 movement = Vector3.up * plusMinus;
-        transform.localScale += movement;
-        transform.position += movement * 0.5f;
+    private void SetSize(float height)
+	{
+        if (height > Ground.GetInstance().groundHeight)
+            height = Ground.GetInstance().groundHeight;
+        else if (height < 1)
+            height = 1;
+
+        transform.localScale = new Vector3(
+            1.0f,
+            height,
+            1.0f
+            );
+
+        transform.position = new Vector3(
+            groundX,
+            Ground.GetInstance().groundY0 + height * 0.5f,
+            groundZ
+            );
     }
 }

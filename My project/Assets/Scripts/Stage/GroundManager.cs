@@ -6,21 +6,22 @@ public class GroundManager : MonoBehaviour
 {
     private List<List<GroundController>> groundList;
     private GameObject groundPrefab;
+    private Transform groundFolder;
 
     private int sizeX, sizeY, sizeZ;
     float x0, y0, z0;
 
 
-    void Start()
+    public void CreateGrounds()
     {
         groundPrefab = PrefabManager.GetInstance().GetPrefabByName("Ground");
 
         sizeX = (int)transform.localScale.x;
         sizeZ = (int)transform.localScale.z;
         sizeY = 8;
-        x0 = Status.GetInstance().groundX0 + 0.5f;
-        y0 = Status.GetInstance().groundY - 0.5f;
-        z0 = Status.GetInstance().groundZ0 + 0.5f;
+        x0 = Ground.GetInstance().groundX0 + 0.5f;
+        y0 = Ground.GetInstance().groundY0 + 0.5f;
+        z0 = Ground.GetInstance().groundZ0 + 0.5f;
 
         groundList = new List<List<GroundController>>();
 
@@ -32,9 +33,9 @@ public class GroundManager : MonoBehaviour
             {
                 GroundController ground;
                 ground = Instantiate(groundPrefab).GetComponent<GroundController>();
-                ground.transform.name = "ground" + x.ToString() + "," + z.ToString();
-                ground.transform.position = new Vector3(x0 + x, y0, z0 + z);
-                ground.maxSizeY = 8;
+                ground.transform.SetParent(groundFolder);
+                ground.name = "grond " + x.ToString() + " " + z.ToString();
+                ground.SetWithIndex(x, z);
                 groundZLine.Add(ground);
             }
             groundList.Add(groundZLine);

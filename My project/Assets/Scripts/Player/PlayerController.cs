@@ -25,14 +25,14 @@ public class PlayerController : MonoBehaviour
     private float physicsTimeElapseScale;
     private float shotTimer;
     private float inAirTime;
+    private float rapidATimer;
+    private float rapidDTimer;
 
     public bool rideBullet;
 
     private float gravity;
     private Vector3 gravityDirection;
     private Vector3 affectPower;
-    private Vector3 movement;
-    private List<Vector3> checkDirection;
 
     public GameObject bullet;
 
@@ -43,23 +43,22 @@ public class PlayerController : MonoBehaviour
         horizontal = 0.0f;
         vertical = 0.0f;
 
-        physicsScale = 0.1f;
-        physicsTimeElapseScale = 10.0f;
+        physicsScale = 1.0f;
+        physicsTimeElapseScale = 1.0f;
         shotTimer = 0.0f;
         inAirTime = 0.0f;
+        rapidATimer = 0.0f;
+        rapidDTimer = 0.0f;
 
         affectPower = Vector3.zero;
         gravity = 9.8f;
         gravityDirection = Vector3.down;
-        checkDirection = new List<Vector3>();
-        checkDirection.Add(Vector3.left);
-        checkDirection.Add(Vector3.right);
-        checkDirection.Add(Vector3.up);
-        checkDirection.Add(Vector3.down);
 
         dead = false;
         rideBullet = false;
 
+        rapidATimer = 0.0f;
+        rapidDTimer = 0.0f;
     }
 
     private void Start()
@@ -70,7 +69,6 @@ public class PlayerController : MonoBehaviour
         effectFX = PrefabManager.GetInstance().GetPrefabByName("CFX_MagicPoof");
         explodeFX = PrefabManager.GetInstance().GetPrefabByName("CFX_MagicPoof");
         hurtFX = PrefabManager.GetInstance().GetPrefabByName("CFXR Hit A (Red)");
-        StartCoroutine(EyeControll());
     }
 
     void Update()
@@ -84,53 +82,30 @@ public class PlayerController : MonoBehaviour
         playerEye.FollowTarget(transform);
     }
 
-    IEnumerator EyeControll()
-    {
-        float rotateDeg = 30;
-        int dir;
-        bool rapidA, rapidD;
-        while (true)
-        {
-            dir = 0;
-            rapidA = Input.GetKey(KeyCode.A) && !Input.GetKeyDown(KeyCode.A);
-            rapidD = Input.GetKey(KeyCode.D) && !Input.GetKeyDown(KeyCode.D);
-
-            if (rapidA || rapidD)
-                yield return new WaitForSeconds(0.2f);
-            else
-                yield return null;
-
-            if (Input.GetKey(KeyCode.A))
-                dir += 1;
-            if (Input.GetKey(KeyCode.D))
-                dir -= 1;
-
-            transform.Rotate(transform.up * rotateDeg * dir);
-        }
-    }
-
+    
     public void Hurt()
     {
-        if (size > deadSize)
-            size -= 0.1f;
-        if (size < deadSize)
-            size = deadSize;
+        Hurt(0.1f);
     }
 
-    public void Move()
-    {
-        Vector3 movement = GetMovement();
-        SafeMove(movement);
+    public void Hurt(float hurt)
+	{
+        if (size > deadSize)
+            size -= hurt;
+        if (size < deadSize)
+            size = deadSize;
     }
 
     public void Command()
     {
         if (Input.GetKeyDown((KeyCode)KeyboardQRow.BulletIsPlayer))
-        {
+		{
             rideBullet = !rideBullet;
             if (rideBullet)
                 OnRideBullet();
-        }
+            else if (bullet)
+                bullet.GetComponent<BulletController>().DestroySelf();
+		}
 
         if (Input.GetKeyDown((KeyCode)KeyboardQRow.StructOnBullet))
             StructOnBullet();
@@ -143,23 +118,6 @@ public class PlayerController : MonoBehaviour
             if (Status.GetInstance().spaceKey == KeyboardARow.Shot && shotTimer <= 0)
                 Shot();
         }
-    }
-
-    public void WithAffectPower()
-    {
-        transform.position += affectPower * Time.deltaTime * physicsTimeElapseScale;
-        affectPower *= Mathf.Clamp01(1 - Time.deltaTime * physicsTimeElapseScale);
-        GroundPannelCollision();
-    }
-
-    public void BindPosition()
-    {
-        
-    }
-
-    public void AffectPower(Vector3 power)
-    {
-        affectPower += CollideReflect(power * Time.deltaTime * physicsScale);
     }
 
     public void Explode()
@@ -178,16 +136,64 @@ public class PlayerController : MonoBehaviour
             rideBullet = false;
     }
 
-    private void SafeMove(Vector3 movement)
+    public void CommandMove()
     {
-        transform.position += CollideReflect(movement);
+        Vector3 futureMove = GetCommandMovement() * Time.deltaTime;
+        SafeMove(futureMove);
     }
 
-    private Vector3 GetMovement()
+    public void WithAffectPower()
+    {
+        transform.position += affectPower * Time.deltaTime * physicsTimeElapseScale;
+        SafeMove(affectPower);
+        affectPower *= Mathf.Clamp01(1 - Time.deltaTime * physicsTimeElapseScale);
+    }
+
+    public void AffectPower(Vector3 power)
+    {
+        affectPower += CollideReflect(power * Time.deltaTime * physicsScale);
+    }
+
+    private void SafeMove(Vector3 move)
+    {
+        transform.position += move;
+
+        float validX0 = Ground.GetInstance().groundX0 + size * 0.5f;
+        float validX1 = Ground.GetInstance().groundX1 - size * 0.5f;
+        float validZ0 = Ground.GetInstance().groundZ0 + size * 0.5f;
+        float validZ1 = Ground.GetInstance().groundZ1 - size * 0.5f;
+        float validY0 = Ground.GetInstance().groundY0 + 1.0f + size * 0.5f;
+        float validY1 = Ground.GetInstance().groundY1 - size * 0.5f;
+        
+        if (transform.position.x < validX0 || transform.position.x > validX1)
+            transform.position = new Vector3(
+                Mathf.Clamp(transform.position.x, validX0, validX1),
+                transform.position.y,
+                transform.position.z
+                );
+
+        if (transform.position.z < validZ0 || transform.position.z > validZ1)
+            transform.position = new Vector3(
+                transform.position.x,
+                transform.position.y,
+                Mathf.Clamp(transform.position.z, validZ0, validZ1)
+                );
+
+        if (transform.position.y < validY0 || transform.position.y > validY1)
+        {
+            affectPower = Vector3.Reflect(affectPower, Vector3.up);
+            transform.position = new Vector3(
+                transform.position.x,
+                Mathf.Clamp(transform.position.y, validY0, validY1),
+                transform.position.z
+                );
+            playerCamera.PushXY(Vector2.up * size * affectPower.y * Time.deltaTime);
+        }
+    }
+
+    private Vector3 GetCommandMovement()
     {
         Vector3 movement = Vector3.zero;
-        float turnDeg = 0.0f;
-        float turnSpeed;
         float speed;
         bool softTurn = (Input.GetKey(KeyCode.LeftShift));
         bool crabWalk;
@@ -199,6 +205,7 @@ public class PlayerController : MonoBehaviour
             vertical -= Time.deltaTime;
         if (Input.GetKey(KeyCode.UpArrow))
             vertical += Time.deltaTime;
+
         if (Input.GetKey(KeyCode.LeftArrow))
             horizontal -= Time.deltaTime;
         if (Input.GetKey(KeyCode.RightArrow))
@@ -208,8 +215,31 @@ public class PlayerController : MonoBehaviour
         vertical = Mathf.Clamp(vertical, -1.0f, 1.0f);
         horizontal = Mathf.Clamp(horizontal, -1.0f, 1.0f);
 
-        turnSpeed = softTurn ? 3.5f : 2.0f;
         speed = softTurn ? 13.0f : 10.0f;
+
+        float rotateDeg = 20.0f;
+        int dir = 0;
+
+        if (Input.GetKeyDown(KeyCode.LeftArrow))
+            rapidATimer = 0.0f;
+        if (Input.GetKeyDown(KeyCode.LeftArrow))
+            rapidDTimer = 0.0f;
+        
+        if (Input.GetKey(KeyCode.LeftArrow) && !Input.GetKeyDown(KeyCode.LeftArrow))
+            rapidATimer -= Time.deltaTime;
+        if (Input.GetKey(KeyCode.RightArrow) && !Input.GetKeyDown(KeyCode.RightArrow))
+            rapidDTimer -= Time.deltaTime;
+
+        if (Input.GetKey(KeyCode.LeftArrow) && rapidATimer <= 0.0f)
+		{
+            rapidATimer = 0.2f;
+            dir -= 1;
+		}
+        if (Input.GetKey(KeyCode.RightArrow) && rapidDTimer <= 0.0f)
+		{
+            rapidDTimer = 0.2f;
+            dir += 1;
+		}
 
         if (horizontal != 0)
         {
@@ -217,7 +247,7 @@ public class PlayerController : MonoBehaviour
                 movement += transform.right * horizontal * speed;
             else
             {
-                turnDeg += turnSpeed * horizontal;
+                transform.Rotate(transform.up * rotateDeg * dir);
                 playerCamera.SwivelZ(horizontal);
             }
         }
@@ -227,8 +257,6 @@ public class PlayerController : MonoBehaviour
             movement += speed * vertical * transform.forward;
             playerCamera.ChangeFieldView(vertical);
         }
-
-        transform.Rotate(Vector3.up * turnDeg);
 
         return movement;
     }
@@ -255,16 +283,18 @@ public class PlayerController : MonoBehaviour
 
     private void Shot()
     {
-        GameObject a = PrefabManager.GetInstance().GetPrefabByName("Bullet");
-        bullet = Instantiate(a);
+        GameObject _bullet = PrefabManager.GetInstance().GetPrefabByName("Bullet");
+        bullet = Instantiate(_bullet);
         bullet.GetComponent<BulletController>().BirthBullet(gameObject);
         shotTimer = 0.2f;
     }
 
     private void OnRideBullet()
     {
-        if (bullet != null)
-            SkillEffect(bullet.transform.position);
+        GameObject _bullet = PrefabManager.GetInstance().GetPrefabByName("Bullet");
+        bullet = Instantiate(_bullet);
+        bullet.GetComponent<BulletController>().BirthBullet(gameObject);
+        SkillEffect(bullet.transform.position);
     }
 
     private void SphereBySize(float size)
@@ -299,47 +329,11 @@ public class PlayerController : MonoBehaviour
         return new Vector3(r, r, r);
     }
 
-    private void GroundPannelCollision()
-    {
-        float groundX0 = Status.GetInstance().groundX0 + size * 0.5f;
-        float groundX1 = Status.GetInstance().groundX1 - size * 0.5f;
-        float groundZ0 = Status.GetInstance().groundZ0 + size * 0.5f;
-        float groundZ1 = Status.GetInstance().groundZ1 - size * 0.5f;
-        float groundY = Status.GetInstance().groundY + size * 0.5f;
-        
-        if (transform.position.x < groundX0 || transform.position.x > groundX1)
-            transform.position = new Vector3(
-                Mathf.Clamp(transform.position.x, groundX0, groundX1),
-                transform.position.y,
-                transform.position.z
-                );
-
-        if (transform.position.z < groundZ0 || transform.position.z > groundZ1)
-            transform.position = new Vector3(
-                transform.position.x,
-                transform.position.y,
-                Mathf.Clamp(transform.position.z, groundZ0, groundZ1)
-                );
-
-        if (transform.position.y < groundY)
-            playerCamera.PushXY(Vector2.down * size * affectPower.y * Time.deltaTime);
-
-        if (transform.position.y <= groundY)
-        {
-            affectPower = Vector3.Reflect(affectPower, Vector3.up);
-            transform.position = new Vector3(
-                transform.position.x,
-                groundY,
-                transform.position.z
-                );
-        }
-    }
-
     private Vector3 CollideReflect(Vector3 inMove)
 	{
         //inMove += inMove.normalized * size * 0.5f;
         Vector3 outDirection = inMove.normalized;
-        float outDistance = inMove.magnitude;
+        float outDistance = inMove.magnitude * 0.05f;
         int onGroundIndexX = Tools.GetInstance().GetGroundIndexX(transform.position.x);
         int onGroundIndexZ = Tools.GetInstance().GetGroundIndexZ(transform.position.z);
         RaycastHit hit;
@@ -348,10 +342,10 @@ public class PlayerController : MonoBehaviour
             int collideGroundIndexX = Tools.GetInstance().GetGroundIndexX(hit.transform.position.x);
             int collideGroundIndexZ = Tools.GetInstance().GetGroundIndexZ(hit.transform.position.z);
             //if (onGroundIndexX == collideGroundIndexX && onGroundIndexZ == collideGroundIndexZ)
-                return outDirection * outDistance * Time.deltaTime;
+                return outDirection * outDistance;
         }
         else
-            return outDirection * outDistance * Time.deltaTime;
+            return outDirection * outDistance;
 	}
 
     
@@ -363,7 +357,7 @@ public class PlayerController : MonoBehaviour
         else
             inAirTime = 0.0f;
 
-        AffectPower(gravityDirection * gravity * inAirTime * inAirTime);
+        AffectPower(gravityDirection * gravity * inAirTime * inAirTime * size);
     }
 
     private bool InAir()
