@@ -10,6 +10,7 @@ public class PlayerController : MonoBehaviour
 
     public bool dead;
     public float size;
+    public float maxSize;
 
     public LayerMask groundMask;
 
@@ -39,16 +40,18 @@ public class PlayerController : MonoBehaviour
     private void Awake()
     {
         size = 1.0f;
+        maxSize = 1.0f;
         deadSize = 0.2f;
+
         horizontal = 0.0f;
         vertical = 0.0f;
+        shotTimer = 0.0f;
+        rapidATimer = 0.0f;
+        rapidDTimer = 0.0f;
 
         physicsScale = 1.0f;
         physicsTimeElapseScale = 1.0f;
-        shotTimer = 0.0f;
         inAirTime = 0.0f;
-        rapidATimer = 0.0f;
-        rapidDTimer = 0.0f;
 
         affectPower = Vector3.zero;
         gravity = 9.8f;
@@ -57,8 +60,6 @@ public class PlayerController : MonoBehaviour
         dead = false;
         rideBullet = false;
 
-        rapidATimer = 0.0f;
-        rapidDTimer = 0.0f;
     }
 
     private void Start()
@@ -153,6 +154,12 @@ public class PlayerController : MonoBehaviour
     {
         affectPower += CollideReflect(power * Time.deltaTime * physicsScale);
     }
+
+    public void Rebirth()
+	{
+        dead = false;
+        size = Mathf.Clamp(deadSize * 2.0f, deadSize + 0.1f, maxSize);
+	}
 
     private void SafeMove(Vector3 move)
     {
@@ -268,8 +275,8 @@ public class PlayerController : MonoBehaviour
             if (bullet != null)
             {
                 GameObject _struct = Instantiate(structPrefab);
-                _struct.transform.position = bullet.transform.position;
-                SkillEffect(bullet.transform.position);
+                _struct.transform.position = Ground.GetInstance().GetIndexPosition(transform.position);
+                //SkillEffect(bullet.transform.position);
                 Status.GetInstance().structureUse++;
             }
         }
@@ -347,8 +354,6 @@ public class PlayerController : MonoBehaviour
         else
             return outDirection * outDistance;
 	}
-
-    
 
     private void GroundGravityCollision()
     {

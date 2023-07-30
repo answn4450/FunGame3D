@@ -11,6 +11,7 @@ public class PlayerEyeController : MonoBehaviour
 	{
 		Vector3 diffPosition = body.position - transform.position;
 		Vector3 diffEulerAngles = body.eulerAngles - transform.eulerAngles;
+		Vector3 diffLocalScale = body.localScale - transform.localScale;
 
 		float t = Mathf.Clamp01(followSpeed * Time.deltaTime);
 		
@@ -28,5 +29,6 @@ public class PlayerEyeController : MonoBehaviour
 		
 		transform.position += diffPosition * t;
 		transform.eulerAngles += diffEulerAngles * t;
+		transform.localScale += diffLocalScale * t;
 	}
 }

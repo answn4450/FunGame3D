@@ -539,7 +539,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 8789748870441243713, guid: fc69d1018a569554eb6a401509b54b09, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 8789748870441243713, guid: fc69d1018a569554eb6a401509b54b09, type: 3}
       propertyPath: m_LocalPosition.z
@@ -880,6 +880,10 @@ PrefabInstance:
     - target: {fileID: 7094760553526561575, guid: e322e337acbf99540b317bd50009e9a2, type: 3}
       propertyPath: m_Name
       value: GroundPannel
+      objectReference: {fileID: 0}
+    - target: {fileID: 7161333600016861438, guid: e322e337acbf99540b317bd50009e9a2, type: 3}
+      propertyPath: m_TagString
+      value: Player
       objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 1859601662760280478, guid: e322e337acbf99540b317bd50009e9a2, type: 3}

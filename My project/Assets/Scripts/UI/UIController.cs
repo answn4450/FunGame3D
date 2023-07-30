@@ -24,21 +24,15 @@ public class UIController : MonoBehaviour
 
         DeadUI.SetActive(false);
 
-        SpaceInfo();
     }
 
     public void DeadCountdown(float countdown)
     {
+        DeadUI.SetActive(true);
+
         if (countdown > 0)
         {
             TextCountdown.text = ((int)(countdown + 0.9f)).ToString();
         }
-
-        DeadUI.SetActive(true);
-    }
-
-    private void SpaceInfo()
-    {
-        spaceInfo.text = Status.GetInstance().spaceKey.ToString();
     }
 }

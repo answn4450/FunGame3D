@@ -12,7 +12,12 @@ public class GroundManager : MonoBehaviour
     float x0, y0, z0;
 
 
-    public void CreateGrounds()
+	private void Awake()
+	{
+        groundFolder = new GameObject("GroundFolder").transform;
+	}
+
+	public void CreateGrounds()
     {
         groundPrefab = PrefabManager.GetInstance().GetPrefabByName("Ground");
 

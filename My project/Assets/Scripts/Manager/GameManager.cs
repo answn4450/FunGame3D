@@ -83,4 +83,11 @@ public class GameManager : MonoBehaviour
             }
         }
     }
+
+    public void Rebirth()
+	{
+        Debug.Log("c");
+        if (player)
+            player.Rebirth();
+	}
 }

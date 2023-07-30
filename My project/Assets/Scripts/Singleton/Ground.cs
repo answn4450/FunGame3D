@@ -40,4 +40,31 @@ public class Ground
         groundY1 = groundY0 + groundHeight;
         groundZ1 = groundZ0 + groundDepth;
     }
+
+    public int GetIndexX(float positionX)
+    {
+        int indexX =  (int)(positionX - groundX0);
+        return Mathf.Clamp(indexX, 0, groundWidth - 1);
+    }
+
+    public int GetIndexZ(float positionZ)
+    {
+        int indexZ = (int)(positionZ - groundZ0);
+        return Mathf.Clamp(indexZ, 0, groundDepth - 1);
+    }
+
+    public int GetIndexY(float positionY)
+    {
+        int indexY = (int)(positionY - groundY0);
+        return Mathf.Clamp(indexY, 0, groundHeight - 1);
+    }
+
+    public Vector3 GetIndexPosition(Vector3 position)
+	{
+        return new Vector3(
+            groundX0 + GetIndexX(position.x) + 0.5f,
+            groundY0 + GetIndexY(position.y) + 0.5f,
+            groundZ0 + GetIndexZ(position.z) + 0.5f
+            );
+	}
 }
