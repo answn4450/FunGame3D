@@ -370,6 +370,8 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   textPlayerSize: {fileID: 3001018382583629279}
   textCountdown: {fileID: 3001018384126866893}
+  nextElevatorDistance: {fileID: 5337472960683360504}
+  playerPosition: {fileID: 6492941799581355651}
   deadUI: {fileID: 3001018384015523477}
   availableStructure: {fileID: 4595520201252149895}
   builtStructure: {fileID: 7559317026643896058}
@@ -496,7 +498,6 @@ MonoBehaviour:
   prevElevator: {fileID: 3737376980571667846}
   nextElevator: {fileID: 3737376980421944454}
   ground: {fileID: 6244522107136539141}
-  structureManager: {fileID: 0}
 --- !u!1 &3001018382583629277
 GameObject:
   m_ObjectHideFlags: 0

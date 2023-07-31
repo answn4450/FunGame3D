@@ -8,6 +8,8 @@ public class UIController : MonoBehaviour
 {
     public Text textPlayerSize;
     public Text textCountdown;
+    public Text nextElevatorDistance;
+    public Text playerPosition;
 
     public GameObject deadUI;
     public GameObject availableStructure;
@@ -86,6 +88,7 @@ public class UIController : MonoBehaviour
         deadUI.SetActive(false);
         AvailableStructuresInfo(player.GetSelectedStructureIndex());
         BuiltStructuresInfo(player.GetBuiltStructures());
+        Position(player.transform.position);
     }
 
     public void DeadCountdown(float countdown)
@@ -98,7 +101,17 @@ public class UIController : MonoBehaviour
         }
     }
 
-    public void AvailableStructuresInfo(int selectedStructureIndex)
+    public void NextElevatorDistanceInfo(Vector3 distance)
+    {
+        nextElevatorDistance.text = EasyVector3(distance);
+    }
+
+    private void Position(Vector3 worldPosition)
+    {
+        playerPosition.text = EasyVector3(worldPosition - Ground.GetInstance().groundPosition0);
+    }
+
+    private void AvailableStructuresInfo(int selectedStructureIndex)
     {
         for (int i = 0; i < availableStructureChild.Count; ++i)
         {
@@ -107,7 +120,7 @@ public class UIController : MonoBehaviour
         }
     }
 
-    public void BuiltStructuresInfo(List<GameObject> builtStructures)
+    private void BuiltStructuresInfo(List<GameObject> builtStructures)
     {
         for (int i = 0; i < builtStructures.Count; ++i)
         {
@@ -115,7 +128,20 @@ public class UIController : MonoBehaviour
                 builtStructures[i].name + "Img"
                 , typeof(Sprite)) as Sprite;
             
-            builtStructureChild[i].transform.GetChild(0).GetComponent<Text>().text = builtStructures[i].transform.position.ToString();
+            builtStructureChild[i].transform.GetChild(0).GetComponent<Text>().text = EasyVector3(
+                builtStructures[i].transform.position - Ground.GetInstance().groundPosition0
+                );
         }
+    }
+
+    private string EasyVector3(Vector3 vector3)
+    {
+        Vector3 switchYZ = new Vector3(
+            vector3.x,
+            vector3.z,
+            vector3.y
+            );
+
+        return string.Format("{0:0},{1:0},{2:0}", switchYZ.x, switchYZ.y, switchYZ.z);
     }
 }

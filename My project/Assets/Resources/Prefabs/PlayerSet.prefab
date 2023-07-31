@@ -247,11 +247,12 @@ MonoBehaviour:
   playerCamera: {fileID: 3782593153038869300}
   playerEye: {fileID: 2750305713232587706}
   dead: 0
+  rideBullet: 0
   size: 0
+  maxSize: 0
   groundMask:
     serializedVersion: 2
-    m_Bits: 0
-  rideBullet: 0
+    m_Bits: 8
   bullet: {fileID: 0}
 --- !u!54 &4255031499792193339
 Rigidbody:

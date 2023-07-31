@@ -91,7 +91,7 @@ public class GameManager : MonoBehaviour
                 ground.UpDownOrSqueeze(player);
             }
 
-            uiController.UIPlay(player);
+            UIControll();
         }
     }
 
@@ -100,4 +100,14 @@ public class GameManager : MonoBehaviour
         if (player)
             player.Rebirth();
 	}
+
+    private void UIControll()
+    {
+
+        uiController.UIPlay(player);
+        if (nextElevator && player)
+            uiController.NextElevatorDistanceInfo(
+                nextElevator.transform.position - player.transform.position
+                );
+    }
 }

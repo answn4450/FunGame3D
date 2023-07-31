@@ -50,4 +50,24 @@ public class Tools
             Ground.GetInstance().groundZ0 + GetGroundIndexZ(position.z) + 0.5f
             );
     }
+
+    public bool BallOutGround(Transform ball)
+    {
+        float radius = ball.localScale.x * 0.5f;
+
+        if (ball.position.x - radius < Ground.GetInstance().groundX0)
+            return false;
+        if (ball.position.x + radius > Ground.GetInstance().groundX1)
+            return false;
+        if (ball.position.y - radius < Ground.GetInstance().groundY0)
+            return false;
+        if (ball.position.y + radius < Ground.GetInstance().groundY1)
+            return false;
+        if (ball.position.z - radius < Ground.GetInstance().groundZ0)
+            return false;
+        if (ball.position.z + radius < Ground.GetInstance().groundZ1)
+            return false;
+        else
+            return true;
+    }
 }

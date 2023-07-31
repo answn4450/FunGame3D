@@ -41,7 +41,7 @@ public class PlayerController : MonoBehaviour
 
     private float gravity;
 
-    private int stopFall;
+    private bool stopFall;
     private const int maxStructure = 3;
     private List<GameObject> builtStructures = new List<GameObject>();
 
@@ -73,7 +73,7 @@ public class PlayerController : MonoBehaviour
         gravity = 9.8f;
         gravityDirection = Vector3.down;
 
-        stopFall = 0;
+        stopFall = false;
         selectedStructureIndex = (int)(availableStructures.Count * 0.5f);
     }
 
@@ -95,7 +95,6 @@ public class PlayerController : MonoBehaviour
         CheckDead();
         SphereBySize(size);
         playerEye.FollowTarget(transform);
-        //Debug.Log(structureFolder);
     }
 
     public List<string> GetAvailableStructures()
@@ -150,7 +149,7 @@ public class PlayerController : MonoBehaviour
             SetSphere(bullet.transform.localScale.x);
         }
         else
-            rideBullet = false;
+            OffRideBullet();
     }
 
     public void CommandMove()
@@ -168,7 +167,7 @@ public class PlayerController : MonoBehaviour
 
     public void AffectPower(Vector3 power)
     {
-        affectPower += CollideReflect(power * Time.deltaTime * physicsScale);
+        affectPower += power;
     }
 
     public void Rebirth()
@@ -191,37 +190,72 @@ public class PlayerController : MonoBehaviour
     {
         transform.position += move;
 
-        float validX0 = Ground.GetInstance().groundX0 + size * 0.5f;
-        float validX1 = Ground.GetInstance().groundX1 - size * 0.5f;
-        float validZ0 = Ground.GetInstance().groundZ0 + size * 0.5f;
-        float validZ1 = Ground.GetInstance().groundZ1 - size * 0.5f;
-        float validY0 = Ground.GetInstance().groundY0 + 1.0f + size * 0.5f;
-        float validY1 = Ground.GetInstance().groundY1 - size * 0.5f;
-        
-        if (transform.position.x < validX0 || transform.position.x > validX1)
-            transform.position = new Vector3(
-                Mathf.Clamp(transform.position.x, validX0, validX1),
-                transform.position.y,
-                transform.position.z
-                );
+        float radius = transform.localScale.x * 0.5f;
+        float validX0 = Ground.GetInstance().groundX0 + radius * 0.5f;
+        float validX1 = Ground.GetInstance().groundX1 - radius * 0.5f;
+        float validZ0 = Ground.GetInstance().groundZ0 + radius * 0.5f;
+        float validZ1 = Ground.GetInstance().groundZ1 - radius * 0.5f;
+        float validY0 = Ground.GetInstance().groundY0 + 1.0f + radius * 0.5f;
+        float validY1 = Ground.GetInstance().groundY1 - radius * 0.5f;
 
-        if (transform.position.z < validZ0 || transform.position.z > validZ1)
-            transform.position = new Vector3(
-                transform.position.x,
-                transform.position.y,
-                Mathf.Clamp(transform.position.z, validZ0, validZ1)
-                );
-
-        if (transform.position.y < validY0 || transform.position.y > validY1)
+        transform.position = new Vector3(
+            Mathf.Clamp(transform.position.x, validX0, validX1),
+            Mathf.Clamp(transform.position.y, validY0, validY1),
+            Mathf.Clamp(transform.position.z, validZ0, validZ1)
+            );
+        /*
+        if (transform.position.x - radius < validX0 || transform.position.x > validX1)
         {
-            affectPower = Vector3.Reflect(affectPower, Vector3.up);
-            transform.position = new Vector3(
-                transform.position.x,
-                Mathf.Clamp(transform.position.y, validY0, validY1),
-                transform.position.z
+            ApplyReflect(
+                new Vector3(
+                    Mathf.Clamp(transform.position.x, validX0, validX1),
+                    transform.position.y,
+                    transform.position.z
+                ),
+                Vector3.right
                 );
-            playerCamera.PushXY(Vector2.up * size * affectPower.y * Time.deltaTime);
         }
+
+        if (transform.position.y - radius < validY0 || transform.position.y > validY1)
+        {
+            ApplyReflect(
+                new Vector3(
+                    transform.position.x,
+                    Mathf.Clamp(transform.position.y, validY0, validY1),
+                    transform.position.z
+                ),
+                Vector3.up
+                );
+        }
+
+        if (transform.position.z - radius < validZ0 || transform.position.z > validZ1)
+        {
+            ApplyReflect(
+                new Vector3(
+                    transform.position.x,
+                    transform.position.y,
+                    Mathf.Clamp(transform.position.z, validZ0, validZ1)
+                ),
+                Vector3.forward
+                );
+        }
+     
+        RaycastHit hit;
+        bool block = false;
+        Vector3[] vertices = GetComponent<MeshFilter>().mesh.vertices;
+
+        Vector3 collisionPoint = transform.position;
+        if (vertices.Length != 0)
+        {
+            foreach (Vector3 point in vertices)
+            {
+                if (block = Physics.Raycast(transform.position, move, out hit, moveDistance))
+                    collisionPoint = hit.transform.position;
+            }
+            if (!block)
+                ApplyReflect(hit.transform.position, Vector3.right);
+        }
+        */
     }
 
     public int GetSelectedStructureIndex()
@@ -341,7 +375,7 @@ public class PlayerController : MonoBehaviour
 
     private void OnRideBullet()
     {
-        stopFall += 1;
+        stopFall = true;
         GameObject _bullet = PrefabManager.GetInstance().GetPrefabByName("Bullet");
         bullet = Instantiate(_bullet);
         bullet.GetComponent<BulletController>().BirthBullet(gameObject);
@@ -350,8 +384,9 @@ public class PlayerController : MonoBehaviour
 
     private void OffRideBullet()
     {
-        stopFall -= 1;
-        bullet.GetComponent<BulletController>().DestroySelf();
+        stopFall = false;
+        if (bullet)
+            bullet.GetComponent<BulletController>().DestroySelf();
     }
 
     private void SphereBySize(float size)
@@ -386,28 +421,9 @@ public class PlayerController : MonoBehaviour
         return new Vector3(r, r, r);
     }
 
-    private Vector3 CollideReflect(Vector3 inMove)
-	{
-        //inMove += inMove.normalized * size * 0.5f;
-        Vector3 outDirection = inMove.normalized;
-        float outDistance = inMove.magnitude * 0.05f;
-        int onGroundIndexX = Tools.GetInstance().GetGroundIndexX(transform.position.x);
-        int onGroundIndexZ = Tools.GetInstance().GetGroundIndexZ(transform.position.z);
-        RaycastHit hit;
-        if (Physics.Raycast(transform.position, inMove, out hit, inMove.magnitude, groundMask))
-        {
-            int collideGroundIndexX = Tools.GetInstance().GetGroundIndexX(hit.transform.position.x);
-            int collideGroundIndexZ = Tools.GetInstance().GetGroundIndexZ(hit.transform.position.z);
-            //if (onGroundIndexX == collideGroundIndexX && onGroundIndexZ == collideGroundIndexZ)
-                return outDirection * outDistance;
-        }
-        else
-            return outDirection * outDistance;
-	}
-
     private void Fall()
     {
-        if (InAir() && stopFall == 0)
+        if (InAir() && !stopFall)
             inAirTime += Time.deltaTime;
         else
             inAirTime = 0.0f;
@@ -418,5 +434,15 @@ public class PlayerController : MonoBehaviour
     private bool InAir()
     {
         return !Physics.Raycast(transform.position, gravityDirection, size * 0.5f);
+    }
+
+    private void ApplyReflect(Vector3 collisionPoint, Vector3 inNormal)
+    {
+        Vector3 inDirection = collisionPoint - transform.position;
+        float inDistance = inDirection.magnitude;
+        Vector3 outDirection = Vector3.Reflect(collisionPoint, inNormal);
+
+        transform.position = collisionPoint + outDirection * inDistance * 0.5f;
+        affectPower = outDirection * inDistance * 0.5f;
     }
 }

@@ -5,6 +5,9 @@ using UnityEngine;
 public class GroundController : MonoBehaviour
 {
     public int maxSizeY;
+
+    private GameObject squeezeFX;
+
     private float groundX;
     private float groundZ;
     private float speed;
@@ -14,6 +17,7 @@ public class GroundController : MonoBehaviour
     {
         speed = 0.8f;
         distCheck = 2.0f;
+        squeezeFX = PrefabManager.GetInstance().GetPrefabByName("CFXR Hit A (Red)");
     }
 
     public void SetWithIndex(int indexX, int indexZ)
@@ -39,6 +43,7 @@ public class GroundController : MonoBehaviour
             float maxHeight = Ground.GetInstance().groundHeight - radius * 2.0f;
             if (newHeight > maxHeight)
 			{
+                Instantiate(squeezeFX).transform.position = player.transform.position;
                 player.Hurt((newHeight - maxHeight) * Time.deltaTime);
                 newHeight = maxHeight;
 			}

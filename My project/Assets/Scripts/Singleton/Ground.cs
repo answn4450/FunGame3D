@@ -17,6 +17,8 @@ public class Ground
     public int groundDepth;
     public int groundHeight;
 
+    public Vector3 groundPosition0;
+
     public static Ground GetInstance()
 	{
         if (instance == null)
@@ -31,7 +33,7 @@ public class Ground
         groundHeight = 7;
         groundDepth = (int)ground.transform.localScale.z;
         
-        // ground ∏« øﬁ¬  πÿ æ∆∑° ±∏ºÆ.
+        // ground Îß® ÏôºÏ™Ω Î∞ë ÏïÑÎûò Íµ¨ÏÑù.
         groundX0 = ground.transform.position.x - ground.transform.localScale.x * 0.5f;
         groundY0 = ground.transform.position.y - 0.5f;
         groundZ0 = ground.transform.position.z - ground.transform.localScale.z * 0.5f;
@@ -39,7 +41,7 @@ public class Ground
         groundX1 = groundX0 + groundWidth;
         groundY1 = groundY0 + groundHeight;
         groundZ1 = groundZ0 + groundDepth;
-    }
 
-    
+        groundPosition0 = new Vector3(groundX0, groundY0, groundZ0);
+    }
 }
