@@ -1,7 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ManualKey;
 
 
 public class Status
@@ -18,13 +17,9 @@ public class Status
 
     public bool endGame = false;
 
-    public int structureUse = 0;
-    public int structureMaxUse = 0;
     public int maxStage = 3;
     public int currentStage = 0;
     public bool elevatorInScene = false;
     public ElevatorController prevElevator = null;
     public ElevatorController nextElevator = null;
-
-    public KeyboardARow spaceKey = KeyboardARow.Shot;
 }

@@ -2,7 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using StructureCollision;
 using System.Linq;
 
 public class Test : MonoBehaviour

@@ -1,24 +1,34 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using ManualKey;
 
 public class PlayerController : MonoBehaviour
 {
     public CameraController playerCamera;
     public PlayerEyeController playerEye;
 
+    [System.NonSerialized]
+    public Transform structureFolder;
+    
     public bool dead;
+    public bool rideBullet;
     public float size;
     public float maxSize;
 
     public LayerMask groundMask;
 
-    private GameObject structPrefab;
+    public GameObject bullet;
+
     private GameObject effectFX;
     private GameObject explodeFX;
     private GameObject hurtFX;
 
+    private List<string> availableStructures = new List<string> {
+        "Jumper",
+        "StopAura",
+    };
+
+    private int selectedStructureIndex;
     private float deadSize = 0.2f;
     private float horizontal;
     private float vertical;
@@ -29,16 +39,22 @@ public class PlayerController : MonoBehaviour
     private float rapidATimer;
     private float rapidDTimer;
 
-    public bool rideBullet;
-
     private float gravity;
+
+    private int stopFall;
+    private const int maxStructure = 3;
+    private List<GameObject> builtStructures = new List<GameObject>();
+
     private Vector3 gravityDirection;
     private Vector3 affectPower;
 
-    public GameObject bullet;
 
     private void Awake()
     {
+        structureFolder = null;
+        
+        dead = false;
+        rideBullet = false;
         size = 1.0f;
         maxSize = 1.0f;
         deadSize = 0.2f;
@@ -57,15 +73,13 @@ public class PlayerController : MonoBehaviour
         gravity = 9.8f;
         gravityDirection = Vector3.down;
 
-        dead = false;
-        rideBullet = false;
-
+        stopFall = 0;
+        selectedStructureIndex = (int)(availableStructures.Count * 0.5f);
     }
 
     private void Start()
     {
         SetSphere(size);
-        structPrefab = PrefabManager.GetInstance().GetPrefabByName("Jumper");
         transform.position = Vector3.zero;
         effectFX = PrefabManager.GetInstance().GetPrefabByName("CFX_MagicPoof");
         explodeFX = PrefabManager.GetInstance().GetPrefabByName("CFX_MagicPoof");
@@ -77,13 +91,18 @@ public class PlayerController : MonoBehaviour
         if (shotTimer > 0.0f)
             shotTimer -= Time.deltaTime;
 
-        GroundGravityCollision();
+        Fall();
         CheckDead();
         SphereBySize(size);
         playerEye.FollowTarget(transform);
+        //Debug.Log(structureFolder);
     }
 
-    
+    public List<string> GetAvailableStructures()
+    {
+        return availableStructures;
+    }
+
     public void Hurt()
     {
         Hurt(0.1f);
@@ -99,24 +118,21 @@ public class PlayerController : MonoBehaviour
 
     public void Command()
     {
-        if (Input.GetKeyDown((KeyCode)KeyboardQRow.BulletIsPlayer))
+        if (Input.GetKeyDown(KeyCode.A))
+            StructOnBullet();
+
+        if (Input.GetKeyDown(KeyCode.S))
 		{
             rideBullet = !rideBullet;
             if (rideBullet)
                 OnRideBullet();
             else if (bullet)
-                bullet.GetComponent<BulletController>().DestroySelf();
+                OffRideBullet();
 		}
-
-        if (Input.GetKeyDown((KeyCode)KeyboardQRow.StructOnBullet))
-            StructOnBullet();
-        if (Input.GetKeyDown((KeyCode)KeyboardARow.Shot))
-
-            Status.GetInstance().spaceKey = KeyboardARow.Shot;
 
         if (Input.GetKey(KeyCode.Space))
         {
-            if (Status.GetInstance().spaceKey == KeyboardARow.Shot && shotTimer <= 0)
+            if (shotTimer <= 0)
                 Shot();
         }
     }
@@ -161,6 +177,16 @@ public class PlayerController : MonoBehaviour
         size = Mathf.Clamp(deadSize * 2.0f, deadSize + 0.1f, maxSize);
 	}
 
+    public void ChangeSelectedStructureIndex()
+    {
+        int size = availableStructures.Count;
+        for (int i = 0; i < size; ++i)
+        {
+            if (Input.GetKey(KeyCode.Alpha1 + i))
+                selectedStructureIndex = i;
+        }
+    }
+
     private void SafeMove(Vector3 move)
     {
         transform.position += move;
@@ -196,6 +222,21 @@ public class PlayerController : MonoBehaviour
                 );
             playerCamera.PushXY(Vector2.up * size * affectPower.y * Time.deltaTime);
         }
+    }
+
+    public int GetSelectedStructureIndex()
+    {
+        return selectedStructureIndex;
+    }
+
+    public List<GameObject> GetBuiltStructures()
+    {
+        return builtStructures;
+    }
+
+    public int GetMaxStructure()
+    {
+        return maxStructure;
     }
 
     private Vector3 GetCommandMovement()
@@ -270,14 +311,16 @@ public class PlayerController : MonoBehaviour
 
     private void StructOnBullet()
     {
-        if (Status.GetInstance().structureUse < Status.GetInstance().structureMaxUse)
+        if (builtStructures.Count < maxStructure)
         {
             if (bullet != null)
             {
-                GameObject _struct = Instantiate(structPrefab);
-                _struct.transform.position = Ground.GetInstance().GetIndexPosition(transform.position);
-                //SkillEffect(bullet.transform.position);
-                Status.GetInstance().structureUse++;
+                string name = availableStructures[selectedStructureIndex];
+                GameObject _struct = Instantiate(PrefabManager.GetInstance().GetPrefabByName(name), structureFolder);
+                _struct.name = name;
+                _struct.transform.position = Tools.GetInstance().GetGroundIndexPosition(bullet.transform.position);
+                SkillEffect(bullet.transform.position);
+                builtStructures.Add(_struct);
             }
         }
     }
@@ -298,10 +341,17 @@ public class PlayerController : MonoBehaviour
 
     private void OnRideBullet()
     {
+        stopFall += 1;
         GameObject _bullet = PrefabManager.GetInstance().GetPrefabByName("Bullet");
         bullet = Instantiate(_bullet);
         bullet.GetComponent<BulletController>().BirthBullet(gameObject);
         SkillEffect(bullet.transform.position);
+    }
+
+    private void OffRideBullet()
+    {
+        stopFall -= 1;
+        bullet.GetComponent<BulletController>().DestroySelf();
     }
 
     private void SphereBySize(float size)
@@ -355,9 +405,9 @@ public class PlayerController : MonoBehaviour
             return outDirection * outDistance;
 	}
 
-    private void GroundGravityCollision()
+    private void Fall()
     {
-        if (InAir())
+        if (InAir() && stopFall == 0)
             inAirTime += Time.deltaTime;
         else
             inAirTime = 0.0f;

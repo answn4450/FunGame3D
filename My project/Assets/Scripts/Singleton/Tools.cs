@@ -26,11 +26,28 @@ public class Tools
 
     public int GetGroundIndexX(float positionX)
     {
-        return (int)(positionX - Ground.GetInstance().groundX0);
+        int indexX = (int)(positionX - Ground.GetInstance().groundX0);
+        return Mathf.Clamp(indexX, 0, Ground.GetInstance().groundWidth - 1);
     }
 
     public int GetGroundIndexZ(float positionZ)
     {
-        return (int)(positionZ - Ground.GetInstance().groundZ0);
+        int indexZ = (int)(positionZ - Ground.GetInstance().groundZ0);
+        return Mathf.Clamp(indexZ, 0, Ground.GetInstance().groundDepth - 1);
+    }
+
+    public int GetGroundIndexY(float positionY)
+    {
+        int indexY = (int)(positionY - Ground.GetInstance().groundY0);
+        return Mathf.Clamp(indexY, 0, Ground.GetInstance().groundHeight - 1);
+    }
+
+    public Vector3 GetGroundIndexPosition(Vector3 position)
+    {
+        return new Vector3(
+            Ground.GetInstance().groundX0 + GetGroundIndexX(position.x) + 0.5f,
+            Ground.GetInstance().groundY0 + GetGroundIndexY(position.y) + 0.5f,
+            Ground.GetInstance().groundZ0 + GetGroundIndexZ(position.z) + 0.5f
+            );
     }
 }

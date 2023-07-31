@@ -121,17 +121,17 @@ public class CameraController : MonoBehaviour
 
 		Vector3 direction = transform.parent.position - transform.position;
 
-		// ** ¸ğµç Ãæµ¹À» °¨Áö.
+		// ** ëª¨ë“  ì¶©ëŒì„ ê°ì§€.
 		hits = Physics.RaycastAll(transform.position, direction, direction.magnitude).ToList();
 
-		// ** Ãæµ¹µÈ ¸ğµç ¿ø¼Òµé Áß¿¡ Renderer¸¸ ÃßÃâÇÑ »õ·Î¿î ¸®½ºÆ®¸¦ »ı¼º.
+		// ** ì¶©ëŒëœ ëª¨ë“  ì›ì†Œë“¤ ì¤‘ì— Rendererë§Œ ì¶”ì¶œí•œ ìƒˆë¡œìš´ ë¦¬ìŠ¤íŠ¸ë¥¼ ìƒì„±.
 		renderers.AddRange(hits.Select(hit => hit.transform.GetComponent<Renderer>()).Where(renderer => renderer != null).ToList());
 
-		// ** ±âÁ¸ ¸®½ºÆ®¿¡´Â Æ÷ÇÔµÇ¾úÁö¸¸ ÇöÀç ray¿¡ °¨ÁöµÈ ¸®½ºÆ®¿¡´Â ¾ø´Â Renderer
+		// ** ê¸°ì¡´ ë¦¬ìŠ¤íŠ¸ì—ëŠ” í¬í•¨ë˜ì—ˆì§€ë§Œ í˜„ì¬ rayì— ê°ì§€ëœ ë¦¬ìŠ¤íŠ¸ì—ëŠ” ì—†ëŠ” Renderer
 		List<Renderer> extractionList = objectRenderers.Where(renderer => !renderers.Contains(renderer)).ToList();
 
-		// ** ÃßÃâÀÌ ¿Ï·áµÈ Renderer¸¦ ±âÁ¸ ¾ËÆÄ°ªÀ¸·Î µÇµ¹¸°´Ù. 
-		// ** ±×¸®°í »èÁ¦.
+		// ** ì¶”ì¶œì´ ì™„ë£Œëœ Rendererë¥¼ ê¸°ì¡´ ì•ŒíŒŒê°’ìœ¼ë¡œ ë˜ëŒë¦°ë‹¤. 
+		// ** ê·¸ë¦¬ê³  ì‚­ì œ.
 		foreach (Renderer renderer in extractionList)
 		{
 			objectRenderers.Remove(renderer);
@@ -139,10 +139,10 @@ public class CameraController : MonoBehaviour
 		}
 
 		foreach (RaycastHit hit in hits)
-		// ** rayÀÇ Ãæµ¹ÀÌ °¨ÁöµÈ ObjectÀÇ Renderer¸¦ ¹Ş¾Æ¿È.
+		// ** rayì˜ ì¶©ëŒì´ ê°ì§€ëœ Objectì˜ Rendererë¥¼ ë°›ì•„ì˜´.
 		{
 			Renderer renderer = hit.transform.GetComponent<Renderer>();
-			// ** Ãæµ¹ÀÌ ÀÖ´Ù¸é Renderer¸¦ È®ÀÎ.
+			// ** ì¶©ëŒì´ ìˆë‹¤ë©´ Rendererë¥¼ í™•ì¸.
 			if (renderer != null && hit.transform.tag != "Player")
 			{
 				if (!objectRenderers.Contains(renderer))
@@ -158,7 +158,7 @@ public class CameraController : MonoBehaviour
 		Color color = renderer.material.color;
 		color.a = 1.0f;
 
-		// ** Shader ¿ø »óÅÂ·Î º¹±¸.
+		// ** Shader ì› ìƒíƒœë¡œ ë³µêµ¬.
 		renderer.material = new Material(Shader.Find(defaultShader));
 
 		renderer.material.color = color;
@@ -168,7 +168,7 @@ public class CameraController : MonoBehaviour
 	{
 		Color color = renderer.material.color;
 
-		// ** Color°ª º¯°æÀÌ °¡´ÉÇÑ Shader·Î º¯°æ.
+		// ** Colorê°’ ë³€ê²½ì´ ê°€ëŠ¥í•œ Shaderë¡œ ë³€ê²½.
 		renderer.material = new Material(Shader.Find(blockShader));
 
 		color.a = 0.2f;

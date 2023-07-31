@@ -3,29 +3,35 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
-using ManualKey;
 
 public class GameManager : MonoBehaviour
 {
     public ElevatorController prevElevator;
     public ElevatorController nextElevator;
     public GroundManager ground;
+
     private CameraController gameCamera;
     private PlayerController player;
     private PlayerEyeController playerEye;
     private UIController uiController;
-
+    private StructureManager structureManager;
+    
+    private Transform builtStructureFolder;
+    
     private float newCountdown;
     private float leftCountdown;
+
 
     void Awake()
     {
         newCountdown = 10.0f;
         leftCountdown = newCountdown;
-        Status.GetInstance().structureUse = 0;
-        Status.GetInstance().structureMaxUse = 5;
 
         Ground.GetInstance().SetGroundWithPannel(ground);
+
+        builtStructureFolder = new GameObject("Built Structure Folder").transform;
+        structureManager = builtStructureFolder.gameObject.AddComponent<StructureManager>();
+        
     }
     
     private void Start()
@@ -38,10 +44,13 @@ public class GameManager : MonoBehaviour
         uiController = playSet.transform.GetChild(2).gameObject.GetComponent<UIController>();
         
         player = playerSet.transform.GetChild(0).gameObject.GetComponent<PlayerController>();
+        player.structureFolder = builtStructureFolder;
         playerEye = playerSet.transform.GetChild(1).gameObject.GetComponent<PlayerEyeController>();
         gameCamera = playerEye.transform.GetChild(0).gameObject.GetComponent<CameraController>();
 
         ground.CreateGrounds();
+
+        uiController.SetUI(player);
     }
 
     void Update()
@@ -54,7 +63,6 @@ public class GameManager : MonoBehaviour
 
         if (player)
         {
-            uiController.UIPlay(player);
             if (player.dead)
             {
                 leftCountdown -= Time.deltaTime;
@@ -67,26 +75,28 @@ public class GameManager : MonoBehaviour
             }
             else
             {
+                structureManager.LoopStructuresInFolder(builtStructureFolder);
+
+                player.ChangeSelectedStructureIndex();
                 player.Command();
                 player.CommandMove();
 
                 if (player.rideBullet)
                     player.RideBullet();
                 else
-				{
                     player.WithAffectPower();
-				}
                 
                 gameCamera.BehindPlayer(10.0f);
                 
                 ground.UpDownOrSqueeze(player);
             }
+
+            uiController.UIPlay(player);
         }
     }
 
     public void Rebirth()
 	{
-        Debug.Log("c");
         if (player)
             player.Rebirth();
 	}
