@@ -8,7 +8,7 @@ public class GameManager : MonoBehaviour
 {
     public ElevatorController prevElevator;
     public ElevatorController nextElevator;
-    public GroundManager ground;
+    public GroundManager groundManager;
 
     private CameraController gameCamera;
     private PlayerController player;
@@ -27,7 +27,7 @@ public class GameManager : MonoBehaviour
         newCountdown = 10.0f;
         leftCountdown = newCountdown;
 
-        Ground.GetInstance().SetGroundWithPannel(ground);
+        Ground.GetInstance().SetGroundWithPannel(groundManager);
 
         builtStructureFolder = new GameObject("Built Structure Folder").transform;
         structureManager = builtStructureFolder.gameObject.AddComponent<StructureManager>();
@@ -48,11 +48,15 @@ public class GameManager : MonoBehaviour
         playerEye = playerSet.transform.GetChild(1).gameObject.GetComponent<PlayerEyeController>();
         gameCamera = playerEye.transform.GetChild(0).gameObject.GetComponent<CameraController>();
 
-        ground.CreateGrounds();
+        groundManager.CreateGrounds();
 
         uiController.SetUI(player);
     }
 
+    private void FixedUpdate()
+    {
+        groundManager.BeforeTemporailyAffect();
+    }
     void Update()
     {
         if (prevElevator != null && prevElevator.IsWithPlayer())
@@ -61,6 +65,7 @@ public class GameManager : MonoBehaviour
         if (nextElevator != null && nextElevator.IsWithPlayer())
             nextElevator.MovePlayer();
 
+        //structureManager.Manage();
         if (player)
         {
             if (player.dead)
@@ -76,6 +81,7 @@ public class GameManager : MonoBehaviour
             else
             {
                 structureManager.LoopStructuresInFolder(builtStructureFolder);
+                groundManager.ManageGrounds(player);
 
                 player.ChangeSelectedStructureIndex();
                 player.Command();
@@ -88,7 +94,6 @@ public class GameManager : MonoBehaviour
                 
                 gameCamera.BehindPlayer(10.0f);
                 
-                ground.UpDownOrSqueeze(player);
             }
 
             UIControll();

@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class Tools
 {
+    public LayerMask groundMask = new LayerMask();
     private static Tools instance;
 
     public static Tools GetInstance()
@@ -12,16 +13,6 @@ public class Tools
             instance = new Tools();
 
         return instance;
-	}
-
-    public bool SameGround(Transform a, Transform b)
-	{
-        int aX = GetGroundIndexX(a.position.x);
-        int aZ = GetGroundIndexX(a.position.z);
-        int bX = GetGroundIndexX(b.position.x);
-        int bZ = GetGroundIndexX(b.position.z);
-
-        return (aX == bX && aZ == bZ);
 	}
 
     public int GetGroundIndexX(float positionX)
@@ -51,6 +42,16 @@ public class Tools
             );
     }
 
+    public bool SameGround(Transform a, Transform b)
+	{
+        int aX = GetGroundIndexX(a.position.x);
+        int aZ = GetGroundIndexX(a.position.z);
+        int bX = GetGroundIndexX(b.position.x);
+        int bZ = GetGroundIndexX(b.position.z);
+
+        return (aX == bX && aZ == bZ);
+	}
+
     public bool BallOutGround(Transform ball)
     {
         float radius = ball.localScale.x * 0.5f;
@@ -69,5 +70,10 @@ public class Tools
             return false;
         else
             return true;
+    }
+
+    public bool GetBallTouchRect(Transform ball, Transform rect)
+    {
+        return true;
     }
 }

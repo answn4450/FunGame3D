@@ -9,6 +9,8 @@ public class GroundManager : MonoBehaviour
     private Transform groundFolder;
 
     private int sizeX, sizeY, sizeZ;
+
+    private const float ruleDistance = 3.0f;
     float x0, y0, z0;
 
 
@@ -47,16 +49,54 @@ public class GroundManager : MonoBehaviour
         }
     }
 
-    public void UpDownOrSqueeze(PlayerController player)
+    public void BeforeTemporailyAffect()
     {
         for (int x = 0; x < sizeX; ++x)
         {
             for (int z = 0; z < sizeZ; ++z)
             {
-                //groundList[x][z].UpDownByTarget(player.transform);
-                groundList[x][z].UpDownOrSqueeze(player);
+                GroundController ground = groundList[x][z];
+                ground.ResetTemporarilyOptions();
             }
         }
+    }
+
+    public void ManageGrounds(PlayerController player)
+    {
+        for (int x = 0; x < sizeX; ++x)
+        {
+            for (int z = 0; z < sizeZ; ++z)
+            {
+                GroundController ground = groundList[x][z];
+                ground.UpDownOrSqueeze(player);
+                ground.MoreEvilGround();
+                if (Tools.GetInstance().GetBallTouchRect(player.transform, ground.transform))
+                    ground.EffectPlayerByTouch(player);
+            }
+        }
+    }
+
+    private bool GetGroundIsTouchPlayer(PlayerController player, GroundController ground)
+    {
+        return true;
+    }
+
+    private float GetRelativeDistancePower(float plusDistance)
+    {
+        return Mathf.Max(ruleDistance - plusDistance, 0.0f);
+    }
+
+    private float GetDistance2D(Vector3 playerPos, Vector3 groundPos)
+    {
+        Vector3 distanceVector = playerPos - groundPos;
+        distanceVector.y = 0.0f;
+        return distanceVector.magnitude;
+    }
+
+    private float GetDistance3D(Vector3 playerPos, Vector3 groundPos)
+    {
+        Vector3 distanceVector = playerPos - groundPos;
+        return distanceVector.magnitude;
     }
 
     private GroundController FindGround(Vector3 position)

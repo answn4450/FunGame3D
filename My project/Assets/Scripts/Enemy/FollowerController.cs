@@ -41,6 +41,7 @@ public class FollowerController : MonoBehaviour
         SphereBySize(size);
         if (dead)
             Explode();
+        AffectNearGround();
     }
 
 	private void OnTriggerEnter(Collider other)
@@ -48,6 +49,21 @@ public class FollowerController : MonoBehaviour
         if (other.tag == "Player")
             other.transform.GetComponent<PlayerController>().Hurt();
 	}
+
+    IEnumerator AutoBreeding()
+    {
+        while (true)
+        {
+            yield return familyCount <= maxFamilyCount ? new WaitForSeconds(3.0f) : null;
+            if (!parent)
+			{
+                if (familyCount < maxFamilyCount)
+                    DoubleBreeding(familyCount);
+                if (familyCount > maxFamilyCount)
+                    Explode();
+			}
+        }
+    }
 
 	private void FollowTarget(Vector3 position)
     {
@@ -65,21 +81,6 @@ public class FollowerController : MonoBehaviour
         --familyCount;
         PassFamilyCount(familyCount);
         Instantiate(destroyFX, transform.position, transform.rotation);
-    }
-
-    IEnumerator AutoBreeding()
-    {
-        while (true)
-        {
-            yield return familyCount <= maxFamilyCount ? new WaitForSeconds(3.0f) : null;
-            if (!parent)
-			{
-                if (familyCount < maxFamilyCount)
-                    DoubleBreeding(familyCount);
-                if (familyCount > maxFamilyCount)
-                    Explode();
-			}
-        }
     }
 
     private void DoubleBreeding(int count)
@@ -172,5 +173,14 @@ public class FollowerController : MonoBehaviour
             newSize = size;
 
         SetSphere(newSize);
+    }
+
+    private void AffectNearGround()
+    {
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position, Vector3.down, out hit, Mathf.Infinity, Tools.GetInstance().groundMask))
+        {
+            hit.transform.GetComponent<GroundController>().MoreEvilGround();
+        }
     }
 }
