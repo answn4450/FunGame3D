@@ -8,10 +8,11 @@ public class GroundController : MonoBehaviour
 
     private GameObject squeezeFX;
 
+    private Color originalColor;
     private float groundX;
     private float groundZ;
     private float temporarilySpeed;
-    private const float defaultSpeed = 0.8f;
+    private const float defaultSpeed = 0.4f;
 
     private bool slowdownPlayer;
 
@@ -20,11 +21,13 @@ public class GroundController : MonoBehaviour
         temporarilySpeed = defaultSpeed;
         squeezeFX = PrefabManager.GetInstance().GetPrefabByName("CFXR Hit A (Red)");
         slowdownPlayer = false;
+        originalColor = GetComponent<Renderer>().material.color;
     }
 
     public void Reset()
     {
         temporarilySpeed = defaultSpeed;
+        SetColor(originalColor);
     }
 
     public void SetWithIndex(int indexX, int indexZ)
@@ -57,25 +60,26 @@ public class GroundController : MonoBehaviour
 
     public void MoreEvilGround()
     {
-        MakeColorCloseTo(Color.black);
+        temporarilySpeed += 2.0f;
+        SetColor(Color.black);
     }
 
     public void UpDownOrSqueeze(PlayerController player)
     {
-        float distancePower = GetUpDownSpeed(player.transform);
         float newHeight = GetSafeHeight(
-            transform.localScale.y + distancePower * temporarilySpeed * Time.deltaTime
+            transform.localScale.y + GetUpDownMove(player.transform)
             );
         float playerRadius = player.transform.localScale.y * 0.5f;
 
-        float maxHeightUnderPlayer = Ground.GetInstance().groundHeight - playerRadius * 2.0f;
+        float maxHeightWithCollides = GetMaxHeightWithCollides();
         if (Tools.GetInstance().SameGround(player.transform, transform))
         {
-            if (newHeight > maxHeightUnderPlayer)
+            if (newHeight > maxHeightWithCollides)
             {
                 Instantiate(squeezeFX).transform.position = player.transform.position;
-                player.Hurt((newHeight - maxHeightUnderPlayer) * Time.deltaTime);
-                newHeight = maxHeightUnderPlayer;
+                player.Hurt((newHeight - maxHeightWithCollides) * Time.deltaTime);
+                newHeight = maxHeightWithCollides;
+                Debug.Log("d");
             }
 
             if (player.transform.position.y - playerRadius < Ground.GetInstance().groundY0 + newHeight)
@@ -103,23 +107,35 @@ public class GroundController : MonoBehaviour
         transform.localScale += Vector3.down * size;
     }
 
-    public float GetTopY()
-	{
-        return transform.position.y + transform.localScale.y * 0.5f; ;
+    private float GetMaxHeightWithCollides()
+    {
+        float maxHeight = Ground.GetInstance().groundHeight;
+        LayerMask groundMask = LayerMask.GetMask("Structure");
+        LayerMask playerMask = LayerMask.GetMask("Player");
+
+        RaycastHit[] structureHits = Physics.RaycastAll(
+            transform.position, Vector3.up, Mathf.Infinity, groundMask
+            );
+
+        RaycastHit playerHit;
+
+        if (Physics.Raycast(transform.position, Vector3.up, out playerHit, Mathf.Infinity, playerMask))
+        {
+            if (playerHit.transform.name == "Player")
+                maxHeight -= playerHit.transform.localScale.x;
+        }
+            
+        maxHeight -= structureHits.Length;
+
+        return maxHeight;
     }
 
-    private float GetUpDownSpeed(Transform player)
+    private float GetUpDownMove(Transform player)
     {
         Vector3 distVector = player.position - transform.position;
         distVector.y = 0;
-        float changeY = 6.0f - distVector.magnitude;
-        float availableY = Ground.GetInstance().groundHeight - transform.localScale.y;
-        if (changeY > availableY)
-            return availableY;
-        if (changeY + transform.localScale.y < 1.0f)
-            return (1.0f - transform.localScale.y);
-        else
-            return changeY;
+        float upDown = 3.0f - distVector.magnitude;
+        return Mathf.Max(upDown, -1.0f) * temporarilySpeed * Time.deltaTime;
     }
 
     private void SetGroundTransform(float height)
@@ -144,24 +160,15 @@ public class GroundController : MonoBehaviour
 
     private float GetSafeHeight(float height)
     {
-        return Mathf.Clamp(height, 0, Ground.GetInstance().groundHeight);
-    }
-
-    private void MakeColorCloseTo(Color destColor)
-    {
-        GetComponent<Renderer>().material.color = LerpColor(
-            GetComponent<Renderer>().material.color,
-            destColor,
-            Time.deltaTime
+        return Mathf.Clamp(
+            height, 
+            Ground.GetInstance().groundMinimumHeight, 
+            Ground.GetInstance().groundHeight
             );
     }
 
-    private Color LerpColor(Color startColor, Color destColor, float t)
+    private void SetColor(Color destColor)
     {
-        return new Color(
-            Mathf.Lerp(startColor.r, destColor.r, t),
-            Mathf.Lerp(startColor.g, destColor.g, t),
-            Mathf.Lerp(startColor.b, destColor.b, t)
-            );
+        GetComponent<Renderer>().material.color = destColor;
     }
 }

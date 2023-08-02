@@ -80,6 +80,86 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: "\uCD1D\uC54C\uC5D0 (a\uB294 \uAC74\uCD95 , s\uB294 \uD0D1\uC2B9)"
+--- !u!1 &802751781857189836
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6519052778879267065}
+  - component: {fileID: 1241746815384795506}
+  - component: {fileID: 6882825797709647465}
+  m_Layer: 5
+  m_Name: GroundMinimumHeight
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!224 &6519052778879267065
+RectTransform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 802751781857189836}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3001018382187788977}
+  m_RootOrder: 5
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+  m_AnchorMin: {x: 0.5, y: 0.5}
+  m_AnchorMax: {x: 0.5, y: 0.5}
+  m_AnchoredPosition: {x: 529.6465, y: 413.82278}
+  m_SizeDelta: {x: 757.4702, y: 108.4362}
+  m_Pivot: {x: 0.5, y: 0.5}
+--- !u!222 &1241746815384795506
+CanvasRenderer:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 802751781857189836}
+  m_CullTransparentMesh: 1
+--- !u!114 &6882825797709647465
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 802751781857189836}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5f7201a12d95ffc409449d95f23cf332, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  m_Material: {fileID: 0}
+  m_Color: {r: 0.19607843, g: 0.19607843, b: 0.19607843, a: 1}
+  m_RaycastTarget: 1
+  m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
+  m_Maskable: 1
+  m_OnCullStateChanged:
+    m_PersistentCalls:
+      m_Calls: []
+  m_FontData:
+    m_Font: {fileID: 12800000, guid: 07816f1912590dd458f84730284a1efc, type: 3}
+    m_FontSize: 47
+    m_FontStyle: 0
+    m_BestFit: 0
+    m_MinSize: 10
+    m_MaxSize: 47
+    m_Alignment: 5
+    m_AlignByGeometry: 0
+    m_RichText: 1
+    m_HorizontalOverflow: 0
+    m_VerticalOverflow: 0
+    m_LineSpacing: 1
+  m_Text: "ground \uCD5C\uC800 \uB192\uC774"
 --- !u!1 &1384944268437601259
 GameObject:
   m_ObjectHideFlags: 0
@@ -275,6 +355,7 @@ RectTransform:
   - {fileID: 1951979450}
   - {fileID: 1650763365265781760}
   - {fileID: 8493212105410720109}
+  - {fileID: 6519052778879267065}
   m_Father: {fileID: 3001018382428394448}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -372,6 +453,7 @@ MonoBehaviour:
   textCountdown: {fileID: 3001018384126866893}
   nextElevatorDistance: {fileID: 5337472960683360504}
   playerPosition: {fileID: 6492941799581355651}
+  groundMinimumHeight: {fileID: 6882825797709647465}
   deadUI: {fileID: 3001018384015523477}
   availableStructure: {fileID: 4595520201252149895}
   builtStructure: {fileID: 7559317026643896058}
@@ -497,7 +579,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   prevElevator: {fileID: 3737376980571667846}
   nextElevator: {fileID: 3737376980421944454}
-  ground: {fileID: 6244522107136539141}
+  groundManager: {fileID: 6244522107136539141}
 --- !u!1 &3001018382583629277
 GameObject:
   m_ObjectHideFlags: 0

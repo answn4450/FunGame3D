@@ -13,13 +13,13 @@ public class StartMenuManager : MonoBehaviour
 
 	private void Start()
 	{
-        Ground.GetInstance().SetGroundWithPannel(ground);
+        Ground.GetInstance().SetGround(ground);
 	}
 
 	void Update()
     {
         playCam.AroundPoint(10.0f);
-        finish.text = Status.GetInstance().endGame ? "¿Ï·á ÇßÀ½" : "¿Ï·á ÇÊ¿ä";
+        finish.text = Status.GetInstance().endGame ? "ì™„ë£Œ í–ˆìŒ" : "ì™„ë£Œ í•„ìš”";
         player.CommandMove();
     }
 

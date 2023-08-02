@@ -4,7 +4,6 @@ using UnityEngine;
 
 public class FollowerController : MonoBehaviour
 {
-    public Transform folder;
     GameObject player;
     Vector3 originalPosition;
 
@@ -12,6 +11,7 @@ public class FollowerController : MonoBehaviour
     public FollowerController child;
     public int familyCount;
     public int maxFamilyCount;
+    public LayerMask mask;
     private GameObject destroyFX;
     private bool dead;
     private float size;
@@ -28,13 +28,14 @@ public class FollowerController : MonoBehaviour
 
     void Start()
     {
+        mask = Tools.GetInstance().groundMask;
         player = GameObject.Find("Player");
         originalPosition = transform.position;
         StartCoroutine(AutoBreeding());
         destroyFX = PrefabManager.GetInstance().GetPrefabByName("CFXR Hit A (Red)");
     }
 
-    void Update()
+    public void Update()
     {
         FollowTarget(player.transform.position);
         CheckDead();
@@ -90,6 +91,7 @@ public class FollowerController : MonoBehaviour
             --count;
             Breeding();
             child.DoubleBreeding(count);
+            Ground.GetInstance().groundMinimumHeight += 0.1f;
 		}
 	}
 
@@ -118,7 +120,8 @@ public class FollowerController : MonoBehaviour
     {
         return Instantiate(
             gameObject, originalPosition, Quaternion.identity, 
-            folder);
+            transform.parent.transform
+            );
     }
 
     private void PassFamilyCount(int _newCount)
@@ -178,9 +181,8 @@ public class FollowerController : MonoBehaviour
     private void AffectNearGround()
     {
         RaycastHit hit;
+        Debug.DrawLine(transform.position, transform.position + Vector3.down * 2.0f, Color.white);
         if (Physics.Raycast(transform.position, Vector3.down, out hit, Mathf.Infinity, Tools.GetInstance().groundMask))
-        {
             hit.transform.GetComponent<GroundController>().MoreEvilGround();
-        }
     }
 }

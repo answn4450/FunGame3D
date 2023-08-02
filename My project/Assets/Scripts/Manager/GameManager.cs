@@ -21,13 +21,12 @@ public class GameManager : MonoBehaviour
     private float newCountdown;
     private float leftCountdown;
 
-
     void Awake()
     {
         newCountdown = 10.0f;
         leftCountdown = newCountdown;
 
-        Ground.GetInstance().SetGroundWithPannel(groundManager);
+        Ground.GetInstance().SetGround(groundManager);
 
         builtStructureFolder = new GameObject("Built Structure Folder").transform;
         structureManager = builtStructureFolder.gameObject.AddComponent<StructureManager>();
@@ -57,6 +56,7 @@ public class GameManager : MonoBehaviour
     {
         groundManager.BeforeTemporailyAffect();
     }
+
     void Update()
     {
         if (prevElevator != null && prevElevator.IsWithPlayer())
@@ -80,7 +80,7 @@ public class GameManager : MonoBehaviour
             }
             else
             {
-                structureManager.LoopStructuresInFolder(builtStructureFolder);
+                structureManager.LoopStructuresInFolder();
                 groundManager.ManageGrounds(player);
 
                 player.ChangeSelectedStructureIndex();

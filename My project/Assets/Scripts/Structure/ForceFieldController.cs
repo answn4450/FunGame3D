@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class ForceFieldController : MonoBehaviour
+public class ForceFieldController : Structure
 {
     GameObject destroyFX;
 

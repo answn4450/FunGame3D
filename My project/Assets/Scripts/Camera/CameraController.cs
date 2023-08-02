@@ -119,7 +119,7 @@ public class CameraController : MonoBehaviour
 		List<RaycastHit> hits = new List<RaycastHit>();
 		List<Renderer> renderers = new List<Renderer>();
 
-		Vector3 direction = transform.parent.position - transform.position;
+		Vector3 direction = GameObject.Find("Player").transform.position - transform.position;
 
 		// ** 모든 충돌을 감지.
 		hits = Physics.RaycastAll(transform.position, direction, direction.magnitude).ToList();

@@ -69,7 +69,7 @@ public class GroundManager : MonoBehaviour
             {
                 GroundController ground = groundList[x][z];
                 ground.UpDownOrSqueeze(player);
-                ground.MoreEvilGround();
+                //ground.MoreEvilGround();
                 if (Tools.GetInstance().GetBallTouchRect(player.transform, ground.transform))
                     ground.EffectPlayerByTouch(player);
             }

@@ -10,6 +10,7 @@ public class UIController : MonoBehaviour
     public Text textCountdown;
     public Text nextElevatorDistance;
     public Text playerPosition;
+    public Text groundMinimumHeight;
 
     public GameObject deadUI;
     public GameObject availableStructure;
@@ -89,6 +90,7 @@ public class UIController : MonoBehaviour
         AvailableStructuresInfo(player.GetSelectedStructureIndex());
         BuiltStructuresInfo(player.GetBuiltStructures());
         Position(player.transform.position);
+        MinimumGroundHeightInfo();
     }
 
     public void DeadCountdown(float countdown)
@@ -134,6 +136,11 @@ public class UIController : MonoBehaviour
         }
     }
 
+    private void MinimumGroundHeightInfo()
+    {
+        groundMinimumHeight.text = "최저 높이: " + Ground.GetInstance().groundMinimumHeight.ToString();
+    }
+
     private string EasyVector3(Vector3 vector3)
     {
         Vector3 switchYZ = new Vector3(
@@ -144,4 +151,5 @@ public class UIController : MonoBehaviour
 
         return string.Format("{0:0},{1:0},{2:0}", switchYZ.x, switchYZ.y, switchYZ.z);
     }
+
 }

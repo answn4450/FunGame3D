@@ -13,7 +13,7 @@ GameObject:
   - component: {fileID: 2400771436811322065}
   - component: {fileID: 8174208846682094092}
   - component: {fileID: 2868072423488473827}
-  m_Layer: 0
+  m_Layer: 7
   m_Name: Ground
   m_TagString: Ground
   m_Icon: {fileID: 0}
@@ -110,3 +110,4 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ff765ddc6af72de48ae0353a1be821b4, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  maxSizeY: 0

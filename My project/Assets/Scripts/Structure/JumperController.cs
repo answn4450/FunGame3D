@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class JumperController : MonoBehaviour
+public class JumperController : Structure
 {
     private PlayerController player;
     private float power;

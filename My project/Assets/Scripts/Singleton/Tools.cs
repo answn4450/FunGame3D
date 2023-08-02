@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class Tools
 {
-    public LayerMask groundMask = new LayerMask();
+    public LayerMask groundMask = LayerMask.GetMask("Ground");
     private static Tools instance;
 
     public static Tools GetInstance()

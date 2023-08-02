@@ -13,6 +13,8 @@ public class Ground
     public float groundY0;
     public float groundY1;
 
+    public float groundMinimumHeight;
+
     public int groundWidth;
     public int groundDepth;
     public int groundHeight;
@@ -27,10 +29,11 @@ public class Ground
         return instance;
 	}
 
-    public void SetGroundWithPannel(GroundManager ground)
+    public void SetGround(GroundManager ground)
 	{
         groundWidth = (int)ground.transform.localScale.x;
         groundHeight = 7;
+        groundMinimumHeight = 1.0f;
         groundDepth = (int)ground.transform.localScale.z;
         
         // ground 맨 왼쪽 밑 아래 구석.

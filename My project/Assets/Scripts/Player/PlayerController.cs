@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+public class PlayerController : LivingBall
 {
     public CameraController playerCamera;
     public PlayerEyeController playerEye;
@@ -14,7 +14,6 @@ public class PlayerController : MonoBehaviour
     public bool rideBullet;
     public float size;
     public float maxSize;
-
     public LayerMask groundMask;
 
     public GameObject bullet;
@@ -30,8 +29,6 @@ public class PlayerController : MonoBehaviour
 
     private int selectedStructureIndex;
     private float deadSize = 0.2f;
-    private float horizontal;
-    private float vertical;
     private float physicsScale;
     private float physicsTimeElapseScale;
     private float shotTimer;
@@ -59,8 +56,6 @@ public class PlayerController : MonoBehaviour
         maxSize = 1.0f;
         deadSize = 0.2f;
 
-        horizontal = 0.0f;
-        vertical = 0.0f;
         shotTimer = 0.0f;
         rapidATimer = 0.0f;
         rapidDTimer = 0.0f;
@@ -280,22 +275,15 @@ public class PlayerController : MonoBehaviour
         bool softTurn = (Input.GetKey(KeyCode.LeftShift));
         bool crabWalk;
 
-        vertical *= 0.98f;
-        horizontal *= 0.98f;
+        float horizontal = Input.GetAxis("Horizontal");
+        float vertical = Input.GetAxis("Vertical");
 
-        if (Input.GetKey(KeyCode.DownArrow))
-            vertical -= Time.deltaTime;
-        if (Input.GetKey(KeyCode.UpArrow))
-            vertical += Time.deltaTime;
-
-        if (Input.GetKey(KeyCode.LeftArrow))
-            horizontal -= Time.deltaTime;
-        if (Input.GetKey(KeyCode.RightArrow))
-            horizontal += Time.deltaTime;
+        if (!(Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.UpArrow)))
+            vertical = 0.0f;
+        if (!(Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.RightArrow)))
+            horizontal = 0.0f;
 
         crabWalk = Input.GetKey(KeyCode.LeftControl);
-        vertical = Mathf.Clamp(vertical, -1.0f, 1.0f);
-        horizontal = Mathf.Clamp(horizontal, -1.0f, 1.0f);
 
         speed = softTurn ? 13.0f : 10.0f;
 
@@ -306,22 +294,22 @@ public class PlayerController : MonoBehaviour
             rapidATimer = 0.0f;
         if (Input.GetKeyDown(KeyCode.LeftArrow))
             rapidDTimer = 0.0f;
-        
+
         if (Input.GetKey(KeyCode.LeftArrow) && !Input.GetKeyDown(KeyCode.LeftArrow))
             rapidATimer -= Time.deltaTime;
         if (Input.GetKey(KeyCode.RightArrow) && !Input.GetKeyDown(KeyCode.RightArrow))
             rapidDTimer -= Time.deltaTime;
 
         if (Input.GetKey(KeyCode.LeftArrow) && rapidATimer <= 0.0f)
-		{
+        {
             rapidATimer = 0.2f;
             dir -= 1;
-		}
+        }
         if (Input.GetKey(KeyCode.RightArrow) && rapidDTimer <= 0.0f)
-		{
+        {
             rapidDTimer = 0.2f;
             dir += 1;
-		}
+        }
 
         if (horizontal != 0)
         {
