@@ -45,9 +45,9 @@ public class Tools
     public bool SameGround(Transform a, Transform b)
 	{
         int aX = GetGroundIndexX(a.position.x);
-        int aZ = GetGroundIndexX(a.position.z);
+        int aZ = GetGroundIndexZ(a.position.z);
         int bX = GetGroundIndexX(b.position.x);
-        int bZ = GetGroundIndexX(b.position.z);
+        int bZ = GetGroundIndexZ(b.position.z);
 
         return (aX == bX && aZ == bZ);
 	}

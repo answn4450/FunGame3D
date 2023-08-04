@@ -63,7 +63,7 @@ public class GroundController : MonoBehaviour
         temporarilySpeed += 2.0f;
         SetColor(Color.black);
     }
-
+    
     public void UpDownOrSqueeze(PlayerController player)
     {
         float newHeight = GetSafeHeight(
@@ -74,12 +74,12 @@ public class GroundController : MonoBehaviour
         float maxHeightWithCollides = GetMaxHeightWithCollides();
         if (Tools.GetInstance().SameGround(player.transform, transform))
         {
+            //Debug.Log(transform.name);
             if (newHeight > maxHeightWithCollides)
             {
                 Instantiate(squeezeFX).transform.position = player.transform.position;
                 player.Hurt((newHeight - maxHeightWithCollides) * Time.deltaTime);
                 newHeight = maxHeightWithCollides;
-                Debug.Log("d");
             }
 
             if (player.transform.position.y - playerRadius < Ground.GetInstance().groundY0 + newHeight)
@@ -88,7 +88,7 @@ public class GroundController : MonoBehaviour
                     Ground.GetInstance().groundY0 + newHeight + playerRadius,
                     player.transform.position.z
                     );
-        }
+            }
 
         SetGroundTransform(newHeight);
     }

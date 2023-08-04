@@ -134,8 +134,11 @@ public class CameraController : MonoBehaviour
 		// ** 그리고 삭제.
 		foreach (Renderer renderer in extractionList)
 		{
-			objectRenderers.Remove(renderer);
-			ApplyOriginalShader(renderer);
+            if (renderer != null)
+            {
+                objectRenderers.Remove(renderer);
+                ApplyOriginalShader(renderer);
+            }
 		}
 
 		foreach (RaycastHit hit in hits)

@@ -85,12 +85,15 @@ public class GameManager : MonoBehaviour
 
                 player.ChangeSelectedStructureIndex();
                 player.Command();
-                player.CommandMove();
+                player.CommandTurnEye();
 
                 if (player.rideBullet)
                     player.RideBullet();
                 else
+                {
+                    player.CommandMoveBody();
                     player.WithAffectPower();
+                }
                 
                 gameCamera.BehindPlayer(10.0f);
                 

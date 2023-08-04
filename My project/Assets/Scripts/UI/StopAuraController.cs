@@ -6,6 +6,6 @@ public class StopAuraController : Structure
 {
     public void StopPlayerBlock()
     {
-        Debug.Log("stop");
+        //Debug.Log("stop");
     }
 }

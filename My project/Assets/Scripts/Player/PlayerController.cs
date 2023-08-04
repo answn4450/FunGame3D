@@ -147,16 +147,64 @@ public class PlayerController : LivingBall
             OffRideBullet();
     }
 
-    public void CommandMove()
+    public void CommandMoveBody()
     {
-        Vector3 futureMove = GetCommandMovement() * Time.deltaTime;
-        SafeMove(futureMove);
+        Vector3 movement = Vector3.zero;
+        bool axcel = (Input.GetKey(KeyCode.LeftShift));
+        bool crabWalk = Input.GetKey(KeyCode.LeftControl);
+        float speed = axcel ? 13.0f : 10.0f;
+        float horizontal = Input.GetAxis("Horizontal");
+        float vertical = Input.GetAxis("Vertical");
+
+        if (!(Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.UpArrow)))
+            vertical = 0.0f;
+        if (!(Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.RightArrow)))
+            horizontal = 0.0f;
+
+        if (crabWalk)
+            movement += transform.right * horizontal * speed;
+
+        if (vertical != 0)
+        {
+            movement += speed * vertical * transform.forward;
+            playerCamera.ChangeFieldView(vertical);
+        }
+
+        SafeMove(movement * Time.deltaTime);
+    }
+
+    public void CommandTurnEye()
+    {
+        int dir = 0;
+        float rotateDeg = 20.0f;
+        if (Input.GetKeyDown(KeyCode.LeftArrow))
+            rapidATimer = 0.0f;
+        if (Input.GetKeyDown(KeyCode.RightArrow))
+            rapidDTimer = 0.0f;
+
+        if (Input.GetKey(KeyCode.LeftArrow) && !Input.GetKeyDown(KeyCode.LeftArrow))
+            rapidATimer -= Time.deltaTime;
+        if (Input.GetKey(KeyCode.RightArrow) && !Input.GetKeyDown(KeyCode.RightArrow))
+            rapidDTimer -= Time.deltaTime;
+
+        if (Input.GetKey(KeyCode.LeftArrow) && rapidATimer <= 0.0f)
+        {
+            rapidATimer = 0.2f;
+            dir -= 1;
+        }
+        if (Input.GetKey(KeyCode.RightArrow) && rapidDTimer <= 0.0f)
+        {
+            rapidDTimer = 0.2f;
+            dir += 1;
+        }
+
+        transform.Rotate(transform.up * rotateDeg * dir);
+        playerCamera.SwivelZ(dir);
     }
 
     public void WithAffectPower()
     {
-        transform.position += affectPower * Time.deltaTime * physicsTimeElapseScale;
-        SafeMove(affectPower);
+        SafeMove(affectPower * Time.deltaTime * physicsTimeElapseScale);
         affectPower *= Mathf.Clamp01(1 - Time.deltaTime * physicsTimeElapseScale);
     }
 
@@ -183,8 +231,6 @@ public class PlayerController : LivingBall
 
     private void SafeMove(Vector3 move)
     {
-        transform.position += move;
-
         float radius = transform.localScale.x * 0.5f;
         float validX0 = Ground.GetInstance().groundX0 + radius * 0.5f;
         float validX1 = Ground.GetInstance().groundX1 - radius * 0.5f;
@@ -193,11 +239,18 @@ public class PlayerController : LivingBall
         float validY0 = Ground.GetInstance().groundY0 + 1.0f + radius * 0.5f;
         float validY1 = Ground.GetInstance().groundY1 - radius * 0.5f;
 
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position, move, out hit, move.magnitude))
+            move = move.normalized * (Vector3.Distance(transform.position, hit.transform.position) - radius);
+
+        transform.position += move;
+
         transform.position = new Vector3(
             Mathf.Clamp(transform.position.x, validX0, validX1),
             Mathf.Clamp(transform.position.y, validY0, validY1),
             Mathf.Clamp(transform.position.z, validZ0, validZ1)
             );
+
         /*
         if (transform.position.x - radius < validX0 || transform.position.x > validX1)
         {
@@ -268,67 +321,9 @@ public class PlayerController : LivingBall
         return maxStructure;
     }
 
-    private Vector3 GetCommandMovement()
+    public float GetRadius()
     {
-        Vector3 movement = Vector3.zero;
-        float speed;
-        bool softTurn = (Input.GetKey(KeyCode.LeftShift));
-        bool crabWalk;
-
-        float horizontal = Input.GetAxis("Horizontal");
-        float vertical = Input.GetAxis("Vertical");
-
-        if (!(Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.UpArrow)))
-            vertical = 0.0f;
-        if (!(Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.RightArrow)))
-            horizontal = 0.0f;
-
-        crabWalk = Input.GetKey(KeyCode.LeftControl);
-
-        speed = softTurn ? 13.0f : 10.0f;
-
-        float rotateDeg = 20.0f;
-        int dir = 0;
-
-        if (Input.GetKeyDown(KeyCode.LeftArrow))
-            rapidATimer = 0.0f;
-        if (Input.GetKeyDown(KeyCode.LeftArrow))
-            rapidDTimer = 0.0f;
-
-        if (Input.GetKey(KeyCode.LeftArrow) && !Input.GetKeyDown(KeyCode.LeftArrow))
-            rapidATimer -= Time.deltaTime;
-        if (Input.GetKey(KeyCode.RightArrow) && !Input.GetKeyDown(KeyCode.RightArrow))
-            rapidDTimer -= Time.deltaTime;
-
-        if (Input.GetKey(KeyCode.LeftArrow) && rapidATimer <= 0.0f)
-        {
-            rapidATimer = 0.2f;
-            dir -= 1;
-        }
-        if (Input.GetKey(KeyCode.RightArrow) && rapidDTimer <= 0.0f)
-        {
-            rapidDTimer = 0.2f;
-            dir += 1;
-        }
-
-        if (horizontal != 0)
-        {
-            if (crabWalk)
-                movement += transform.right * horizontal * speed;
-            else
-            {
-                transform.Rotate(transform.up * rotateDeg * dir);
-                playerCamera.SwivelZ(horizontal);
-            }
-        }
-
-        if (vertical != 0)
-        {
-            movement += speed * vertical * transform.forward;
-            playerCamera.ChangeFieldView(vertical);
-        }
-
-        return movement;
+        return transform.localScale.x * 0.5f;
     }
 
     private void StructOnBullet()
@@ -416,7 +411,7 @@ public class PlayerController : LivingBall
         else
             inAirTime = 0.0f;
 
-        AffectPower(gravityDirection * gravity * inAirTime * inAirTime * size);
+        AffectPower(gravityDirection * gravity * inAirTime * inAirTime * GetRadius());
     }
 
     private bool InAir()

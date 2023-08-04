@@ -6,14 +6,12 @@ public class StructureManager : MonoBehaviour
 {
     public void LoopStructuresInFolder()
     {
-        int size = transform.childCount;
-        
-        for (int i = 0; i < size; ++i)
+        for (int i = 0; i < transform.childCount; ++i)
         {
-            GameObject child = transform.GetChild(i).gameObject;
-            string name = child.name;
+            GameObject structure = transform.GetChild(i).gameObject;
+            string name = structure.name;
             if (name == "StopAura")
-                child.GetComponent<StopAuraController>().StopPlayerBlock();
+                structure.GetComponent<StopAuraController>().StopPlayerBlock();
         }
         Fall();
     }
@@ -22,8 +20,33 @@ public class StructureManager : MonoBehaviour
     {
         for (int i = 0; i < transform.childCount; ++i)
         {
-            GameObject child = transform.GetChild(i).gameObject;
-            child.GetComponent<Structure>().Fall();
+            GameObject structure = transform.GetChild(i).gameObject;
+            structure.GetComponent<Structure>().Fall();
         }
     }
+
+    public List<GroundController> GetLowerStructures()
+    {
+        List<GroundController> lowerStructures = new List<GroundController>();
+        float lowerY = Ground.GetInstance().groundY0;
+        float maximumHeight = Ground.GetInstance().groundHeight;
+        for (int i = 0; i < transform.childCount; ++i)
+        {
+            RaycastHit hit;
+            GameObject structure = transform.GetChild(i).gameObject;
+            Vector3 bottomPos = new Vector3(
+                structure.transform.position.x,
+                lowerY,
+                structure.transform.position.z
+                );
+            if (Physics.Raycast(bottomPos, Vector3.up, out hit, maximumHeight))
+            {
+                if (hit.transform.GetComponent<GroundController>() && !lowerStructures.Contains(hit.transform.GetComponent<GroundController>()))
+                    lowerStructures.Add(hit.transform.GetComponent<GroundController>());
+            }
+        }
+
+        return lowerStructures;
+    }
+    
 }

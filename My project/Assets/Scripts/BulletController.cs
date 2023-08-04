@@ -68,8 +68,8 @@ public class BulletController : MonoBehaviour
             }
             else if (other.tag == "Ground")
                 other.GetComponent<GroundController>().DownSize(1.0f);
-            else if (other.transform.GetComponent<FollowerController>())
-                other.transform.GetComponent<FollowerController>().Hurt();
+            else if (other.transform.GetComponent<EnemyController>())
+                other.transform.GetComponent<EnemyController>().Hurt();
         }
     }
 
