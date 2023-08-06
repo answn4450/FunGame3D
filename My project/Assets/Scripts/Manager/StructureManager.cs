@@ -14,6 +14,7 @@ public class StructureManager : MonoBehaviour
                 structure.GetComponent<StopAuraController>().StopPlayerBlock();
         }
         Fall();
+        StructuresOnGround();
     }
 
     public void Fall()
@@ -22,6 +23,15 @@ public class StructureManager : MonoBehaviour
         {
             GameObject structure = transform.GetChild(i).gameObject;
             structure.GetComponent<Structure>().Fall();
+        }
+    }
+
+    public void StructuresOnGround()
+    {
+        for (int i = 0; i < transform.childCount; ++i)
+        {
+            GameObject structure = transform.GetChild(i).gameObject;
+            structure.GetComponent<Structure>().OnGround();
         }
     }
 
@@ -48,5 +58,4 @@ public class StructureManager : MonoBehaviour
 
         return lowerStructures;
     }
-    
 }

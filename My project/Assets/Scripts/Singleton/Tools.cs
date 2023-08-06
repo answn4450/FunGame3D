@@ -76,4 +76,10 @@ public class Tools
     {
         return true;
     }
+
+    public bool SameLayer(GameObject gameObject, string layerName)
+    {
+        return true;
+        //return Mathf.Pow(2, LayerMask.layerto)
+    }
 }

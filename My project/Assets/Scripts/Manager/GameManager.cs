@@ -59,6 +59,7 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
+        groundManager.ResetGroundsStat();
         if (prevElevator != null && prevElevator.IsWithPlayer())
             prevElevator.MovePlayer();
 
@@ -80,9 +81,12 @@ public class GameManager : MonoBehaviour
             }
             else
             {
+                player.OnGround();
                 structureManager.LoopStructuresInFolder();
-                groundManager.ManageGrounds(player);
 
+                groundManager.ReactGrounds(player);
+
+                player.SphereBySize();
                 player.ChangeSelectedStructureIndex();
                 player.Command();
                 player.CommandTurnEye();

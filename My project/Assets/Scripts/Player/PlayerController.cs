@@ -21,6 +21,7 @@ public class PlayerController : LivingBall
     private GameObject effectFX;
     private GameObject explodeFX;
     private GameObject hurtFX;
+    private GameObject squeezeFX;
 
     private List<string> availableStructures = new List<string> {
         "Jumper",
@@ -29,20 +30,19 @@ public class PlayerController : LivingBall
 
     private int selectedStructureIndex;
     private float deadSize = 0.2f;
-    private float physicsScale;
+    //private float physicsScale;
     private float physicsTimeElapseScale;
     private float shotTimer;
-    private float inAirTime;
+    private float inFallTime;
     private float rapidATimer;
     private float rapidDTimer;
 
-    private float gravity;
 
     private bool stopFall;
     private const int maxStructure = 3;
     private List<GameObject> builtStructures = new List<GameObject>();
 
-    private Vector3 gravityDirection;
+    private Vector3 gravity;
     private Vector3 affectPower;
 
 
@@ -60,25 +60,25 @@ public class PlayerController : LivingBall
         rapidATimer = 0.0f;
         rapidDTimer = 0.0f;
 
-        physicsScale = 1.0f;
         physicsTimeElapseScale = 1.0f;
-        inAirTime = 0.0f;
+        inFallTime = 0.0f;
 
         affectPower = Vector3.zero;
-        gravity = 9.8f;
-        gravityDirection = Vector3.down;
+        gravity = 9.8f * Vector3.down;
 
         stopFall = false;
         selectedStructureIndex = (int)(availableStructures.Count * 0.5f);
+
+        effectFX = PrefabManager.GetInstance().GetPrefabByName("CFX_MagicPoof");
+        explodeFX = PrefabManager.GetInstance().GetPrefabByName("CFX_MagicPoof");
+        hurtFX = PrefabManager.GetInstance().GetPrefabByName("CFXR Hit A (Red)");
+        squeezeFX = PrefabManager.GetInstance().GetPrefabByName("CFXR Hit A (Red)");
     }
 
     private void Start()
     {
         SetSphere(size);
         transform.position = Vector3.zero;
-        effectFX = PrefabManager.GetInstance().GetPrefabByName("CFX_MagicPoof");
-        explodeFX = PrefabManager.GetInstance().GetPrefabByName("CFX_MagicPoof");
-        hurtFX = PrefabManager.GetInstance().GetPrefabByName("CFXR Hit A (Red)");
     }
 
     void Update()
@@ -86,9 +86,8 @@ public class PlayerController : LivingBall
         if (shotTimer > 0.0f)
             shotTimer -= Time.deltaTime;
 
-        Fall();
+        //Fall();
         CheckDead();
-        SphereBySize(size);
         playerEye.FollowTarget(transform);
     }
 
@@ -120,7 +119,7 @@ public class PlayerController : LivingBall
             rideBullet = !rideBullet;
             if (rideBullet)
                 OnRideBullet();
-            else if (bullet)
+            else
                 OffRideBullet();
 		}
 
@@ -150,9 +149,9 @@ public class PlayerController : LivingBall
     public void CommandMoveBody()
     {
         Vector3 movement = Vector3.zero;
-        bool axcel = (Input.GetKey(KeyCode.LeftShift));
+        bool hardTurn = (Input.GetKey(KeyCode.LeftShift));
         bool crabWalk = Input.GetKey(KeyCode.LeftControl);
-        float speed = axcel ? 13.0f : 10.0f;
+        float speed = hardTurn ? 7.0f : 10.0f;
         float horizontal = Input.GetAxis("Horizontal");
         float vertical = Input.GetAxis("Vertical");
 
@@ -176,30 +175,36 @@ public class PlayerController : LivingBall
     public void CommandTurnEye()
     {
         int dir = 0;
-        float rotateDeg = 20.0f;
+        bool hardTurn = (Input.GetKey(KeyCode.LeftShift));
+        bool crabWalk = Input.GetKey(KeyCode.LeftControl);
+        float rotateDeg = hardTurn ? 30.0f : 20.0f;
+
         if (Input.GetKeyDown(KeyCode.LeftArrow))
             rapidATimer = 0.0f;
         if (Input.GetKeyDown(KeyCode.RightArrow))
             rapidDTimer = 0.0f;
 
-        if (Input.GetKey(KeyCode.LeftArrow) && !Input.GetKeyDown(KeyCode.LeftArrow))
-            rapidATimer -= Time.deltaTime;
-        if (Input.GetKey(KeyCode.RightArrow) && !Input.GetKeyDown(KeyCode.RightArrow))
-            rapidDTimer -= Time.deltaTime;
-
-        if (Input.GetKey(KeyCode.LeftArrow) && rapidATimer <= 0.0f)
+        if (!crabWalk)
         {
-            rapidATimer = 0.2f;
-            dir -= 1;
-        }
-        if (Input.GetKey(KeyCode.RightArrow) && rapidDTimer <= 0.0f)
-        {
-            rapidDTimer = 0.2f;
-            dir += 1;
-        }
+            if (Input.GetKey(KeyCode.LeftArrow) && !Input.GetKeyDown(KeyCode.LeftArrow))
+                rapidATimer -= Time.deltaTime;
+            if (Input.GetKey(KeyCode.RightArrow) && !Input.GetKeyDown(KeyCode.RightArrow))
+                rapidDTimer -= Time.deltaTime;
 
-        transform.Rotate(transform.up * rotateDeg * dir);
-        playerCamera.SwivelZ(dir);
+            if (Input.GetKey(KeyCode.LeftArrow) && rapidATimer <= 0.0f)
+            {
+                rapidATimer = 0.2f;
+                dir -= 1;
+            }
+            if (Input.GetKey(KeyCode.RightArrow) && rapidDTimer <= 0.0f)
+            {
+                rapidDTimer = 0.2f;
+                dir += 1;
+            }
+
+            transform.Rotate(transform.up * rotateDeg * dir);
+            playerCamera.SwivelZ(dir);
+        }
     }
 
     public void WithAffectPower()
@@ -213,6 +218,13 @@ public class PlayerController : LivingBall
         affectPower += power;
     }
 
+    public void Squeeze(float size)
+    {
+        squeezeFX = PrefabManager.GetInstance().GetPrefabByName("CFXR Hit A (Red)");
+        Instantiate(squeezeFX).transform.position = transform.position;
+        Hurt(size);
+
+    }
     public void Rebirth()
 	{
         dead = false;
@@ -229,81 +241,52 @@ public class PlayerController : LivingBall
         }
     }
 
+    public void SphereBySize()
+    {
+        float newSize = Mathf.Lerp(
+            transform.localScale.x,
+            size,
+            Time.deltaTime
+            );
+
+        if (Mathf.Abs(size - newSize) < 0.01)
+            newSize = size;
+
+        SetSphere(newSize);
+    }
+
+    public void OnGround()
+    {
+        LayerMask groundMask = LayerMask.GetMask("Ground");
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position, Vector3.down, out hit, Mathf.Infinity, groundMask))
+            hit.transform.GetComponent<GroundController>().AddOnBoardCollider(gameObject);
+    }
+
     private void SafeMove(Vector3 move)
     {
         float radius = transform.localScale.x * 0.5f;
-        float validX0 = Ground.GetInstance().groundX0 + radius * 0.5f;
-        float validX1 = Ground.GetInstance().groundX1 - radius * 0.5f;
-        float validZ0 = Ground.GetInstance().groundZ0 + radius * 0.5f;
-        float validZ1 = Ground.GetInstance().groundZ1 - radius * 0.5f;
-        float validY0 = Ground.GetInstance().groundY0 + 1.0f + radius * 0.5f;
-        float validY1 = Ground.GetInstance().groundY1 - radius * 0.5f;
+        float validX0 = Ground.GetInstance().groundX0 + radius;
+        float validX1 = Ground.GetInstance().groundX1 - radius;
+        float validZ0 = Ground.GetInstance().groundZ0 + radius;
+        float validZ1 = Ground.GetInstance().groundZ1 - radius;
+        float validY0 = Ground.GetInstance().groundY0 + Ground.GetInstance().groundMinimumHeight + radius;
+        float validY1 = Ground.GetInstance().groundY1 - radius;
 
         RaycastHit hit;
-        if (Physics.Raycast(transform.position, move, out hit, move.magnitude))
-            move = move.normalized * (Vector3.Distance(transform.position, hit.transform.position) - radius);
-
-        transform.position += move;
+        if (Physics.Raycast(transform.position, move, out hit, move.magnitude + radius))
+        {
+            //float distance = Vector3.Distance(transform.position, hit.transform.position);
+            //move = move.normalized * Mathf.Max(0.0f, distance - 2* radius);
+        }
+        else
+            transform.position += move;
 
         transform.position = new Vector3(
             Mathf.Clamp(transform.position.x, validX0, validX1),
             Mathf.Clamp(transform.position.y, validY0, validY1),
             Mathf.Clamp(transform.position.z, validZ0, validZ1)
             );
-
-        /*
-        if (transform.position.x - radius < validX0 || transform.position.x > validX1)
-        {
-            ApplyReflect(
-                new Vector3(
-                    Mathf.Clamp(transform.position.x, validX0, validX1),
-                    transform.position.y,
-                    transform.position.z
-                ),
-                Vector3.right
-                );
-        }
-
-        if (transform.position.y - radius < validY0 || transform.position.y > validY1)
-        {
-            ApplyReflect(
-                new Vector3(
-                    transform.position.x,
-                    Mathf.Clamp(transform.position.y, validY0, validY1),
-                    transform.position.z
-                ),
-                Vector3.up
-                );
-        }
-
-        if (transform.position.z - radius < validZ0 || transform.position.z > validZ1)
-        {
-            ApplyReflect(
-                new Vector3(
-                    transform.position.x,
-                    transform.position.y,
-                    Mathf.Clamp(transform.position.z, validZ0, validZ1)
-                ),
-                Vector3.forward
-                );
-        }
-     
-        RaycastHit hit;
-        bool block = false;
-        Vector3[] vertices = GetComponent<MeshFilter>().mesh.vertices;
-
-        Vector3 collisionPoint = transform.position;
-        if (vertices.Length != 0)
-        {
-            foreach (Vector3 point in vertices)
-            {
-                if (block = Physics.Raycast(transform.position, move, out hit, moveDistance))
-                    collisionPoint = hit.transform.position;
-            }
-            if (!block)
-                ApplyReflect(hit.transform.position, Vector3.right);
-        }
-        */
     }
 
     public int GetSelectedStructureIndex()
@@ -319,11 +302,6 @@ public class PlayerController : LivingBall
     public int GetMaxStructure()
     {
         return maxStructure;
-    }
-
-    public float GetRadius()
-    {
-        return transform.localScale.x * 0.5f;
     }
 
     private void StructOnBullet()
@@ -367,23 +345,10 @@ public class PlayerController : LivingBall
 
     private void OffRideBullet()
     {
+        rideBullet = false;
         stopFall = false;
         if (bullet)
             bullet.GetComponent<BulletController>().DestroySelf();
-    }
-
-    private void SphereBySize(float size)
-    {
-        float newSize = Mathf.Lerp(
-            transform.localScale.x,
-            size,
-            Time.deltaTime
-            );
-
-        if (Mathf.Abs(size - newSize) < 0.01)
-            newSize = size;
-
-        SetSphere(newSize);
     }
 
     private void CheckDead()
@@ -407,25 +372,28 @@ public class PlayerController : LivingBall
     private void Fall()
     {
         if (InAir() && !stopFall)
-            inAirTime += Time.deltaTime;
+            inFallTime += Time.deltaTime;
         else
-            inAirTime = 0.0f;
+            inFallTime = 0.0f;
 
-        AffectPower(gravityDirection * gravity * inAirTime * inAirTime * GetRadius());
+        AffectPower(gravity * inFallTime * inFallTime);
     }
 
     private bool InAir()
     {
-        return !Physics.Raycast(transform.position, gravityDirection, size * 0.5f);
+        /*
+        */
+        RaycastHit hit;
+        float radius = transform.localScale.y * 0.5f;
+        if (Physics.Raycast(transform.position, gravity, out hit, Mathf.Infinity))
+        {
+            float height = hit.transform.localScale.y;
+            float hitTop = hit.transform.position.y + height * 0.5f;
+            //float diffY = hitTop - transform.position.y + radius;
+            float diffY = transform.position.y - hitTop - radius;
+            Debug.Log(diffY.ToString() + hit.transform.name);
+        }
+        return !Physics.Raycast(transform.position, gravity, transform.localScale.x * 0.5f + Mathf.Epsilon);
     }
 
-    private void ApplyReflect(Vector3 collisionPoint, Vector3 inNormal)
-    {
-        Vector3 inDirection = collisionPoint - transform.position;
-        float inDistance = inDirection.magnitude;
-        Vector3 outDirection = Vector3.Reflect(collisionPoint, inNormal);
-
-        transform.position = collisionPoint + outDirection * inDistance * 0.5f;
-        affectPower = outDirection * inDistance * 0.5f;
-    }
 }

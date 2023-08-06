@@ -86,7 +86,6 @@ public class UIController : MonoBehaviour
     {
         textPlayerSize.text = player.size.ToString();
 
-        deadUI.SetActive(false);
         AvailableStructuresInfo(player.GetSelectedStructureIndex());
         BuiltStructuresInfo(player.GetBuiltStructures());
         Position(player.transform.position);

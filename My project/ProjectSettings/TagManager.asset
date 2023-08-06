@@ -4,9 +4,10 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - Struct
   - FxTemporaire
   - Ground
+  - sadf
+  - Structure
   layers:
   - Default
   - TransparentFX
@@ -14,7 +15,7 @@ TagManager:
   - Player
   - Water
   - UI
-  - Struct
+  - Structure
   - Ground
   - 
   - 

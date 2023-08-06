@@ -61,7 +61,19 @@ public class GroundManager : MonoBehaviour
         }
     }
 
-    public void ManageGrounds(PlayerController player)
+    public void ResetGroundsStat()
+    {
+        for (int x = 0; x < sizeX; ++x)
+        {
+            for (int z = 0; z < sizeZ; ++z)
+            {
+                GroundController ground = groundList[x][z];
+                ground.ResetOnBoardColliders();
+            }
+        }
+    }
+
+    public void ReactGrounds(PlayerController player)
     {
         for (int x = 0; x < sizeX; ++x)
         {

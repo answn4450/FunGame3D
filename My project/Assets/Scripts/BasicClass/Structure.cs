@@ -13,4 +13,12 @@ public class Structure : MonoBehaviour
         if (!Physics.Raycast(transform.position, Vector3.down, out hit, fallY + height))
             transform.position += Vector3.down * fallY;
     }
+
+    public void OnGround()
+    {
+        LayerMask groundMask = LayerMask.GetMask("Ground");
+        RaycastHit hit;
+        if (Physics.Raycast(transform.position, Vector3.down, out hit, Mathf.Infinity, groundMask))
+            hit.transform.GetComponent<GroundController>().AddOnBoardCollider(gameObject);
+    }
 }

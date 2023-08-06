@@ -57,7 +57,7 @@ public class BulletController : MonoBehaviour
 
     private void OnTriggerEnter(Collider other)
     {
-        if (other.tag == "Struct")
+        if (LayerMask.LayerToName(other.gameObject.layer) == "Structure")
             DestroySelf();
         else if (released)
         {
@@ -67,7 +67,9 @@ public class BulletController : MonoBehaviour
                 other.GetComponent<PlayerController>().Hurt();
             }
             else if (other.tag == "Ground")
-                other.GetComponent<GroundController>().DownSize(1.0f);
+            {
+                other.GetComponent<GroundController>().DownSize(2.0f);
+            }
             else if (other.transform.GetComponent<EnemyController>())
                 other.transform.GetComponent<EnemyController>().Hurt();
         }
