@@ -4,22 +4,73 @@ using UnityEngine;
 
 public class EnemyManager : MonoBehaviour
 {
-    /*
-    private List<FollowerController> followerList = new List<FollowerController>();
+    private List<EnemyController> enemyList = new List<EnemyController>();
     private GameObject followerPrefab;
+    private int maxChildCount = 16;
 
     void Start()
     {
-        followerPrefab = PrefabManager.GetInstance().GetPrefabByName("Follower");
+        followerPrefab = PrefabManager.GetInstance().GetPrefabByName("Enemy");
 
-        FollowerController follower = Instantiate(followerPrefab, transform).GetComponent<FollowerController>();
-        followerList.Add(follower);
+        if (transform.childCount > 0)
+        {
+            for (int i = 0; i < transform.childCount; ++i)
+                enemyList.Add(transform.GetChild(i).transform.GetComponent<EnemyController>());
+        }
+        else
+        {
+            EnemyController enemy = Instantiate(followerPrefab, transform).GetComponent<EnemyController>();
+            enemyList.Add(enemy);
+        }
+
+        StartCoroutine(AutoDoubleBreeding());
     }
 
-    void Update()
+    public void LifeCycle()
     {
-        for (int i = 0; i < followerList.Count; ++i)
-            followerList[i].Living();
+        int i = 0;
+        while (i < enemyList.Count)
+        {
+            EnemyController enemy = enemyList[i];
+            if (enemy.dead)
+            {
+                enemy.Explode();
+                enemyList.RemoveAt(i);
+            }
+            else
+            {
+                enemy.OnGround();
+                enemy.Living();
+                enemy.AffectNearGround();
+                ++i;
+            }
+        }    
     }
-    */
+
+    public void FollowPlayer(PlayerController player)
+    {
+        for (int i = 0; i < enemyList.Count; ++i)
+        {
+            EnemyController enemy = enemyList[i];
+            enemyList[i].FollowTarget(player.transform.position);
+        }
+    }
+
+    private void DoubleBreeding()
+    {
+        int beforeEnemyCount = enemyList.Count;
+        for (int i = 0; i < Mathf.Min(beforeEnemyCount, maxChildCount - beforeEnemyCount); ++i)
+        {
+            enemyList.Add(enemyList[i].Breeding());
+        }
+    }
+
+    IEnumerator AutoDoubleBreeding()
+    {
+        while (true)
+        {
+            yield return new WaitForSeconds(1.0f);
+            DoubleBreeding();
+        }
+    }
 }

@@ -57,19 +57,19 @@ public class Tools
         float radius = ball.localScale.x * 0.5f;
 
         if (ball.position.x - radius < Ground.GetInstance().groundX0)
-            return false;
-        if (ball.position.x + radius > Ground.GetInstance().groundX1)
-            return false;
-        if (ball.position.y - radius < Ground.GetInstance().groundY0)
-            return false;
-        if (ball.position.y + radius < Ground.GetInstance().groundY1)
-            return false;
-        if (ball.position.z - radius < Ground.GetInstance().groundZ0)
-            return false;
-        if (ball.position.z + radius < Ground.GetInstance().groundZ1)
-            return false;
-        else
             return true;
+        if (ball.position.x + radius > Ground.GetInstance().groundX1)
+            return true;
+        if (ball.position.y - radius < Ground.GetInstance().groundY0)
+            return true;
+        if (ball.position.y + radius < Ground.GetInstance().groundY1)
+            return true;
+        if (ball.position.z - radius < Ground.GetInstance().groundZ0)
+            return true;
+        if (ball.position.z + radius < Ground.GetInstance().groundZ1)
+            return true;
+        else
+            return false;
     }
 
     public bool GetBallTouchRect(Transform ball, Transform rect)
@@ -77,9 +77,24 @@ public class Tools
         return true;
     }
 
-    public bool SameLayer(GameObject gameObject, string layerName)
+    public void OnGround(GameObject gameObject)
     {
-        return true;
-        //return Mathf.Pow(2, LayerMask.layerto)
+        LayerMask groundMask = LayerMask.GetMask("Ground");
+        RaycastHit hit;
+        Vector3 topY = new Vector3(
+            gameObject.transform.position.x,
+            Ground.GetInstance().groundY1 + 0.1f,
+            gameObject.transform.position.z
+            );
+        if (Physics.Raycast(topY, Vector3.down, out hit, Mathf.Infinity, groundMask))
+            hit.transform.GetComponent<GroundController>().AddOnBoardCollider(gameObject);
+    }
+
+    public float GetHeight(Transform transform)
+    {
+        if (transform.GetComponent<LivingBall>())
+            return transform.localScale.x;
+        else
+            return 1.0f;
     }
 }

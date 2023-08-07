@@ -9,8 +9,8 @@ public class GroundController : MonoBehaviour
     public int maxSizeY;
 
     private Color originalColor;
-    private int collidersNumber;
-    private List<GameObject> colliders;
+    public int collidersNumber;
+    public List<GameObject> colliders;
     private float groundX;
     private float groundZ;
     private float temporarilySpeed;
@@ -36,13 +36,15 @@ public class GroundController : MonoBehaviour
     public void ResetOnBoardColliders()
     {
         collidersNumber = 0;
-        colliders = new List<GameObject>();
     }
 
     public void AddOnBoardCollider(GameObject collider)
     {
-        colliders.Add(collider);
-        //colliders[collidersNumber]=collider;
+        if (colliders.Count == collidersNumber)
+            colliders.Add(collider);
+        else
+            colliders[collidersNumber] = collider;
+
         collidersNumber++;
     }
 
@@ -76,28 +78,45 @@ public class GroundController : MonoBehaviour
 
     public void MoreEvilGround()
     {
-        temporarilySpeed += 2.0f;
+        temporarilySpeed += 0.01f;
         SetColor(Color.black);
     }
 
-    public void UpDownOrSqueeze(PlayerController player)
+    public void LiftUpOrSqueeze(PlayerController player)
     {
-        float newHeight = GetSafeHeight(
-            transform.localScale.y + GetUpDownMove(player.transform)
-            );
-        SetGroundTransform(newHeight);
+        colliders = SortByY(colliders);
+        bool toughSpace = LiftUpColliders();
 
-        float upDownY = newHeight - transform.localScale.y;
-        if (upDownY >= 0.0f)
+        if (Tools.GetInstance().SameGround(player.transform, transform) && toughSpace)
         {
-            bool toughSpace = LiftUpCollides();
-
-            if (Tools.GetInstance().SameGround(player.transform, transform) && toughSpace)
-            {
-                player.Squeeze(Time.deltaTime);
-            }
+            player.Squeeze(Time.deltaTime);
         }
+    }
 
+    public void BindHeight()
+    {
+        float height = transform.localScale.y;
+        float bindedHeight = Mathf.Clamp(
+            height,
+            Ground.GetInstance().groundMinimumHeight,
+            Ground.GetInstance().groundHeight - GetEmptySpaceHeight()
+            );
+
+        if (height != bindedHeight)
+            SetGroundTransform(bindedHeight);
+    }
+
+    public void UpDown(PlayerController player)
+    {
+        float height = transform.localScale.y;
+        float heightDestination = GetSafeHeight(GetHeightDestination(player.transform));
+        float upDownY = Mathf.Sign(heightDestination - height) * MathF.Abs(heightDestination - height) * temporarilySpeed * Time.deltaTime;
+        if (heightDestination < height && heightDestination > height + upDownY)
+            upDownY = heightDestination - height;
+        if (heightDestination > height && heightDestination < height + upDownY)
+            upDownY = heightDestination - height;
+
+        SetGroundTransform(height + upDownY);
     }
 
     public void EffectPlayerByTouch(PlayerController player)
@@ -118,20 +137,16 @@ public class GroundController : MonoBehaviour
 
     }
 
-    private bool LiftUpCollides()
+    private bool LiftUpColliders()
     {
         float emptyHeight = GetEmptySpaceHeight();
-        List<GameObject> sortedHits = SortByY(colliders);
         float bottomY = transform.position.y + transform.localScale.y * 0.5f;
 
         float hitHeightHalf;
-        foreach (GameObject hit in sortedHits)
+        foreach (GameObject hit in colliders)
         {
-            if (hit.transform.name == "Player")
-                hitHeightHalf = hit.transform.localScale.x * 0.5f;
-            else
-                hitHeightHalf = 0.5f;
-
+            hitHeightHalf = Tools.GetInstance().GetHeight(hit.transform) * 0.5f;
+            
             bool hitNeedLift = false;
             if (hit.transform.name == "Player" && Tools.GetInstance().SameGround(hit.transform, transform))
                 hitNeedLift = true;
@@ -139,7 +154,7 @@ public class GroundController : MonoBehaviour
                 hitNeedLift = true;
 
             float liftY = bottomY - (hit.transform.position.y - hitHeightHalf);
-
+            //bool bug = hit.transform.GetComponent<LivingBall>() && hit.transform.name != "Player";
             if (hitNeedLift && liftY >= 0.0f)
             {
                 float validLiftY = Mathf.Min(liftY, emptyHeight);
@@ -164,22 +179,8 @@ public class GroundController : MonoBehaviour
     private float GetEmptySpaceHeight()
     {
         float emptyHeight = Ground.GetInstance().groundY1 - transform.position.y - transform.localScale.y * 0.5f;
-        LayerMask groundMask = LayerMask.GetMask("Structure");
-        LayerMask playerMask = LayerMask.GetMask("Player");
-
-        RaycastHit[] structureHits = Physics.RaycastAll(
-            transform.position, Vector3.up, Mathf.Infinity, groundMask
-            );
-
-        RaycastHit playerHit;
-
-        if (Physics.Raycast(transform.position, Vector3.up, out playerHit, Mathf.Infinity, playerMask))
-        {
-            if (playerHit.transform.name == "Player")
-                emptyHeight -= playerHit.transform.localScale.x;
-        }
-
-        emptyHeight -= structureHits.Length;
+        foreach (GameObject collider in colliders)
+            emptyHeight -= Tools.GetInstance().GetHeight(collider.transform);
 
         return emptyHeight > 0.0f ? emptyHeight : 0.0f;
     }
@@ -207,14 +208,6 @@ public class GroundController : MonoBehaviour
         return maxHeight;
     }
 
-    private float GetUpDownMove(Transform player)
-    {
-        Vector3 distVector = player.position - transform.position;
-        distVector.y = 0;
-        float upDown = 3.0f - distVector.magnitude;
-        return Mathf.Max(upDown, -1.0f) * temporarilySpeed * Time.deltaTime;
-    }
-
     private void SetGroundTransform(float height)
 	{
         if (height > Ground.GetInstance().groundHeight)
@@ -233,6 +226,21 @@ public class GroundController : MonoBehaviour
             Ground.GetInstance().groundY0 + height * 0.5f,
             groundZ
             );
+    }
+
+    private float GetHeightDestination(Transform player)
+    {
+        Vector3 distVector = player.position - transform.position;
+        distVector.y = 0;
+        float distance = distVector.magnitude;
+        
+        if (distance > 3.0f)
+            return Ground.GetInstance().groundMinimumHeight;
+        else
+            return Mathf.Max(
+                Ground.GetInstance().groundHeight - distance,
+                Ground.GetInstance().groundMinimumHeight
+                );
     }
 
     private float GetSafeHeight(float height)

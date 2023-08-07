@@ -107,6 +107,11 @@ public class UIController : MonoBehaviour
         nextElevatorDistance.text = EasyVector3(distance);
     }
 
+    public void PlayerRebirth()
+    {
+        deadUI.SetActive(false);
+    }
+
     private void Position(Vector3 worldPosition)
     {
         playerPosition.text = EasyVector3(worldPosition - Ground.GetInstance().groundPosition0);

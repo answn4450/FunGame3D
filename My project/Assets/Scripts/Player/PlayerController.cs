@@ -86,7 +86,7 @@ public class PlayerController : LivingBall
         if (shotTimer > 0.0f)
             shotTimer -= Time.deltaTime;
 
-        //Fall();
+        Fall();
         CheckDead();
         playerEye.FollowTarget(transform);
     }
@@ -255,39 +255,6 @@ public class PlayerController : LivingBall
         SetSphere(newSize);
     }
 
-    public void OnGround()
-    {
-        LayerMask groundMask = LayerMask.GetMask("Ground");
-        RaycastHit hit;
-        if (Physics.Raycast(transform.position, Vector3.down, out hit, Mathf.Infinity, groundMask))
-            hit.transform.GetComponent<GroundController>().AddOnBoardCollider(gameObject);
-    }
-
-    private void SafeMove(Vector3 move)
-    {
-        float radius = transform.localScale.x * 0.5f;
-        float validX0 = Ground.GetInstance().groundX0 + radius;
-        float validX1 = Ground.GetInstance().groundX1 - radius;
-        float validZ0 = Ground.GetInstance().groundZ0 + radius;
-        float validZ1 = Ground.GetInstance().groundZ1 - radius;
-        float validY0 = Ground.GetInstance().groundY0 + Ground.GetInstance().groundMinimumHeight + radius;
-        float validY1 = Ground.GetInstance().groundY1 - radius;
-
-        RaycastHit hit;
-        if (Physics.Raycast(transform.position, move, out hit, move.magnitude + radius))
-        {
-            //float distance = Vector3.Distance(transform.position, hit.transform.position);
-            //move = move.normalized * Mathf.Max(0.0f, distance - 2* radius);
-        }
-        else
-            transform.position += move;
-
-        transform.position = new Vector3(
-            Mathf.Clamp(transform.position.x, validX0, validX1),
-            Mathf.Clamp(transform.position.y, validY0, validY1),
-            Mathf.Clamp(transform.position.z, validZ0, validZ1)
-            );
-    }
 
     public int GetSelectedStructureIndex()
     {
@@ -375,24 +342,12 @@ public class PlayerController : LivingBall
             inFallTime += Time.deltaTime;
         else
             inFallTime = 0.0f;
-
+        //Debug.LogFormat("InAir: {0}, stopFall: {1}, fallTime: {2}", InAir(), stopFall, inFallTime);
         AffectPower(gravity * inFallTime * inFallTime);
     }
 
     private bool InAir()
     {
-        /*
-        */
-        RaycastHit hit;
-        float radius = transform.localScale.y * 0.5f;
-        if (Physics.Raycast(transform.position, gravity, out hit, Mathf.Infinity))
-        {
-            float height = hit.transform.localScale.y;
-            float hitTop = hit.transform.position.y + height * 0.5f;
-            //float diffY = hitTop - transform.position.y + radius;
-            float diffY = transform.position.y - hitTop - radius;
-            Debug.Log(diffY.ToString() + hit.transform.name);
-        }
         return !Physics.Raycast(transform.position, gravity, transform.localScale.x * 0.5f + Mathf.Epsilon);
     }
 

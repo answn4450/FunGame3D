@@ -16,6 +16,18 @@ public class Test : MonoBehaviour
 	public List<Renderer> objectRenderers = new List<Renderer>();
 	private const string path = "Legacy Shaders/Transparent/Specular";
 
+    private void Awake()
+    {
+        List<int> a = new List<int> { 1,2,3,4,5};
+        
+        for (int i = 0; i < a.Count; ++i)
+        {
+            Debug.Log(a[i]);
+            a.RemoveAt(i);
+        }
+    }
+
+    /*
 	private void Update()
     {
 		TransparentBlocks();
@@ -40,25 +52,25 @@ public class Test : MonoBehaviour
 
 		Vector3 direction = transform.parent.position - transform.position;
 		Debug.DrawLine(transform.position, transform.parent.position);
-		// ** ¸ğµç Ãæµ¹À» °¨Áö.
+		// ** ëª¨ë“  ì¶©ëŒì„ ê°ì§€.
 		hits = Physics.RaycastAll(transform.position, direction, direction.magnitude).ToList();
 		
-		// ** Ãæµ¹µÈ ¸ğµç ¿ø¼Òµé Áß¿¡ Renderer¸¸ ÃßÃâÇÑ »õ·Î¿î ¸®½ºÆ®¸¦ »ı¼º.
+		// ** ì¶©ëŒëœ ëª¨ë“  ì›ì†Œë“¤ ì¤‘ì— Rendererë§Œ ì¶”ì¶œí•œ ìƒˆë¡œìš´ ë¦¬ìŠ¤íŠ¸ë¥¼ ìƒì„±.
 		renderers.AddRange(hits.Select(hit => hit.transform.GetComponent<Renderer>()).Where(renderer => renderer != null).ToList());
 
-		// ** ±âÁ¸ ¸®½ºÆ®¿¡´Â Æ÷ÇÔµÇ¾úÁö¸¸ ÇöÀç ray¿¡ °¨ÁöµÈ ¸®½ºÆ®¿¡´Â ¾ø´Â Renderer
+		// ** ê¸°ì¡´ ë¦¬ìŠ¤íŠ¸ì—ëŠ” í¬í•¨ë˜ì—ˆì§€ë§Œ í˜„ì¬ rayì— ê°ì§€ëœ ë¦¬ìŠ¤íŠ¸ì—ëŠ” ì—†ëŠ” Renderer
 		List<Renderer> extractionList = objectRenderers.Where(renderer => !renderers.Contains(renderer)).ToList();
 
-		// ** ÃßÃâÀÌ ¿Ï·áµÈ Renderer¸¦ ±âÁ¸ ¾ËÆÄ°ªÀ¸·Î µÇµ¹¸°´Ù. 
-		// ** ±×¸®°í »èÁ¦.
+		// ** ì¶”ì¶œì´ ì™„ë£Œëœ Rendererë¥¼ ê¸°ì¡´ ì•ŒíŒŒê°’ìœ¼ë¡œ ë˜ëŒë¦°ë‹¤. 
+		// ** ê·¸ë¦¬ê³  ì‚­ì œ.
 		foreach (Renderer renderer in extractionList)
 			SetFadeIn(renderer);
 
 		foreach (RaycastHit hit in hits)
-		// ** rayÀÇ Ãæµ¹ÀÌ °¨ÁöµÈ ObjectÀÇ Renderer¸¦ ¹Ş¾Æ¿È.
+		// ** rayì˜ ì¶©ëŒì´ ê°ì§€ëœ Objectì˜ Rendererë¥¼ ë°›ì•„ì˜´.
 		{
 			Renderer renderer = hit.transform.GetComponent<Renderer>();
-			// ** Ãæµ¹ÀÌ ÀÖ´Ù¸é Renderer¸¦ È®ÀÎ.
+			// ** ì¶©ëŒì´ ìˆë‹¤ë©´ Rendererë¥¼ í™•ì¸.
 			if (renderer != null && hit.transform.position != transform.parent.position)
 				SetFadeOut(renderer);
 		}
@@ -68,7 +80,7 @@ public class Test : MonoBehaviour
 	{
 		objectRenderers.Remove(renderer);
 
-		// ** º¯°æµÈ ShaderÀÇ Color °ªµé ¹Ş¾Æ¿È.
+		// ** ë³€ê²½ëœ Shaderì˜ Color ê°’ë“¤ ë°›ì•„ì˜´.
 		Color color = renderer.material.color;
 
 		color.a = 1.0f;
@@ -77,15 +89,16 @@ public class Test : MonoBehaviour
 
 	private void SetFadeOut(Renderer renderer)
 	{
-		// ** Color°ª º¯°æÀÌ °¡´ÉÇÑ Shader·Î º¯°æ.
-		objectRenderers.Add(renderer); // ** Ãß°¡
+		// ** Colorê°’ ë³€ê²½ì´ ê°€ëŠ¥í•œ Shaderë¡œ ë³€ê²½.
+		objectRenderers.Add(renderer); // ** ì¶”ê°€
 
 		renderer.material = new Material(Shader.Find(path));
 
-		// ** º¯°æµÈ ShaderÀÇ Color °ªµé ¹Ş¾Æ¿È.
+		// ** ë³€ê²½ëœ Shaderì˜ Color ê°’ë“¤ ë°›ì•„ì˜´.
 		Color color = renderer.material.color;
 
 		color.a = 0.0f;
 		renderer.material.color = color;
 	}
+    */
 }

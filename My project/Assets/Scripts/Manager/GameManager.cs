@@ -9,6 +9,7 @@ public class GameManager : MonoBehaviour
     public ElevatorController prevElevator;
     public ElevatorController nextElevator;
     public GroundManager groundManager;
+    public EnemyManager enemyManager;
 
     private CameraController gameCamera;
     private PlayerController player;
@@ -18,13 +19,12 @@ public class GameManager : MonoBehaviour
     
     private Transform builtStructureFolder;
     
-    private float newCountdown;
+    private const float maxCountdown = 10.0f;
     private float leftCountdown;
 
     void Awake()
     {
-        newCountdown = 10.0f;
-        leftCountdown = newCountdown;
+        leftCountdown = maxCountdown;
 
         Ground.GetInstance().SetGround(groundManager);
 
@@ -66,7 +66,13 @@ public class GameManager : MonoBehaviour
         if (nextElevator != null && nextElevator.IsWithPlayer())
             nextElevator.MovePlayer();
 
-        //structureManager.Manage();
+        if (enemyManager)
+        {
+            if (player)
+                enemyManager.FollowPlayer(player);
+            enemyManager.LifeCycle();
+        }
+
         if (player)
         {
             if (player.dead)
@@ -77,7 +83,7 @@ public class GameManager : MonoBehaviour
                 else
                     SceneManager.LoadScene("StartMenu");
 
-                gameCamera.AroundPoint(leftCountdown / newCountdown * 360.0f);
+                gameCamera.AroundPoint(leftCountdown / maxCountdown * 360.0f);
             }
             else
             {
@@ -109,13 +115,14 @@ public class GameManager : MonoBehaviour
 
     public void Rebirth()
 	{
+        uiController.PlayerRebirth();
         if (player)
             player.Rebirth();
+        leftCountdown = maxCountdown;
 	}
 
     private void UIControll()
     {
-
         uiController.UIPlay(player);
         if (nextElevator && player)
             uiController.NextElevatorDistanceInfo(
