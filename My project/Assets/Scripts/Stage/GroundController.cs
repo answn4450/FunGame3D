@@ -1,8 +1,6 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using System.Linq;
-using System;
 
 public class GroundController : MonoBehaviour
 {
@@ -82,42 +80,6 @@ public class GroundController : MonoBehaviour
         SetColor(Color.black);
     }
 
-    public void LiftUpOrSqueeze(PlayerController player)
-    {
-        bool toughSpace = LiftUpColliders();
-
-        if (Tools.GetInstance().SameGround(player.transform, transform) && toughSpace)
-        {
-            player.Squeeze(Time.deltaTime);
-        }
-    }
-
-    public void BindHeight()
-    {
-        float height = transform.localScale.y;
-        float bindedHeight = Mathf.Clamp(
-            height,
-            Ground.GetInstance().groundMinimumHeight,
-            GetMaxHeightWithLiftedCollides()
-            ); ;
-
-        if (height != bindedHeight)
-            SetGroundTransform(bindedHeight);
-    }
-
-    public void UpDown(PlayerController player)
-    {
-        float height = transform.localScale.y;
-        float heightDestination = GetSafeHeight(GetHeightDestination(player.transform));
-        float upDownY = Mathf.Sign(heightDestination - height) * MathF.Abs(heightDestination - height) * temporarilySpeed * Time.deltaTime;
-        if (heightDestination < height && heightDestination > height + upDownY)
-            upDownY = heightDestination - height;
-        if (heightDestination > height && heightDestination < height + upDownY)
-            upDownY = heightDestination - height;
-
-        SetGroundTransform(height + upDownY);
-    }
-
     public void EffectPlayerByTouch(PlayerController player)
     {
 
@@ -139,6 +101,42 @@ public class GroundController : MonoBehaviour
     public void SortColliders()
     {
         colliders = SortByY(colliders);
+    }
+
+    public void BindHeight()
+    {
+        float height = transform.localScale.y;
+        float bindedHeight = Mathf.Clamp(
+            height,
+            Ground.GetInstance().groundMinimumHeight,
+            GetMaxHeightBeforeFirstCollider()
+            ); ;
+
+        if (height != bindedHeight)
+            SetGroundTransform(bindedHeight);
+    }
+
+    public void UpDown(PlayerController player)
+    {
+        float height = transform.localScale.y;
+        float heightDestination = GetSafeHeight(GetHeightDestination(player.transform));
+        float upDownY = Mathf.Sign(heightDestination - height) * Mathf.Abs(heightDestination - height) * temporarilySpeed * Time.deltaTime;
+        if (heightDestination < height && heightDestination > height + upDownY)
+            upDownY = heightDestination - height;
+        if (heightDestination > height && heightDestination < height + upDownY)
+            upDownY = heightDestination - height;
+
+        SetGroundTransform(height + upDownY);
+    }
+
+    public void LiftUpOrSqueeze(PlayerController player)
+    {
+        bool toughSpace = LiftUpColliders();
+
+        if (Tools.GetInstance().SameGround(player.transform, transform) && toughSpace)
+        {
+            player.Squeeze(Time.deltaTime);
+        }
     }
 
     private bool LiftUpColliders()
@@ -182,60 +180,96 @@ public class GroundController : MonoBehaviour
         return Mathf.Clamp(
             height, 
             Ground.GetInstance().groundMinimumHeight, 
-            GetMaxHeightWithLiftedCollides()
+            GetMaxHeightBeforeFirstCollider()
             );
-    }
-
-    private float GetCollidersHeightSum()
-    {
-        float colliderHeight = 0.0f;
-        foreach (Transform collider in colliders)
-            colliderHeight += Tools.GetInstance().GetHeight(collider);
-        return colliderHeight;
     }
 
     private float GetEmptySpaceHeight()
     {
+        float topY = transform.position.y + transform.localScale.y * 0.5f;
         float emptyHeight = Ground.GetInstance().groundY1 - transform.position.y - transform.localScale.y * 0.5f;
-        /*
-        List<float> rangeLeft = new List<float>();
-        List<float> rangeRight = new List<float>();
+        List<float> rangeBottom = new List<float>();
+        List<float> rangeTop = new List<float>();
+        bool change = true;
+        bool debug = transform.name == "ground 7 6";
+
         for (int i = 0; i < collidersNumber; ++i)
         {
             Transform collider = colliders[i];
             float halfHeight = Tools.GetInstance().GetHeight(collider) * 0.5f;
-            bool inRange = false;
-            float left = collider.position.y - halfHeight;
-            float right = collider.position.y + halfHeight;
-            for (int i2 = 0; i2<rangeLeft.Count; ++i2)
+            float bottom = collider.position.y - halfHeight;
+            float top = collider.position.y + halfHeight;
+            rangeBottom.Add(bottom);
+            rangeTop.Add(top);
+        }
+
+        while (change)
+        {
+            change = false;
+            int i = 0;
+            while (i < rangeBottom.Count)
             {
-                if (left < rangeLeft[i2] && right > rangeRight[i2])
+                float bottom = rangeBottom[i];
+                float top = rangeTop[i];
+                bool inRange = false;
+                for (int i2 = i; i2< rangeBottom.Count;++i2)
                 {
-                    rangeLeft[i2] = left;
-                    rangeRight[i2] = right;
+                    float bottom2 = rangeBottom[i2];
+                    float top2 = rangeTop[i2];
+                    if (bottom < bottom2 && top > top2)
+                    {
+                        inRange = true;
+                        rangeBottom[i2] = bottom;
+                        rangeTop[i2] = top;
+                        break;
+                    }
+                    else if (bottom < bottom2 && top < top2)
+                    {
+                        inRange = true;
+                        rangeBottom[i2] = bottom;
+                        break;
+                    }
+                    else if (bottom > bottom2 && top > top2)
+                    {
+                        inRange = true;
+                        rangeTop[i2] = top;
+                        break;
+                    }
                 }
-                else if (left < rangeLeft[i2] && right < rangeRight[i2])
-                    rangeLeft[i2] = left;
-                else if (left > rangeLeft[i2] && right > rangeRight[i2])
-                    rangeRight[i2] = right;
+
+                if (inRange)
+                {
+                    rangeBottom.RemoveAt(i);
+                    rangeTop.RemoveAt(i);
+                    change = true;
+                }
+                else
+                    i++;
             }
 
-            if (!inRange)
-            {
-                rangeLeft.Add(collider.position.y - halfHeight);
-                rangeRight.Add(collider.position.y + halfHeight);
-            }
         }
-        */
-        emptyHeight -= GetCollidersHeightSum();
+
+        for (int i = 0; i < rangeBottom.Count; ++i)
+        {
+            float top = Mathf.Max(rangeTop[i], topY);
+            float bottom = Mathf.Max(rangeBottom[i], topY);
+            emptyHeight -=  (top - bottom);
+        }
+
+        if (debug)
+            Debug.Log(rangeTop[0]-rangeBottom[0]);
 
         return emptyHeight > 0.0f ? emptyHeight : 0.0f;
     }
 
-    private float GetMaxHeightWithLiftedCollides()
+    private float GetMaxHeightBeforeFirstCollider()
     {
-        // colliders 전부를 위로 밀어냈을 때를 가정.
-        return Ground.GetInstance().groundHeight - GetCollidersHeightSum();
+        float maxHeight = Ground.GetInstance().groundHeight;
+        if (collidersNumber == 0)
+            return maxHeight;
+        else
+            return Mathf.Max(Tools.GetInstance().GetBottomY(colliders[0]), 0.0f);
+
     }
 
     private void SetGroundTransform(float height)
@@ -263,16 +297,16 @@ public class GroundController : MonoBehaviour
         Vector3 distVector = player.position - transform.position;
         distVector.y = 0;
         float distance = distVector.magnitude;
-
+        
+        return GetMaxHeightBeforeFirstCollider();
         /*
-        return GetMaxHeightWithLiftedCollides();
-        */
         if (Tools.GetInstance().SameGround(player, transform))
             return GetMaxHeightWithLiftedCollides();
         else if (distance < 3.0f)
             return Ground.GetInstance().groundHeight - distance;
         else
             return Ground.GetInstance().groundMinimumHeight;
+        */
     }
 
     private void SetColor(Color destColor)

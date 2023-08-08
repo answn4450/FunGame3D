@@ -41,7 +41,7 @@ public class GroundManager : MonoBehaviour
                 GroundController ground;
                 ground = Instantiate(groundPrefab).GetComponent<GroundController>();
                 ground.transform.SetParent(groundFolder);
-                ground.name = "grond " + x.ToString() + " " + z.ToString();
+                ground.name = "ground " + x.ToString() + " " + z.ToString();
                 ground.SetWithIndex(x, z);
                 groundZLine.Add(ground);
             }

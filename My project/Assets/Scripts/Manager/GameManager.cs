@@ -97,10 +97,7 @@ public class GameManager : MonoBehaviour
             }
             else
             {
-                player.OnGround();
                 structureManager.LoopStructuresInFolder();
-
-                groundManager.ReactGrounds(player);
 
                 player.SphereBySize();
                 player.ChangeSelectedStructureIndex();
@@ -111,10 +108,12 @@ public class GameManager : MonoBehaviour
                     player.RideBullet();
                 else
                 {
+                    player.OnGround();
                     player.CommandMoveBody();
                     player.WithAffectPower();
                 }
                 
+                groundManager.ReactGrounds(player);
                 gameCamera.BehindPlayer(10.0f);
                 
             }

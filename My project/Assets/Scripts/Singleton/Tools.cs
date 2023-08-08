@@ -95,6 +95,19 @@ public class Tools
         if (transform.GetComponent<LivingBall>())
             return transform.localScale.x;
         else
-            return 1.0f;
+            return transform.localScale.y;
     }
+
+    public float GetBottomY(Transform transform)
+    {
+        float halfHeight = GetHeight(transform) * 0.5f;
+        return transform.position.y - halfHeight;
+    }
+
+    public float GetTopY(Transform transform)
+    {
+        float halfHeight = GetHeight(transform) * 0.5f;
+        return transform.position.y + halfHeight;
+    }
+
 }
