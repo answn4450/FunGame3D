@@ -80,6 +80,7 @@ public class GroundManager : MonoBehaviour
             for (int z = 0; z < sizeZ; ++z)
             {
                 GroundController ground = groundList[x][z];
+                ground.SortColliders();
                 ground.BindHeight();
                 ground.UpDown(player);
                 ground.LiftUpOrSqueeze(player);

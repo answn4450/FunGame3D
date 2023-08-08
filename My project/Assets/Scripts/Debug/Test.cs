@@ -19,11 +19,14 @@ public class Test : MonoBehaviour
     private void Awake()
     {
         List<int> a = new List<int> { 1,2,3,4,5};
-        
-        for (int i = 0; i < a.Count; ++i)
+
+        //foreach (int b in a)
+        for (int i = 0; i <a.Count; ++i)
         {
-            Debug.Log(a[i]);
-            a.RemoveAt(i);
+            int b = a[i];
+            Debug.Log(b);
+            if (b==2)
+                a.Remove(b);
         }
     }
 

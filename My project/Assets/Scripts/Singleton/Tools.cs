@@ -77,17 +77,17 @@ public class Tools
         return true;
     }
 
-    public void OnGround(GameObject gameObject)
+    public void OnGround(Transform transform)
     {
         LayerMask groundMask = LayerMask.GetMask("Ground");
         RaycastHit hit;
         Vector3 topY = new Vector3(
-            gameObject.transform.position.x,
+            transform.position.x,
             Ground.GetInstance().groundY1 + 0.1f,
-            gameObject.transform.position.z
+            transform.position.z
             );
         if (Physics.Raycast(topY, Vector3.down, out hit, Mathf.Infinity, groundMask))
-            hit.transform.GetComponent<GroundController>().AddOnBoardCollider(gameObject);
+            hit.transform.GetComponent<GroundController>().AddOnBoardCollider(transform);
     }
 
     public float GetHeight(Transform transform)

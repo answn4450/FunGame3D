@@ -22,6 +22,8 @@ public class GameManager : MonoBehaviour
     private const float maxCountdown = 10.0f;
     private float leftCountdown;
 
+    private bool stopGame;
+
     void Awake()
     {
         leftCountdown = maxCountdown;
@@ -59,7 +61,15 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
+        if (Input.GetKeyDown(KeyCode.Escape))
+        {
+            stopGame = !stopGame;
+            Time.timeScale = stopGame ? 0.0f : 1.0f;
+            uiController.GamePause(stopGame);
+        }
+
         groundManager.ResetGroundsStat();
+
         if (prevElevator != null && prevElevator.IsWithPlayer())
             prevElevator.MovePlayer();
 

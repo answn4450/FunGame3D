@@ -13,6 +13,7 @@ public class UIController : MonoBehaviour
     public Text groundMinimumHeight;
 
     public GameObject deadUI;
+    public GameObject pauseUI;
     public GameObject availableStructure;
     public GameObject builtStructure;
     public List<GameObject> availableStructureChild;
@@ -110,6 +111,11 @@ public class UIController : MonoBehaviour
     public void PlayerRebirth()
     {
         deadUI.SetActive(false);
+    }
+
+    public void GamePause(bool pause)
+    {
+        pauseUI.SetActive(pause);
     }
 
     private void Position(Vector3 worldPosition)

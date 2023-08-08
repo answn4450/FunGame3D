@@ -108,22 +108,12 @@ public class BulletController : MonoBehaviour
         while (t>0.0f && hit != null && gameObject != null)
         {
             yield return null;
-            if (gameObject != null)
+            if (hit != null)
                 hit.transform.position += transform.forward * t * Time.deltaTime;
             t -= Time.deltaTime;
         }
 
         if (gameObject!=null)
             Destroy(gameObject);
-    }
-
-    IEnumerator test(float a)
-    {
-        while (a > 0.0f)
-        {
-            yield return null;
-            a -= Time.deltaTime;
-            Debug.Log(a);
-        }
     }
 }

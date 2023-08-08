@@ -16,6 +16,6 @@ public class Structure : MonoBehaviour
 
     public void OnGround()
     {
-        Tools.GetInstance().OnGround(gameObject);
+        Tools.GetInstance().OnGround(transform);
     }
 }

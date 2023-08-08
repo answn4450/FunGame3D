@@ -6,7 +6,7 @@ public class LivingBall : MonoBehaviour
 {
     public void OnGround()
     {
-        Tools.GetInstance().OnGround(gameObject);
+        Tools.GetInstance().OnGround(transform);
     }
 
     protected void SafeMove(Vector3 move)
