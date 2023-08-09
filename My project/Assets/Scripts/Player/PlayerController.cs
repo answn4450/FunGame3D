@@ -348,7 +348,9 @@ public class PlayerController : LivingBall
 
     private bool InAir()
     {
-        return !Physics.Raycast(transform.position, gravity, transform.localScale.x * 0.5f + Mathf.Epsilon);
+        bool castBlock = (Physics.Raycast(transform.position, gravity, transform.localScale.x * 0.5f + 0.01f));
+        bool overTheGround = Tools.GetInstance().OverTheGround(transform);
+        return !castBlock && overTheGround;
     }
 
 }

@@ -72,6 +72,15 @@ public class Tools
             return false;
     }
 
+    public bool OverTheGround(Transform transform)
+    {
+        GroundController ground = GetUnderGround(transform);
+        if (ground)
+            return GetBottomY(transform) > GetTopY(ground.transform);
+        else
+            return true;
+    }
+
     public bool GetBallTouchRect(Transform ball, Transform rect)
     {
         return true;
@@ -79,15 +88,9 @@ public class Tools
 
     public void OnGround(Transform transform)
     {
-        LayerMask groundMask = LayerMask.GetMask("Ground");
-        RaycastHit hit;
-        Vector3 topY = new Vector3(
-            transform.position.x,
-            Ground.GetInstance().groundY1 + 0.1f,
-            transform.position.z
-            );
-        if (Physics.Raycast(topY, Vector3.down, out hit, Mathf.Infinity, groundMask))
-            hit.transform.GetComponent<GroundController>().AddOnBoardCollider(transform);
+        GroundController ground = GetUnderGround(transform);
+        if (ground)
+            ground.AddOnBoardCollider(transform);
     }
 
     public float GetHeight(Transform transform)
@@ -108,6 +111,22 @@ public class Tools
     {
         float halfHeight = GetHeight(transform) * 0.5f;
         return transform.position.y + halfHeight;
+    }
+
+    public GroundController GetUnderGround(Transform transform)
+    {
+        LayerMask groundMask = LayerMask.GetMask("Ground");
+        RaycastHit hit;
+        Vector3 topY = new Vector3(
+            transform.position.x,
+            Ground.GetInstance().groundY1 + 0.1f,
+            transform.position.z
+            );
+
+        if (Physics.Raycast(topY, Vector3.down, out hit, Mathf.Infinity, groundMask))
+            return hit.transform.GetComponent<GroundController>();
+        else 
+            return null;
     }
 
 }

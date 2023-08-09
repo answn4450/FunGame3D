@@ -19,19 +19,15 @@ public class LivingBall : MonoBehaviour
         float validY0 = Ground.GetInstance().groundY0 + Ground.GetInstance().groundMinimumHeight + radius;
         float validY1 = Ground.GetInstance().groundY1 - radius;
 
-        LayerMask groundMask = LayerMask.GetMask("Ground");
+
         RaycastHit hit;
-        bool dontMove = false;
-        if (Physics.Raycast(transform.position, move, out hit, move.magnitude + radius, groundMask))
-        {
-            bool moveDown = move.y < 0;
-            float groundTopY = hit.transform.position.y + hit.transform.localScale.y * 0.5f;
-            if (moveDown)
-                move += Vector3.down * (groundTopY - transform.position.y + radius);
-            else
-                dontMove = true;
-        }
-        if (!dontMove)
+        bool stuck = false;
+        if (Physics.Raycast(transform.position, move, out hit, move.magnitude + radius))
+            stuck = true;
+        if (!Tools.GetInstance().OverTheGround(transform))
+            move -= move.y * Vector3.up * Mathf.Sign(move.y);
+
+        if (!stuck)
             transform.position += move;
 
         transform.position = new Vector3(
