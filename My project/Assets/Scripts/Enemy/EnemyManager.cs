@@ -34,8 +34,8 @@ public class EnemyManager : MonoBehaviour
             EnemyController enemy = enemyList[i];
             if (enemy.dead)
             {
-                enemy.Explode();
                 enemyList.RemoveAt(i);
+                enemy.Explode();
             }
             else
             {

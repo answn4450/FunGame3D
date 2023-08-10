@@ -78,9 +78,9 @@ public class GameManager : MonoBehaviour
 
         if (enemyManager)
         {
+            enemyManager.LifeCycle();
             if (player)
                 enemyManager.FollowPlayer(player);
-            enemyManager.LifeCycle();
         }
 
         if (player)

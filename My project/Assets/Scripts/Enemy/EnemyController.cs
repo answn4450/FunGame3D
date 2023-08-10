@@ -104,10 +104,7 @@ public class EnemyController : LivingBall
 
     private void CheckDead()
     {
-        bool before = dead;
         dead = size <= deadSize;
-        if (dead && !before)
-            Explode();
     }
 
     private void SphereBySize(float size)

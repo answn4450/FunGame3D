@@ -82,7 +82,7 @@ public class GroundManager : MonoBehaviour
                 GroundController ground = groundList[x][z];
                 ground.SortColliders();
                 ground.BindHeight();
-                ground.UpDown(player);
+                //ground.UpDown(player);
                 ground.LiftUpOrSqueeze(player);
                 //ground.MoreEvilGround();
                 if (Tools.GetInstance().GetBallTouchRect(player.transform, ground.transform))

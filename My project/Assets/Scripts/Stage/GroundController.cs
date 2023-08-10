@@ -11,8 +11,8 @@ public class GroundController : MonoBehaviour
     public bool temporailyStop;
     
     private Color originalColor;
-    private List<float> collidersHeightRangeBottom = new List<float>();
-    private List<float> collidersHeightRangeTop = new List<float>();
+    public List<float> collidersHeightRangeBottom = new List<float>();
+    public List<float> collidersHeightRangeTop = new List<float>();
     private const float defaultSpeed = 0.4f;
     private float groundX;
     private float groundZ;
@@ -117,7 +117,6 @@ public class GroundController : MonoBehaviour
             Ground.GetInstance().groundMinimumHeight,
             GetMaxHeightBeforeFirstCollider()
             );
-
         if (height != bindedHeight)
             SetGroundTransform(bindedHeight);
     }
@@ -134,28 +133,29 @@ public class GroundController : MonoBehaviour
             if (heightDestination > height && heightDestination < height + upDownY)
                 upDownY = heightDestination - height;
 
-            SetGroundTransform(height + upDownY);
+            SetGroundTransform(height + upDownY * Time.deltaTime);
         }
     }
 
     public void LiftUpOrSqueeze(PlayerController player)
     {
-        bool toughSpace = LiftUpColliders();
+        LiftUpColliders();
+        bool toughSpace = GetEmptySpaceHeight() < 0.01f;
 
+        if (Tools.GetInstance().SameGround(player.transform, transform))
+            Debug.Log(GetEmptySpaceHeight());
         if (Tools.GetInstance().SameGround(player.transform, transform) && toughSpace)
-        {
-            player.Squeeze(Time.deltaTime);
-        }
+            Debug.LogError("squeeze");
+        //    player.Squeeze(Time.deltaTime);
     }
 
-    private bool LiftUpColliders()
+    private void LiftUpColliders()
     {
-        float emptyHeight = GetEmptySpaceHeight();
         float beforeTopY = transform.position.y + transform.localScale.y * 0.5f;
         float hitY;
         float hitNewY;
         float height = transform.localScale.y;
-        float regularLiftY = height - GetMaxHeightBeforeFirstCollider();
+        float regularLiftY = Mathf.Max(height - GetMaxHeightBeforeFirstCollider(), 0.0f);
 
         for (int i = 0; i < collidersNumber; ++i)
         {
@@ -169,8 +169,6 @@ public class GroundController : MonoBehaviour
                 if (hitNewY + hitHeightHalf > Ground.GetInstance().groundY1)
                     hitNewY = Ground.GetInstance().groundY1 - hitHeightHalf;
 
-                emptyHeight -= beforeTopY - (hitNewY + hitHeightHalf);
-
                 hit.position = new Vector3(
                     hit.position.x,
                     hitNewY,
@@ -180,13 +178,21 @@ public class GroundController : MonoBehaviour
                 beforeTopY = hitNewY + hitHeightHalf;
 
             }
+            else
+                beforeTopY = hitY + hitHeightHalf;
         }
+        
+    }
 
-        /*
-        if (collidersNumber == 1 && colliders[0].transform.name == "Player")
-            Debug.Log(emptyHeight);
-        */
-        return emptyHeight <= 0.001f;
+    public void Y(Transform other)
+    {
+        float newY = Tools.GetInstance().GetTopY(transform) + Tools.GetInstance().GetHeight(other) * 0.5f;
+        
+        other.position = new Vector3(
+            other.position.x,
+            newY,
+            other.position.z
+            );
     }
 
     private float GetSafeHeight(float height)
@@ -295,27 +301,23 @@ public class GroundController : MonoBehaviour
                 float bottom = collidersHeightRangeBottom[i];
                 float top = collidersHeightRangeTop[i];
                 bool inRange = false;
-                for (int i2 = i; i2 < collidersHeightRangeBottom.Count; ++i2)
+                for (int i2 = i + 1; i2 < collidersHeightRangeBottom.Count; ++i2)
                 {
                     float bottom2 = collidersHeightRangeBottom[i2];
                     float top2 = collidersHeightRangeTop[i2];
-                    if (bottom < bottom2 && top > top2)
+
+                    if (bottom <= bottom2 && top >= top2)
                     {
                         inRange = true;
                         collidersHeightRangeBottom[i2] = bottom;
                         collidersHeightRangeTop[i2] = top;
                         break;
                     }
-                    else if (bottom < bottom2 && top < top2)
+                    else if (bottom < bottom2 && top >= bottom2)
                     {
                         inRange = true;
                         collidersHeightRangeBottom[i2] = bottom;
-                        break;
-                    }
-                    else if (bottom > bottom2 && top > top2)
-                    {
-                        inRange = true;
-                        collidersHeightRangeTop[i2] = top;
+                        collidersHeightRangeTop[i2] = Mathf.Max(top, top2);
                         break;
                     }
                 }
@@ -340,10 +342,10 @@ public class GroundController : MonoBehaviour
 
     private List<Transform> SortByY(List<Transform> hits)
     {
-        for (int i = 0; i < collidersNumber - 1; ++i)
+        for (int i = 0; i < collidersNumber; ++i)
         {
             int minI = i;
-            for (int i2 = i + 1; i2 < hits.Count; ++i2)
+            for (int i2 = i + 1; i2 < collidersNumber; ++i2)
             {
                 if (hits[minI].position.y > hits[i2].position.y)
                 {

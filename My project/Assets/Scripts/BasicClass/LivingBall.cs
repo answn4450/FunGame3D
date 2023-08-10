@@ -25,7 +25,14 @@ public class LivingBall : MonoBehaviour
         if (Physics.Raycast(transform.position, move, out hit, move.magnitude + radius))
             stuck = true;
         if (!Tools.GetInstance().OverTheGround(transform))
+        {
+            if (transform.name == "Player")
+            {
+                bool cast = Physics.Raycast(transform.position, move, out hit, move.magnitude + radius, LayerMask.GetMask("Ground"));
+                //Debug.Log(cast);
+            }
             move -= move.y * Vector3.up * Mathf.Sign(move.y);
+        }
 
         if (!stuck)
             transform.position += move;
