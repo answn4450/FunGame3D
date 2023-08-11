@@ -129,4 +129,24 @@ public class Tools
             return null;
     }
 
+    public float paddingGroundDistance(Transform transform)
+    {
+        LayerMask groundMask = LayerMask.GetMask("Ground");
+        RaycastHit hit;
+        bool cast = Physics.Raycast(transform.position, Vector3.down, out hit, transform.transform.localScale.x * 0.5f, groundMask);
+        GroundController ground = GetUnderGround(transform);
+        float groundTop = Tools.GetInstance().GetTopY(ground.transform);
+        float playerBottom = Tools.GetInstance().GetBottomY(transform);
+        float distanceY = playerBottom - groundTop;
+        //Debug.LogFormat("cast: {0}, distance : {1}, {2}", cast, distanceY, transform.position.y - groundTop);
+
+        return distanceY;
+    }
+
+    public float PlayerCastBottomGround()
+    {
+        Transform player = GameObject.Find("Player").transform;
+        float distance = paddingGroundDistance(player);
+        return distance;
+    }
 }

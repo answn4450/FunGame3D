@@ -81,7 +81,7 @@ public class PlayerController : LivingBall
         transform.position = Vector3.zero;
     }
 
-    void Update()
+    public void LifeCycle()
     {
         if (shotTimer > 0.0f)
             shotTimer -= Time.deltaTime;

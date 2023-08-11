@@ -61,6 +61,8 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
+        TestUpdate();
+        /*
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             stopGame = !stopGame;
@@ -85,6 +87,7 @@ public class GameManager : MonoBehaviour
 
         if (player)
         {
+            player.LifeCycle();
             if (player.dead)
             {
                 leftCountdown -= Time.deltaTime;
@@ -120,6 +123,7 @@ public class GameManager : MonoBehaviour
 
             UIControll();
         }
+        */
     }
 
     public void Rebirth()
@@ -138,4 +142,21 @@ public class GameManager : MonoBehaviour
                 nextElevator.transform.position - player.transform.position
                 );
     }
+
+    private void TestUpdate()
+    {
+        groundManager.ResetGroundsStat();
+
+        if (enemyManager)
+            enemyManager.TestOnGround();
+
+        GameObject dummy = GameObject.Find("dummy");
+        if (dummy && dummy.GetComponent<EnemyController>())
+            dummy.GetComponent<EnemyController>().OnGround();
+        
+        Tools.GetInstance().OnGround(player.transform);
+        
+        groundManager.ReactGrounds(player);
+    }   
+    
 }

@@ -75,6 +75,7 @@ public class GroundManager : MonoBehaviour
 
     public void ReactGrounds(PlayerController player)
     {
+        GameObject test = GameObject.Find("test");
         for (int x = 0; x < sizeX; ++x)
         {
             for (int z = 0; z < sizeZ; ++z)
@@ -82,11 +83,12 @@ public class GroundManager : MonoBehaviour
                 GroundController ground = groundList[x][z];
                 ground.SortColliders();
                 ground.BindHeight();
-                //ground.UpDown(player);
-                ground.LiftUpOrSqueeze(player);
+                ground.UpDown(test.transform);
+                ground.LiftUpColliders();
+                //ground.SqueezePlayer(player);
                 //ground.MoreEvilGround();
-                if (Tools.GetInstance().GetBallTouchRect(player.transform, ground.transform))
-                    ground.EffectPlayerByTouch(player);
+                //if (Tools.GetInstance().GetBallTouchRect(player.transform, ground.transform))
+                //    ground.EffectPlayerByTouch(player);
             }
         }
     }

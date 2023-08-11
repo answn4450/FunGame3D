@@ -121,35 +121,23 @@ public class GroundController : MonoBehaviour
             SetGroundTransform(bindedHeight);
     }
 
-    public void UpDown(PlayerController player)
+    public void UpDown(Transform target)
     {
         if (!temporailyStop)
         {
             float height = transform.localScale.y;
-            float heightDestination = GetSafeHeight(GetHeightDestination(player.transform));
+            float heightDestination = GetSafeHeight(GetHeightDestination(target));
             float upDownY = Mathf.Sign(heightDestination - height) * Mathf.Abs(heightDestination - height) * temporarilySpeed * Time.deltaTime;
             if (heightDestination < height && heightDestination > height + upDownY)
                 upDownY = heightDestination - height;
             if (heightDestination > height && heightDestination < height + upDownY)
                 upDownY = heightDestination - height;
 
-            SetGroundTransform(height + upDownY * Time.deltaTime);
+            SetGroundTransform(height + upDownY);
         }
     }
 
-    public void LiftUpOrSqueeze(PlayerController player)
-    {
-        LiftUpColliders();
-        bool toughSpace = GetEmptySpaceHeight() < 0.01f;
-
-        if (Tools.GetInstance().SameGround(player.transform, transform))
-            Debug.Log(GetEmptySpaceHeight());
-        if (Tools.GetInstance().SameGround(player.transform, transform) && toughSpace)
-            Debug.LogError("squeeze");
-        //    player.Squeeze(Time.deltaTime);
-    }
-
-    private void LiftUpColliders()
+    public void LiftUpColliders()
     {
         float beforeTopY = transform.position.y + transform.localScale.y * 0.5f;
         float hitY;
@@ -159,6 +147,8 @@ public class GroundController : MonoBehaviour
 
         for (int i = 0; i < collidersNumber; ++i)
         {
+            /*
+            */
             Transform hit = colliders[i];
             float hitHeightHalf = Tools.GetInstance().GetHeight(hit) * 0.5f;
             hitY = hit.transform.position.y;
@@ -177,22 +167,40 @@ public class GroundController : MonoBehaviour
 
                 beforeTopY = hitNewY + hitHeightHalf;
 
+                if (hitNewY != hit.position.y)
+                    Debug.LogFormat("{0}, {1}", hit.name, hitNewY - hit.transform.position.y);
             }
             else
                 beforeTopY = hitY + hitHeightHalf;
+            //Y(colliders[i]);
         }
-        
+
+        SortColliders();
+    }
+
+    public void SqueezePlayer(PlayerController player)
+    {
+        bool toughSpace = GetEmptySpaceHeight() < 0.01f;
+        if (Tools.GetInstance().SameGround(player.transform, transform) && toughSpace)
+            player.Squeeze(Time.deltaTime);
     }
 
     public void Y(Transform other)
     {
-        float newY = Tools.GetInstance().GetTopY(transform) + Tools.GetInstance().GetHeight(other) * 0.5f;
+        float topY = Tools.GetInstance().GetTopY(transform);
+        float halfHeight = Tools.GetInstance().GetHeight(other) * 0.5f;
+        float newY = topY + halfHeight;
+        float bottomY = newY - halfHeight;
+        float diff = topY - bottomY;
         
         other.position = new Vector3(
             other.position.x,
             newY,
             other.position.z
             );
+
+        if (newY != other.transform.position.y)
+            Debug.LogFormat("{0}, {1}", other.name, newY - other.transform.position.y);
     }
 
     private float GetSafeHeight(float height)
@@ -347,10 +355,12 @@ public class GroundController : MonoBehaviour
             int minI = i;
             for (int i2 = i + 1; i2 < collidersNumber; ++i2)
             {
-                if (hits[minI].position.y > hits[i2].position.y)
-                {
+                float bottomY = Tools.GetInstance().GetBottomY(hits[minI]);
+                float bottomY2 = Tools.GetInstance().GetBottomY(hits[i2]);
+                
+                if (bottomY > bottomY2)
                     minI = i2;
-                }
+            
             }
 
             Transform swap = hits[i];
