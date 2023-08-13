@@ -5,6 +5,7 @@ using UnityEngine;
 public class EnemyManager : MonoBehaviour
 {
     private List<EnemyController> enemyList = new List<EnemyController>();
+    private List<EnemyController> enemyList2 = new List<EnemyController>();
     private GameObject followerPrefab;
     private int maxChildCount = 16;
 
@@ -15,7 +16,7 @@ public class EnemyManager : MonoBehaviour
         if (transform.childCount > 0)
         {
             for (int i = 0; i < transform.childCount; ++i)
-                enemyList.Add(transform.GetChild(i).transform.GetComponent<EnemyController>());
+                enemyList2.Add(transform.GetChild(i).transform.GetComponent<EnemyController>());
         }
         else
         {
@@ -23,15 +24,17 @@ public class EnemyManager : MonoBehaviour
             enemyList.Add(enemy);
         }
 
-        StartCoroutine(AutoDoubleBreeding());
+        //StartCoroutine(AutoDoubleBreeding());
     }
 
     public void TestOnGround()
     {
         int i = 0;
-        while (i < enemyList.Count)
+        while (i < 1)
         {
-            EnemyController enemy = enemyList[i];
+            //EnemyController enemy = enemyList[i];
+            LivingBall enemy = transform.GetChild(i).GetComponent<LivingBall>();
+
             enemy.OnGround();
             i++;
         }

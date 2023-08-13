@@ -15,7 +15,7 @@ public class BigInfoController : MonoBehaviour
 
     private void LateUpdate()
     {
-        float t = Mathf.Clamp(Time.deltaTime, 0.01f, 0.01f);
+        float t = Mathf.Clamp(Time.deltaTime, 0.01f, 0.1f);
         size = Mathf.Lerp(size, destSize, t);
         GetComponent<Text>().fontSize = (int)size;
     }

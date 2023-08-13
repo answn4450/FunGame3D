@@ -55,13 +55,15 @@ public class ElevatorController : MonoBehaviour
     private void MovePlayerToDown()
     {
         int nextStage = Status.GetInstance().currentStage - 1;
-        if (nextStage <= 0)
+        if (nextStage < 0)
             SceneManager.LoadScene("Base");
+        else if (nextStage == 0)
+            SceneManager.LoadScene("Tutorial");
         else
-		{
+        {
             Status.GetInstance().currentStage = nextStage;
             SceneManager.LoadScene("Stage" + nextStage.ToString());
-		}
+        }
     }
 
     private void MovePlayerToUp()
@@ -72,11 +74,13 @@ public class ElevatorController : MonoBehaviour
             Status.GetInstance().endGame = true;
             SceneManager.LoadScene("StartMenu");
         }
+        else if (nextStage == 0)
+            SceneManager.LoadScene("Tutorial");
         else
-		{
+        {
             Status.GetInstance().currentStage = nextStage;
             SceneManager.LoadScene("Stage" + nextStage.ToString());
-		}
+        }
     }
 
     private void MovePlayerToBase()

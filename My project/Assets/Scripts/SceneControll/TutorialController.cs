@@ -13,113 +13,94 @@ public class TutorialController : MonoBehaviour
     [SerializeField]
     [Range(0,7)]
     public int step;
+    public List<string> ment;
+
+    private Sandbag whiteBall;
 
     private void Awake()
     {
-        //step = 0;
+        step = 0;
+        ment = new List<string> {
+            "0>ì•ˆë…• íŠœí† ë¦¬ì–¼>Enterë¡œ ë„˜ê¸°ê¸°",
+            "1>í™”ì‚´í‘œ í‚¤ë¡œ ì•ë’¤ì–‘ì˜†ìœ¼ë¡œ ì´ë™>ë°©í–¥í‚¤ ì¡°ì‘",
+            "2>ëª©ì ì§€ë¡œ ì´ë™>í•˜ì–€ ê³µ ìˆ˜ìƒ‰",
+            "3>ëª©ì ì§€ ë„ì°©!>Enterë¡œ ë„˜ê¸°ê¸°",
+            "4>ìŠ¤í˜ì´ìŠ¤ë°”ë¡œ í•˜ì–€ ê³µì— ì´ì•Œ ë‚ ë¦¬ê¸°>ìŠ¤í˜ì´ìŠ¤ë°”=ì´ì•Œ ë°œì‚¬",
+            "5>í˜„ì¬ ì„ íƒ ê±´ì¶•ë¬¼ì€ 1ë²ˆ.>Enterë¡œ ë„˜ê¸°ê¸°",
+            "6>ìˆ«ìí‚¤2ë¡œ í›„ë³´ ê±´ì¶•ë¬¼ 2ë²ˆìœ¼ë¡œ ë³€ê²½>2ë²ˆ ê±´ì¶•ë¬¼ StopAura",
+            "7>aë¡œ ê±´ì¶•ë¬¼ì„ ë°œì‚¬í•œ ì´ì•Œ ìœ„ì¹˜ì— ìƒì„±>Aë¡œ ì´ì•Œì´ ì—†ì–´ì§€ê¸° ì „ì— StopAura ìƒì„±",
+            "8>së¡œ ë¹ ë¥¸ ì´ë™ ì‹œì‘ ë° í•´ì œ>Së¡œ ì´ì•Œ ë³€ì‹ ",
+            "9>ì—˜ë¦¬ë² ì´í„°ë¡œ íƒ‘ìŠ¹ìœ¼ë¡œ íŠœí† ë¦¬ì–¼ ì¢…ë£Œ>íŒŒë€ìƒ‰ ì—˜ë¦¬ë² ì´í„°",
+        };
+
+        whiteBall = GameObject.Find("whiteBall").GetComponent<Sandbag>();
     }
 
     void Start()
     {
-        requireInfo.text = "Enter -> ³Ñ±â±â";
-        bigInfo.GetNewText("¾È³ç Æ©Åä¸®¾ó");
+        requireInfo.text = "Enter -> ë„˜ê¸°ê¸°";
+        bigInfo.GetNewText("ì•ˆë…• íŠœí† ë¦¬ì–¼");
     }
 
     void Update()
     {
-        if (step < 4)
-            StepMove0to3();
-        else if (step < 7)
-            StepControl4to6();
-        else
-            StepEnd7();
+        bool nextStep = false;
+        switch (step)
+        {
+            case 0:
+                if (Input.GetKeyDown(KeyCode.Return))
+                    nextStep = true;
+                break;
+            case 1:
+                if (Input.GetKeyDown(KeyCode.Return))
+                    nextStep = true;
+                break;
+            case 2:
+                float distance = (player.transform.position - whiteBall.transform.position).magnitude;
+                if (distance * 2 <= player.transform.localScale.x + whiteBall.transform.localScale.x)
+                    nextStep = true;
+                break;
+            case 3:
+                if (Input.GetKeyDown(KeyCode.Return))
+                    nextStep = true;
+                break;
+            case 4:
+                if (whiteBall.satisfy)
+                    nextStep = true;
+                break;
+            case 5:
+                if (Input.GetKeyDown(KeyCode.Return))
+                    nextStep = true;
+                break;
+            case 6:
+                if (Input.GetKeyDown(KeyCode.Alpha2))
+                    nextStep = true;
+                break;
+            case 7:
+                if (GameObject.Find("StopAura"))
+                    nextStep = true;
+                break;
+            case 8:
+                if (Input.GetKeyDown(KeyCode.S))
+                    nextStep = true;
+                break;
+        }
+
+        if (nextStep)
+        {
+            step++;
+            NewPage();
+        }
     }
 
-    private void StepMove0to3()
+    private void NewPage()
     {
-        if (step == 0)
-        {
-            if (Input.GetKeyDown(KeyCode.Return))
-            {
-                bigInfo.GetNewText("¹æÇâÅ° Á¶ÀÛ");
-                requireInfo.text = "Enter -> ³Ñ±â±â";
-                step += 1;
-            }
-        }
-        if (step == 1)
-        {
-            if (Input.GetKeyDown(KeyCode.Return))
-            {
-                bigInfo.GetNewText("¸ñÀûÁö·Î ÀÌµ¿");
-                requireInfo.text = "ÇÏ¾á °ø ¼ö»ö";
-                step += 1;
-            }
-        }
-        if (step == 2)
-        {
-
-            float distance = Vector3.Distance(player.transform.position, movePoint.transform.position);
-            if (distance < movePoint.transform.localScale.x)
-            {
-                step = 3;
-                bigInfo.GetNewText("¸ñÀûÁö µµÂø!");
-                requireInfo.text = "Enter -> ³Ñ±â±â";
-            }
-        }
-        if (step == 3)
-        {
-            float distance = Vector3.Distance(player.transform.position, movePoint.transform.position);
-            if (distance > movePoint.transform.localScale.x)
-            {
-                bigInfo.GetNewText("¸ñÀûÁö·Î ÀÌµ¿");
-                requireInfo.text = "ÇÏ¾á °ø ¼ö»ö";
-                step = 2;
-            }
-
-            if (Input.GetKeyDown(KeyCode.Return))
-                step += 1;
-        }
+        string big, small;
+        string[] splits = ment[step].Split('>');
+        big = splits[1];
+        small = splits.Length > 2 ? splits[2] : "";
+        bigInfo.GetNewText(big);
+        requireInfo.text = small;
     }
 
-    private void StepControl4to6()
-    {
-        if (step == 4)
-        {
-            if (Input.GetKey(KeyCode.Return))
-            {
-                bigInfo.GetNewText("°ø°İ");
-                requireInfo.text = "Space -> ÃÑ¾Ë °ø°İ";
-                step += 1;
-            }
-        }
-        if (step == 5)
-        {
-            if (Input.GetKey(KeyCode.Space))
-            {
-                bigInfo.GetNewText("ÃÑ¾Ë°ú À§Ä¡ ±³È¯");
-                requireInfo.text = "Tab -> À§Ä¡ º¯È¯";
-                step = 6;
-            }
-        }
-        if (step == 6)
-        {
-            if (Input.GetKey(KeyCode.Tab))
-            {
-                bigInfo.GetNewText("Æ©Åä¸®¾ó ¿Ï·á!");
-                requireInfo.text = "Space -> °ÔÀÓ ½ÃÀÛ";
-                step += 1;
-            }
-        }
-    }
-
-    private void StepEnd7()
-    {
-        if (step == 7)
-        {
-            if (Input.GetKey(KeyCode.Return))
-            {
-                SceneManager.LoadScene("Play");
-            }
-        }
-    }
 }

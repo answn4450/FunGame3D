@@ -12,29 +12,28 @@ public class LivingBall : MonoBehaviour
     protected void SafeMove(Vector3 move)
     {
         float radius = transform.localScale.x * 0.5f;
+        Transform underGround = Tools.GetInstance().GetUnderGround(transform).transform;
         float validX0 = Ground.GetInstance().groundX0 + radius;
         float validX1 = Ground.GetInstance().groundX1 - radius;
         float validZ0 = Ground.GetInstance().groundZ0 + radius;
         float validZ1 = Ground.GetInstance().groundZ1 - radius;
-        float validY0 = Ground.GetInstance().groundY0 + Ground.GetInstance().groundMinimumHeight + radius;
+        float validY0 = Tools.GetInstance().GetTopY(underGround) + radius - (radius > 0.1f ? 0.1f : 0.0f);
         float validY1 = Ground.GetInstance().groundY1 - radius;
 
+        float fallY = move.y;
+        move = new Vector3(move.x, 0.0f, move.z);
 
         RaycastHit hit;
-        bool stuck = false;
-        if (Physics.Raycast(transform.position, move, out hit, move.magnitude + radius))
-            stuck = true;
-        if (!Tools.GetInstance().OverTheGround(transform))
-        {
-            if (transform.name == "Player")
-            {
-                bool cast = Physics.Raycast(transform.position, move, out hit, move.magnitude + radius, LayerMask.GetMask("Ground"));
-            }
-            move -= move.y * Vector3.up * Mathf.Sign(move.y);
-        }
-
-        if (!stuck)
+        if (!Physics.Raycast(transform.position, move, out hit, move.magnitude + radius))
             transform.position += move;
+        
+        if (fallY < 0.0f)
+        {
+            if (Tools.GetInstance().OverTheGround(transform))
+                transform.position += Vector3.up * fallY;
+        }
+        else
+            transform.position += Vector3.up * fallY;
 
         transform.position = new Vector3(
             Mathf.Clamp(transform.position.x, validX0, validX1),

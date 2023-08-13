@@ -61,8 +61,6 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        TestUpdate();
-        /*
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             stopGame = !stopGame;
@@ -123,7 +121,6 @@ public class GameManager : MonoBehaviour
 
             UIControll();
         }
-        */
     }
 
     public void Rebirth()
@@ -143,20 +140,24 @@ public class GameManager : MonoBehaviour
                 );
     }
 
-    private void TestUpdate()
+    public void TestUpdate()
     {
         groundManager.ResetGroundsStat();
 
-        if (enemyManager)
-            enemyManager.TestOnGround();
+        //enemyManager.TestOnGround();
 
-        GameObject dummy = GameObject.Find("dummy");
-        if (dummy && dummy.GetComponent<EnemyController>())
-            dummy.GetComponent<EnemyController>().OnGround();
-        
-        Tools.GetInstance().OnGround(player.transform);
-        
+        player.OnGround();
+        //GameObject testFolder = GameObject.Find("testFolder");
+        string folderName = "EnemyFolder";
+        Transform testFolder = GameObject.Find("EnemyFolder").transform;
+
+        for (int i = 0; i < testFolder.childCount; ++i)
+        {
+            LivingBall tester = testFolder.GetChild(i).GetComponent<LivingBall>();
+            tester.OnGround();
+        }
+
         groundManager.ReactGrounds(player);
-    }   
+    }
     
 }

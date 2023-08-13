@@ -13,6 +13,6 @@ public class ButtonController : MonoBehaviour
 
 	public void ButtonTutorial()
 	{
-		SceneManager.LoadScene("Stage0");
+		SceneManager.LoadScene("Tutorial");
 	}
 }

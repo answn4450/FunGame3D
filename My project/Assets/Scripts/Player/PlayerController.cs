@@ -22,6 +22,8 @@ public class PlayerController : LivingBall
     private GameObject explodeFX;
     private GameObject hurtFX;
     private GameObject squeezeFX;
+    private Material matBlue;
+    private Material matRed;
 
     private List<string> availableStructures = new List<string> {
         "Jumper",
@@ -67,12 +69,16 @@ public class PlayerController : LivingBall
         gravity = 9.8f * Vector3.down;
 
         stopFall = false;
-        selectedStructureIndex = (int)(availableStructures.Count * 0.5f);
+        selectedStructureIndex = (int)(availableStructures.Count * 0.5f - 0.1f);
 
         effectFX = PrefabManager.GetInstance().GetPrefabByName("CFX_MagicPoof");
         explodeFX = PrefabManager.GetInstance().GetPrefabByName("CFX_MagicPoof");
         hurtFX = PrefabManager.GetInstance().GetPrefabByName("CFXR Hit A (Red)");
         squeezeFX = PrefabManager.GetInstance().GetPrefabByName("CFXR Hit A (Red)");
+
+        matBlue = Resources.Load("Material/BasicBlue", typeof(Material)) as Material;
+        matRed = Resources.Load("Material/BasicRed", typeof(Material)) as Material;
+        transform.GetComponent<Renderer>().material = matBlue;
     }
 
     private void Start()
@@ -89,6 +95,7 @@ public class PlayerController : LivingBall
         Fall();
         CheckDead();
         playerEye.FollowTarget(transform);
+        EasyCheckColor();
     }
 
     public List<string> GetAvailableStructures()
@@ -351,6 +358,14 @@ public class PlayerController : LivingBall
         bool castBlock = (Physics.Raycast(transform.position, gravity, transform.localScale.x * 0.5f + 0.01f));
         bool overTheGround = Tools.GetInstance().OverTheGround(transform);
         return !castBlock && overTheGround;
+    }
+
+    private void EasyCheckColor()
+    {
+        if (stopFall)
+            GetComponent<Renderer>().material = matRed;
+        else
+            GetComponent<Renderer>().material = matBlue;
     }
 
 }

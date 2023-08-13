@@ -5,6 +5,7 @@ using UnityEngine;
 public class Tools
 {
     public LayerMask groundMask = LayerMask.GetMask("Ground");
+    public float groundLiftMinorDiffrence = 2.384186E-07f;
     private static Tools instance;
 
     public static Tools GetInstance()

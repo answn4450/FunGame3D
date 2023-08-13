@@ -13,7 +13,7 @@ public class GroundController : MonoBehaviour
     private Color originalColor;
     public List<float> collidersHeightRangeBottom = new List<float>();
     public List<float> collidersHeightRangeTop = new List<float>();
-    private const float defaultSpeed = 0.4f;
+    private const float defaultSpeed = 0.05f;
     private float groundX;
     private float groundZ;
     private float temporarilySpeed;
@@ -147,8 +147,6 @@ public class GroundController : MonoBehaviour
 
         for (int i = 0; i < collidersNumber; ++i)
         {
-            /*
-            */
             Transform hit = colliders[i];
             float hitHeightHalf = Tools.GetInstance().GetHeight(hit) * 0.5f;
             hitY = hit.transform.position.y;
@@ -168,13 +166,21 @@ public class GroundController : MonoBehaviour
                 beforeTopY = hitNewY + hitHeightHalf;
 
                 if (hitNewY != hit.position.y)
-                    Debug.LogFormat("{0}, {1}", hit.name, hitNewY - hit.transform.position.y);
+                {
+                    float diff = hitNewY - hit.transform.position.y;
+                    if (hit.name == "Player")
+                        Tools.GetInstance().groundLiftMinorDiffrence = diff;
+                    //Debug.LogFormat("{0}, {1}, {2}, {3}, {4}, {5}", hit.name, hitNewY, hit.transform.position.y, diff, Tools.GetInstance().groundLiftMinorDiffrence, diff - Tools.GetInstance().groundLiftMinorDiffrence);
+                }
             }
             else
                 beforeTopY = hitY + hitHeightHalf;
-            //Y(colliders[i]);
+        /*
+            Y(colliders[i]);
+            */
         }
-
+        
+        
         SortColliders();
     }
 
@@ -199,8 +205,11 @@ public class GroundController : MonoBehaviour
             other.position.z
             );
 
-        if (newY != other.transform.position.y)
-            Debug.LogFormat("{0}, {1}", other.name, newY - other.transform.position.y);
+        if (newY != other.position.y)
+        {
+            float diff2 = newY - other.transform.position.y;
+            Debug.LogFormat("{0}, {1}, {2}, {3}", other.name, newY, other.transform.position.y, diff2);
+        }
     }
 
     private float GetSafeHeight(float height)

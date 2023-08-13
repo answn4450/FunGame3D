@@ -33,7 +33,7 @@ public class Ground
 	{
         groundWidth = (int)ground.transform.localScale.x;
         groundHeight = 7;
-        groundMinimumHeight = 1.0f;
+        groundMinimumHeight = 1.01f;
         groundDepth = (int)ground.transform.localScale.z;
         
         // ground 맨 왼쪽 밑 아래 구석.
