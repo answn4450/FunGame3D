@@ -22,7 +22,7 @@ public class TutorialController : MonoBehaviour
         step = 0;
         ment = new List<string> {
             "0>안녕 튜토리얼>Enter로 넘기기",
-            "1>화살표 키로 앞뒤양옆으로 이동>방향키 조작",
+            "1>화살표 키로 앞뒤양옆으로 이동>방향키 조작 후 Enter",
             "2>목적지로 이동>하얀 공 수색",
             "3>목적지 도착!>Enter로 넘기기",
             "4>스페이스바로 하얀 공에 총알 날리기>스페이스바=총알 발사",

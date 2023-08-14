@@ -34,15 +34,6 @@ public class Tools
         return Mathf.Clamp(indexY, 0, Ground.GetInstance().groundHeight - 1);
     }
 
-    public Vector3 GetGroundIndexPosition(Vector3 position)
-    {
-        return new Vector3(
-            Ground.GetInstance().groundX0 + GetGroundIndexX(position.x) + 0.5f,
-            Ground.GetInstance().groundY0 + GetGroundIndexY(position.y) + 0.5f,
-            Ground.GetInstance().groundZ0 + GetGroundIndexZ(position.z) + 0.5f
-            );
-    }
-
     public bool SameGround(Transform a, Transform b)
 	{
         int aX = GetGroundIndexX(a.position.x);
@@ -87,11 +78,17 @@ public class Tools
         return true;
     }
 
-    public void OnGround(Transform transform)
+    public void AddGroundCollider(Transform transform)
     {
         GroundController ground = GetUnderGround(transform);
         if (ground)
-            ground.AddOnBoardCollider(transform);
+            ground.AddCollider(transform);
+    }
+
+    public void AddGroundUpper(Transform transform)
+    {
+        if (!Status.GetInstance().groundUppers.Contains(transform))
+            Status.GetInstance().groundUppers.Add(transform);
     }
 
     public float GetHeight(Transform transform)
@@ -114,22 +111,6 @@ public class Tools
         return transform.position.y + halfHeight;
     }
 
-    public GroundController GetUnderGround(Transform transform)
-    {
-        LayerMask groundMask = LayerMask.GetMask("Ground");
-        RaycastHit hit;
-        Vector3 topY = new Vector3(
-            transform.position.x,
-            Ground.GetInstance().groundY1 + 0.1f,
-            transform.position.z
-            );
-
-        if (Physics.Raycast(topY, Vector3.down, out hit, Mathf.Infinity, groundMask))
-            return hit.transform.GetComponent<GroundController>();
-        else 
-            return null;
-    }
-
     public float paddingGroundDistance(Transform transform)
     {
         LayerMask groundMask = LayerMask.GetMask("Ground");
@@ -150,4 +131,59 @@ public class Tools
         float distance = paddingGroundDistance(player);
         return distance;
     }
+
+    public float GetDistanceXZ(Transform a, Transform b)
+    {
+        Vector3 diff = a.position - b.position;
+        diff.y = 0.0f;
+
+        return diff.magnitude;
+    }
+
+    public GroundController GetUnderGround(Transform transform)
+    {
+        LayerMask groundMask = LayerMask.GetMask("Ground");
+        RaycastHit hit;
+        Vector3 topY = new Vector3(
+            transform.position.x,
+            Ground.GetInstance().groundY1 + 0.1f,
+            transform.position.z
+            );
+
+        if (Physics.Raycast(topY, Vector3.down, out hit, Mathf.Infinity, groundMask))
+            return hit.transform.GetComponent<GroundController>();
+        else
+            return null;
+    }
+
+
+    public Vector3 GetGroundIndexPosition(Vector3 position)
+    {
+        return new Vector3(
+            Ground.GetInstance().groundX0 + GetGroundIndexX(position.x) + 0.5f,
+            Ground.GetInstance().groundY0 + GetGroundIndexY(position.y) + 0.5f,
+            Ground.GetInstance().groundZ0 + GetGroundIndexZ(position.z) + 0.5f
+            );
+    }
+
+        /*
+    public Vector3 CircleToRectCollision(Vector3 movement, Transform circle, Transform rect)
+    {
+         GetTopY(rect);
+        bool detect = false;
+        RaycastHit[] hits = Physics.RaycastAll(circle.transform.position, movement, movement.magnitude);
+        foreach(RaycastHit hit in hits)
+        {
+            if (hit.transform == rect)
+                detect = true;
+        }
+
+        if (detect)
+            return movement;
+        else
+        {
+
+        }
+    }
+        */
 }

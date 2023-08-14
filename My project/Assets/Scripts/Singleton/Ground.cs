@@ -12,6 +12,8 @@ public class Ground
     public float groundZ1;
     public float groundY0;
     public float groundY1;
+    public float groundCenterX;
+    public float groundCenterZ;
 
     public float groundMinimumHeight;
 
@@ -44,6 +46,9 @@ public class Ground
         groundX1 = groundX0 + groundWidth;
         groundY1 = groundY0 + groundHeight;
         groundZ1 = groundZ0 + groundDepth;
+
+        groundCenterX = groundX0 + groundWidth * 0.5f;
+        groundCenterZ = groundX0 + groundDepth * 0.5f;
 
         groundPosition0 = new Vector3(groundX0, groundY0, groundZ0);
     }

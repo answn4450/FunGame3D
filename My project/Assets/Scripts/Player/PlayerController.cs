@@ -230,8 +230,8 @@ public class PlayerController : LivingBall
         squeezeFX = PrefabManager.GetInstance().GetPrefabByName("CFXR Hit A (Red)");
         Instantiate(squeezeFX).transform.position = transform.position;
         Hurt(size);
-
     }
+
     public void Rebirth()
 	{
         dead = false;
@@ -323,6 +323,14 @@ public class PlayerController : LivingBall
         stopFall = false;
         if (bullet)
             bullet.GetComponent<BulletController>().DestroySelf();
+        else
+        {
+            transform.position = new Vector3(
+                Mathf.Clamp(transform.position.x, Ground.GetInstance().groundX0, Ground.GetInstance().groundX1),
+                Mathf.Clamp(transform.position.y, Ground.GetInstance().groundY0, Ground.GetInstance().groundY1),
+                Mathf.Clamp(transform.position.z, Ground.GetInstance().groundZ0, Ground.GetInstance().groundZ1)
+                );
+        }
     }
 
     private void CheckDead()

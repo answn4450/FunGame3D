@@ -15,4 +15,9 @@ public class ButtonController : MonoBehaviour
 	{
 		SceneManager.LoadScene("Tutorial");
 	}
+
+    public void ButtonQuitGameProgram()
+    {
+        Application.Quit();
+    }
 }

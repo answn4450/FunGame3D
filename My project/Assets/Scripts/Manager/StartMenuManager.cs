@@ -20,7 +20,8 @@ public class StartMenuManager : MonoBehaviour
     {
         playCam.AroundPoint(10.0f);
         finish.text = Status.GetInstance().endGame ? "완료 했음" : "완료 필요";
-        player.CommandMoveBody();
+        //NullReferenceException
+        //player.CommandMoveBody();
         player.CommandTurnEye();
     }
 

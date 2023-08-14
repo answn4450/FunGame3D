@@ -16,6 +16,6 @@ public class Structure : MonoBehaviour
 
     public void OnGround()
     {
-        Tools.GetInstance().OnGround(transform);
+        Tools.GetInstance().AddGroundCollider(transform);
     }
 }

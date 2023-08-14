@@ -57,6 +57,7 @@ public class GameManager : MonoBehaviour
     private void FixedUpdate()
     {
         groundManager.BeforeTemporailyAffect();
+        groundManager.ResetGroundsStat();
     }
 
     void Update()
@@ -68,7 +69,6 @@ public class GameManager : MonoBehaviour
             uiController.GamePause(stopGame);
         }
 
-        groundManager.ResetGroundsStat();
 
         if (prevElevator != null && prevElevator.IsWithPlayer())
             prevElevator.MovePlayer();
@@ -104,7 +104,7 @@ public class GameManager : MonoBehaviour
                 player.ChangeSelectedStructureIndex();
                 player.Command();
                 player.CommandTurnEye();
-
+                player.OnGround();
                 if (player.rideBullet)
                     player.RideBullet();
                 else
@@ -148,7 +148,6 @@ public class GameManager : MonoBehaviour
 
         player.OnGround();
         //GameObject testFolder = GameObject.Find("testFolder");
-        string folderName = "EnemyFolder";
         Transform testFolder = GameObject.Find("EnemyFolder").transform;
 
         for (int i = 0; i < testFolder.childCount; ++i)

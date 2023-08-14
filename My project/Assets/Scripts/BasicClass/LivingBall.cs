@@ -6,7 +6,8 @@ public class LivingBall : MonoBehaviour
 {
     public void OnGround()
     {
-        Tools.GetInstance().OnGround(transform);
+        Tools.GetInstance().AddGroundCollider(transform);
+        Tools.GetInstance().AddGroundUpper(transform);
     }
 
     protected void SafeMove(Vector3 move)
@@ -17,29 +18,39 @@ public class LivingBall : MonoBehaviour
         float validX1 = Ground.GetInstance().groundX1 - radius;
         float validZ0 = Ground.GetInstance().groundZ0 + radius;
         float validZ1 = Ground.GetInstance().groundZ1 - radius;
-        float validY0 = Tools.GetInstance().GetTopY(underGround) + radius - (radius > 0.1f ? 0.1f : 0.0f);
+        float validY0 = Ground.GetInstance().groundY0 + radius;
         float validY1 = Ground.GetInstance().groundY1 - radius;
 
-        float fallY = move.y;
-        move = new Vector3(move.x, 0.0f, move.z);
-
+        Vector3 oriPosition = transform.position;
+        RaycastHit firstHit;
         RaycastHit hit;
-        if (!Physics.Raycast(transform.position, move, out hit, move.magnitude + radius))
-            transform.position += move;
-        
-        if (fallY < 0.0f)
+        if (Physics.Raycast(oriPosition, move, out firstHit, move.magnitude + radius))
         {
-            if (Tools.GetInstance().OverTheGround(transform))
-                transform.position += Vector3.up * fallY;
+            if (Physics.Raycast(oriPosition, move, out hit, move.magnitude + radius, LayerMask.GetMask("Ground")))
+            {
+                if (firstHit.transform == hit.transform)
+                {
+                    float groundTopY = Tools.GetInstance().GetTopY(hit.transform);
+                    if (move.y < 0.0f && transform.position.y + move.y - radius < groundTopY)
+                    {
+                        transform.position = new Vector3(
+                        transform.position.x + move.x,
+                        groundTopY + radius,
+                        transform.position.z + move.z
+                        );
+                    }
+                }
+            }
         }
         else
-            transform.position += Vector3.up * fallY;
+            transform.position += move;
 
         transform.position = new Vector3(
             Mathf.Clamp(transform.position.x, validX0, validX1),
             Mathf.Clamp(transform.position.y, validY0, validY1),
             Mathf.Clamp(transform.position.z, validZ0, validZ1)
             );
+
     }
 
 }

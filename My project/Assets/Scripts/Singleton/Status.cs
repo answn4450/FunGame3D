@@ -18,8 +18,11 @@ public class Status
     public bool endGame = false;
 
     public int maxStage = 3;
-    public int currentStage = 0;
+    public int currentStage = 1;
     public bool elevatorInScene = false;
+    public float groundUpDownWeakPower = 1.0f;
+    public float groundUpDownStrongPower = 2.0f;
     public ElevatorController prevElevator = null;
     public ElevatorController nextElevator = null;
+    public List<Transform> groundUppers = new List<Transform>();
 }

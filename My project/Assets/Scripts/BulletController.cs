@@ -24,6 +24,7 @@ public class BulletController : MonoBehaviour
 	private void Start()
 	{
         destroyFX = PrefabManager.GetInstance().GetPrefabByName("CFXR3 Hit Fire B (Air)");
+        Tools.GetInstance().AddGroundUpper(transform);
 	}
 
 	void Update()
