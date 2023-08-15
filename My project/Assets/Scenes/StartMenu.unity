@@ -616,7 +616,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 336213900}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 128377db606adf840abb1fee864d370a, type: 3}
+  m_Script: {fileID: 11500000, guid: 330fe8d95556876429c825138c38a904, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
 --- !u!1 &480867554
@@ -763,15 +763,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3782593153069407464, guid: 14ca9dae961f901469bab0ac5944f08b, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -12.44
+      value: -12.4
       objectReference: {fileID: 0}
     - target: {fileID: 3782593153069407464, guid: 14ca9dae961f901469bab0ac5944f08b, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 12.65
+      value: 3.8
       objectReference: {fileID: 0}
     - target: {fileID: 3782593153069407464, guid: 14ca9dae961f901469bab0ac5944f08b, type: 3}
       propertyPath: m_LocalPosition.z
-      value: -8.35
+      value: -1.3
       objectReference: {fileID: 0}
     - target: {fileID: 3782593153069407464, guid: 14ca9dae961f901469bab0ac5944f08b, type: 3}
       propertyPath: m_LocalRotation.w
@@ -800,6 +800,18 @@ PrefabInstance:
     - target: {fileID: 3782593153069407464, guid: 14ca9dae961f901469bab0ac5944f08b, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4945708629663366258, guid: 14ca9dae961f901469bab0ac5944f08b, type: 3}
+      propertyPath: m_LocalPosition.x
+      value: 13.1
+      objectReference: {fileID: 0}
+    - target: {fileID: 4945708629663366258, guid: 14ca9dae961f901469bab0ac5944f08b, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: -1.14
+      objectReference: {fileID: 0}
+    - target: {fileID: 4945708629663366258, guid: 14ca9dae961f901469bab0ac5944f08b, type: 3}
+      propertyPath: m_LocalPosition.z
+      value: 1.8
       objectReference: {fileID: 0}
     - target: {fileID: 9131488910916559242, guid: 14ca9dae961f901469bab0ac5944f08b, type: 3}
       propertyPath: m_IsActive

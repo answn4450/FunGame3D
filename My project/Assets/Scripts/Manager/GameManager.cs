@@ -32,7 +32,8 @@ public class GameManager : MonoBehaviour
 
         builtStructureFolder = new GameObject("Built Structure Folder").transform;
         structureManager = builtStructureFolder.gameObject.AddComponent<StructureManager>();
-        
+
+        //Status.GetInstance().Write();
     }
     
     private void Start()

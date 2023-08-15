@@ -386,6 +386,7 @@
 "Assets/Scripts/Manager/GameManager.cs"
 "Assets/Scripts/Manager/PlayLoadingManager.cs"
 "Assets/Scripts/Manager/PrefabManager.cs"
+"Assets/Scripts/Manager/ReadStatusManager.cs"
 "Assets/Scripts/Manager/StartMenuManager.cs"
 "Assets/Scripts/Manager/StructureManager.cs"
 "Assets/Scripts/Obstacle/Sandbag.cs"

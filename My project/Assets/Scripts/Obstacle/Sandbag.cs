@@ -5,12 +5,12 @@ using UnityEngine;
 public class Sandbag : MonoBehaviour
 {
     public bool satisfy;
-    private GameObject signFx;
+    private GameObject signFX;
 
     private void Awake()
     {
         satisfy = false;
-        signFx = PrefabManager.GetInstance().GetPrefabByName("CFXR Fire");
+        signFX = PrefabManager.GetInstance().GetPrefabByName("CFXR Fire");
     }
 
     private void OnTriggerEnter(Collider other)
@@ -18,7 +18,7 @@ public class Sandbag : MonoBehaviour
         if (other.GetComponent<BulletController>())
         {
             if (!satisfy)
-                Instantiate(signFx, transform).transform.position = transform.position;
+                Instantiate(signFX, transform).transform.position = transform.position;
             satisfy = true;
         }
     }

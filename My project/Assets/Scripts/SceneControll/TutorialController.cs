@@ -16,6 +16,9 @@ public class TutorialController : MonoBehaviour
     public List<string> ment;
 
     private Sandbag whiteBall;
+    private string nextElevatorName;
+    private GameObject nextElevator;
+    private GameObject signFX;
 
     private void Awake()
     {
@@ -34,12 +37,16 @@ public class TutorialController : MonoBehaviour
         };
 
         whiteBall = GameObject.Find("whiteBall").GetComponent<Sandbag>();
+        signFX = PrefabManager.GetInstance().GetPrefabByName("CFXR Fire");
     }
 
     void Start()
     {
         requireInfo.text = "Enter -> 넘기기";
         bigInfo.GetNewText("안녕 튜토리얼");
+        nextElevatorName = "nextElevator";
+        nextElevator = GameObject.Find(nextElevatorName);
+        nextElevator.SetActive(false);
     }
 
     void Update()
@@ -83,6 +90,13 @@ public class TutorialController : MonoBehaviour
             case 8:
                 if (Input.GetKeyDown(KeyCode.S))
                     nextStep = true;
+                break;
+            case 9:
+                if (!GameObject.Find(nextElevatorName))
+                {
+                    nextElevator.SetActive(true);
+                    Instantiate(signFX).transform.position = nextElevator.transform.position;
+                }
                 break;
         }
 

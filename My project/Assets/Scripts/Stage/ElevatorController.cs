@@ -69,7 +69,7 @@ public class ElevatorController : MonoBehaviour
     private void MovePlayerToUp()
     {
         int nextStage = Status.GetInstance().currentStage + 1;
-        if (nextStage >= Status.GetInstance().maxStage)
+        if (nextStage > Status.GetInstance().maxStage)
         {
             Status.GetInstance().endGame = true;
             SceneManager.LoadScene("StartMenu");
@@ -79,6 +79,7 @@ public class ElevatorController : MonoBehaviour
         else
         {
             Status.GetInstance().currentStage = nextStage;
+            Status.GetInstance().Save();
             SceneManager.LoadScene("Stage" + nextStage.ToString());
         }
     }

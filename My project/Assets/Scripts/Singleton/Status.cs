@@ -1,11 +1,14 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-
+using UnityEditor;
+using System.IO;
 
 public class Status
 {
     private static Status Instance = null;
+    private string savePath = "Assets/Resources/Saves.txt";
+
     public static Status GetInstance()
 	{
         if (Instance == null)
@@ -25,4 +28,15 @@ public class Status
     public ElevatorController prevElevator = null;
     public ElevatorController nextElevator = null;
     public List<Transform> groundUppers = new List<Transform>();
+
+    public void Read()
+    {
+        string recordStage = File.ReadAllText(savePath);
+        currentStage = int.Parse(recordStage);
+    }
+
+    public void Save()
+    {
+        File.WriteAllText(savePath, currentStage.ToString());
+    }
 }
