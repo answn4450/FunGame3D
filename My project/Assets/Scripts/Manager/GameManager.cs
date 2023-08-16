@@ -60,8 +60,9 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        TestUpdate();
+        //TestUpdate();
         /*
+         */
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             stopGame = !stopGame;
@@ -113,14 +114,14 @@ public class GameManager : MonoBehaviour
                     player.WithAffectPower();
                 }
                 
-                groundManager.ReactGrounds(player);
+                groundManager.ReactGrounds();
+                groundManager.SqueezePlayer(player);
                 gameCamera.BehindPlayer(10.0f);
                 
             }
 
             UIControll();
         }
-        */
         
         //Tools.GetInstance().TraceGroundBug("Player");
     }

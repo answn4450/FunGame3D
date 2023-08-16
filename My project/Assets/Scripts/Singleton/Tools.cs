@@ -69,17 +69,19 @@ public class Tools
     public bool OverTheGround(Transform transform)
     {
         GroundController ground = GetUnderGround(transform);
-        float diff = GetBottomY(transform) - GetTopY(ground.transform);
         if (ground)
+        {
+            float diff = GetBottomY(transform) - GetTopY(ground.transform);
             if (diff > 0.0f)
             {
-
                 return !MinorEqual(diff, 0.0f);
             }
-        
-            return MinorEqual(diff, 0.0f);
+            else
+                return false;
+        }
         else
             return true;
+
     }
 
     public bool MinorEqual(float a, float b)
