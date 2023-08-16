@@ -170,8 +170,7 @@ public class GroundController : MonoBehaviour
                 if (hitNewY != hit.position.y)
                 {
                     float diff = hitNewY - hit.transform.position.y;
-                    if (hit.name == "Player")
-                        Tools.GetInstance().groundLiftMinorDiffrence = diff;
+                    
                     //Debug.LogFormat("{0}, {1}, {2}, {3}, {4}, {5}", hit.name, hitNewY, hit.transform.position.y, diff, Tools.GetInstance().groundLiftMinorDiffrence, diff - Tools.GetInstance().groundLiftMinorDiffrence);
                 }
             }
@@ -271,7 +270,6 @@ public class GroundController : MonoBehaviour
         float upDownLimit = 3.0f;
         int i = 0;
         List<Transform> uppers = Status.GetInstance().groundUppers;
-        bool notTouch = true;
 
         while (i < uppers.Count)
         {

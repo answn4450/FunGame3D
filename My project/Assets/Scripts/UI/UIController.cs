@@ -118,6 +118,12 @@ public class UIController : MonoBehaviour
         pauseUI.SetActive(pause);
     }
 
+    public void UnPauseAndStartMenu()
+    {
+        Time.timeScale = 1.0f;
+        SceneManager.LoadScene("StartMenu");
+    }
+
     private void Position(Vector3 worldPosition)
     {
         playerPosition.text = EasyVector3(worldPosition - Ground.GetInstance().groundPosition0);

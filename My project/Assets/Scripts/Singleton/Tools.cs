@@ -5,6 +5,8 @@ using UnityEngine;
 public class Tools
 {
     public LayerMask groundMask = LayerMask.GetMask("Ground");
+    // 소수점 2자리 수 까지 사용
+    private int minor = 2;
     public float groundLiftMinorDiffrence = 2.384186E-07f;
     private static Tools instance;
 
@@ -67,10 +69,22 @@ public class Tools
     public bool OverTheGround(Transform transform)
     {
         GroundController ground = GetUnderGround(transform);
+        float diff = GetBottomY(transform) - GetTopY(ground.transform);
         if (ground)
-            return GetBottomY(transform) > GetTopY(ground.transform);
+            if (diff > 0.0f)
+            {
+
+                return !MinorEqual(diff, 0.0f);
+            }
+        
+            return MinorEqual(diff, 0.0f);
         else
             return true;
+    }
+
+    public bool MinorEqual(float a, float b)
+    {
+        return MinorFloat(a).Equals(MinorFloat(b));
     }
 
     public bool GetBallTouchRect(Transform ball, Transform rect)
@@ -140,13 +154,18 @@ public class Tools
         return diff.magnitude;
     }
 
+    public float MinorFloat(float a)
+    {
+        return (float)(decimal.Round((decimal)a, minor));
+    }
+
     public GroundController GetUnderGround(Transform transform)
     {
         LayerMask groundMask = LayerMask.GetMask("Ground");
         RaycastHit hit;
         Vector3 topY = new Vector3(
             transform.position.x,
-            Ground.GetInstance().groundY1 + 0.1f,
+            Ground.GetInstance().groundY1 + 1.0f,
             transform.position.z
             );
 
@@ -156,7 +175,6 @@ public class Tools
             return null;
     }
 
-
     public Vector3 GetGroundIndexPosition(Vector3 position)
     {
         return new Vector3(
@@ -164,6 +182,58 @@ public class Tools
             Ground.GetInstance().groundY0 + GetGroundIndexY(position.y) + 0.5f,
             Ground.GetInstance().groundZ0 + GetGroundIndexZ(position.z) + 0.5f
             );
+    }
+    
+    public void FloatBugTest()
+    {
+        float a = 0.0123456789f;
+        float c = 0.0000000001f;
+        float b = a + c;
+        float d = a + c;
+
+        //Debug.Log($"{(a + c) == b}, {a}, {b}, {(b-a) == c }");
+    }
+
+    public void ImplementBug(string targetName)
+    {
+        GameObject target = GameObject.Find(targetName);
+        Tools.GetInstance().AddGroundCollider(target.transform);
+    }
+
+    public void TraceGroundBug(string name)
+    {
+        Transform target = GameObject.Find(name).transform;
+        bool stick = StickGround(target);
+        bool inAir = target.GetComponent<LivingBall>().InAir();
+        if (inAir)
+            Debug.Log(Mathf.Approximately(GetPadGround(target), 0.0f));
+    }
+
+    private bool StickGround(Transform target)
+    {
+        Transform downGround = Tools.GetInstance().GetUnderGround(target).transform;
+        float groundTopY = Tools.GetInstance().GetTopY(downGround);
+        float radius = target.localScale.x * 0.5f;
+        float finalY = groundTopY + radius;
+        finalY = (float)decimal.Round((decimal)finalY, 2);
+        target.position = new Vector3(
+            target.position.x,
+            finalY,
+            target.position.z
+            );
+
+        float diff = target.position.y - finalY;
+        if (!MinorEqual(finalY, target.position.y))
+            Debug.Log($"StickGround: {diff}, {finalY}, {target.position.y}");
+        return MinorEqual(finalY, target.position.y);
+    }
+
+    private float GetPadGround(Transform target)
+    {
+        GroundController ground = Tools.GetInstance().GetUnderGround(target);
+        float groundTopY = Tools.GetInstance().GetTopY(ground.transform);
+        float targetBottomY = Tools.GetInstance().GetBottomY(target);
+        return targetBottomY - groundTopY;
     }
 
         /*

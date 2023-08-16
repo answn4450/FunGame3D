@@ -5,12 +5,6 @@ using UnityEngine.SceneManagement;
 
 public class ButtonController : MonoBehaviour
 {
-    
-	public void ButtonMenu()
-	{
-		SceneManager.LoadScene("StartMenu");
-	}
-
 	public void ButtonTutorial()
 	{
 		SceneManager.LoadScene("Tutorial");

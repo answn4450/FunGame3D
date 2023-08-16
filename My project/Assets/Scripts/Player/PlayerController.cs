@@ -84,7 +84,7 @@ public class PlayerController : LivingBall
     private void Start()
     {
         SetSphere(size);
-        transform.position = Vector3.zero;
+        //transform.position = Vector3.zero;
     }
 
     public void LifeCycle()
@@ -357,15 +357,9 @@ public class PlayerController : LivingBall
             inFallTime += Time.deltaTime;
         else
             inFallTime = 0.0f;
+        
         //Debug.LogFormat("InAir: {0}, stopFall: {1}, fallTime: {2}", InAir(), stopFall, inFallTime);
         AffectPower(gravity * inFallTime * inFallTime);
-    }
-
-    private bool InAir()
-    {
-        bool castBlock = (Physics.Raycast(transform.position, gravity, transform.localScale.x * 0.5f + 0.01f));
-        bool overTheGround = Tools.GetInstance().OverTheGround(transform);
-        return !castBlock && overTheGround;
     }
 
     private void EasyCheckColor()

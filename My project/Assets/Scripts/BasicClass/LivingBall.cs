@@ -13,7 +13,6 @@ public class LivingBall : MonoBehaviour
     protected void SafeMove(Vector3 move)
     {
         float radius = transform.localScale.x * 0.5f;
-        Transform underGround = Tools.GetInstance().GetUnderGround(transform).transform;
         float validX0 = Ground.GetInstance().groundX0 + radius;
         float validX1 = Ground.GetInstance().groundX1 - radius;
         float validZ0 = Ground.GetInstance().groundZ0 + radius;
@@ -31,7 +30,7 @@ public class LivingBall : MonoBehaviour
                 if (firstHit.transform == hit.transform)
                 {
                     float groundTopY = Tools.GetInstance().GetTopY(hit.transform);
-                    if (move.y < 0.0f && transform.position.y + move.y - radius < groundTopY)
+                    if (move.y < 0.0f && transform.position.y + move.y - radius <= groundTopY)
                     {
                         transform.position = new Vector3(
                         transform.position.x + move.x,
@@ -53,4 +52,10 @@ public class LivingBall : MonoBehaviour
 
     }
 
+    public bool InAir()
+    {
+        bool castBlock = (Physics.Raycast(transform.position, Vector3.down, transform.localScale.x * 0.5f));
+        bool overTheGround = Tools.GetInstance().OverTheGround(transform);
+        return !castBlock && overTheGround;
+    }
 }

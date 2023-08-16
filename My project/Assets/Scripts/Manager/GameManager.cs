@@ -33,13 +33,10 @@ public class GameManager : MonoBehaviour
         builtStructureFolder = new GameObject("Built Structure Folder").transform;
         structureManager = builtStructureFolder.gameObject.AddComponent<StructureManager>();
 
-        //Status.GetInstance().Write();
     }
     
     private void Start()
     {
-        transform.position = Vector3.zero;
-        
         GameObject playSet = GameObject.Find("PlaySet");
         GameObject playerSet = GameObject.Find("PlayerSet");
         
@@ -63,13 +60,14 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
+        TestUpdate();
+        /*
         if (Input.GetKeyDown(KeyCode.Escape))
         {
             stopGame = !stopGame;
             Time.timeScale = stopGame ? 0.0f : 1.0f;
             uiController.GamePause(stopGame);
         }
-
 
         if (prevElevator != null && prevElevator.IsWithPlayer())
             prevElevator.MovePlayer();
@@ -101,7 +99,6 @@ public class GameManager : MonoBehaviour
             {
                 structureManager.LoopStructuresInFolder();
 
-                player.SphereBySize();
                 player.ChangeSelectedStructureIndex();
                 player.Command();
                 player.CommandTurnEye();
@@ -112,6 +109,7 @@ public class GameManager : MonoBehaviour
                 {
                     player.OnGround();
                     player.CommandMoveBody();
+                    player.SphereBySize();
                     player.WithAffectPower();
                 }
                 
@@ -122,6 +120,9 @@ public class GameManager : MonoBehaviour
 
             UIControll();
         }
+        */
+        
+        //Tools.GetInstance().TraceGroundBug("Player");
     }
 
     public void Rebirth()
@@ -143,21 +144,26 @@ public class GameManager : MonoBehaviour
 
     public void TestUpdate()
     {
-        groundManager.ResetGroundsStat();
+        Time.timeScale = 13.0f;
+        List<string> testers = new List<string> {
+            "dummy", 
+            "dummy2", 
+            "Player",
+            "Player1",
+            "Player2",
+            "Enemy" 
+        };
 
-        //enemyManager.TestOnGround();
+        Tools.GetInstance().AddGroundUpper(GameObject.Find("upper").transform);
+        
+        if (!Input.GetKey(KeyCode.Space))
+            groundManager.ReactGrounds();
 
-        player.OnGround();
-        //GameObject testFolder = GameObject.Find("testFolder");
-        Transform testFolder = GameObject.Find("EnemyFolder").transform;
-
-        for (int i = 0; i < testFolder.childCount; ++i)
+        foreach (string name in testers)
         {
-            LivingBall tester = testFolder.GetChild(i).GetComponent<LivingBall>();
-            tester.OnGround();
+            Tools.GetInstance().ImplementBug(name);
+            Tools.GetInstance().TraceGroundBug(name);
         }
-
-        groundManager.ReactGrounds(player);
-    }
+    }  
     
 }

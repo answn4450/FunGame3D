@@ -16,8 +16,6 @@ public class Status
         return Instance;
 	}
 
-    public bool gotPlaySet = false;
-
     public bool endGame = false;
 
     public int maxStage = 3;

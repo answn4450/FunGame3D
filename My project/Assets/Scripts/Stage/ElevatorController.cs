@@ -80,7 +80,8 @@ public class ElevatorController : MonoBehaviour
         {
             Status.GetInstance().currentStage = nextStage;
             Status.GetInstance().Save();
-            SceneManager.LoadScene("Stage" + nextStage.ToString());
+            SceneManager.LoadScene("PlayLoading");
+            //SceneManager.LoadScene("Stage" + nextStage.ToString());
         }
     }
 

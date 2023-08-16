@@ -73,7 +73,7 @@ public class GroundManager : MonoBehaviour
         }
     }
 
-    public void ReactGrounds(PlayerController player)
+    public void ReactGrounds()
     {
         for (int x = 0; x < sizeX; ++x)
         {
@@ -84,12 +84,17 @@ public class GroundManager : MonoBehaviour
                 ground.BindHeight();
                 ground.UpDown();
                 ground.LiftUpColliders();
-                ground.SqueezePlayer(player);
                 //ground.MoreEvilGround();
                 //if (Tools.GetInstance().GetBallTouchRect(player.transform, ground.transform))
                 //    ground.EffectPlayerByTouch(player);
             }
         }
+    }
+
+    public void SqueezePlayer(PlayerController player)
+    {
+        GroundController underGround = Tools.GetInstance().GetUnderGround(player.transform);
+        underGround.SqueezePlayer(player);
     }
 
     private bool GetGroundIsTouchPlayer(PlayerController player, GroundController ground)

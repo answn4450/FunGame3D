@@ -120,7 +120,7 @@ public class CameraController : MonoBehaviour
 		List<RaycastHit> hits = new List<RaycastHit>();
 		List<Renderer> blockRenderers = new List<Renderer>();
 
-		Vector3 direction = GameObject.Find("Player").transform.position - transform.position;
+		Vector3 direction = GameObject.Find("Player2").transform.position - transform.position;
 
 		// ** 모든 충돌을 감지.
 		hits = Physics.RaycastAll(transform.position, direction, direction.magnitude).ToList();
@@ -129,7 +129,7 @@ public class CameraController : MonoBehaviour
         //blockRenderers.AddRange(hits.Select(hit => hit.transform.GetComponent<Renderer>()).Where(renderer => renderer != null).ToList());
         foreach (RaycastHit hit in hits)
         {
-            if (hit.transform.GetComponent<Renderer>() && hit.transform.tag != "Player")
+            if (hit.transform.GetComponent<Renderer>() && hit.transform.tag != "Player2")
                 blockRenderers.Add(hit.transform.GetComponent<Renderer>());
         }
 

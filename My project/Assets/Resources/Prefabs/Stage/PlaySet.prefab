@@ -282,9 +282,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 3001018382187788976}
-        m_TargetAssemblyTypeName: ButtonController, Assembly-CSharp
-        m_MethodName: ButtonMenu
+      - m_Target: {fileID: 3001018382187788979}
+        m_TargetAssemblyTypeName: UIController, Assembly-CSharp
+        m_MethodName: UnPauseAndStartMenu
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}

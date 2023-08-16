@@ -7,22 +7,21 @@ using UnityEngine.UI;
 public class StartMenuManager : MonoBehaviour
 {
     public PlayerController player;
-    public CameraController playCam;
     public GroundManager ground;
     public Text finish;
 
 	private void Start()
 	{
         Ground.GetInstance().SetGround(ground);
+        finish.text = Status.GetInstance().endGame ? "완료 했음" : "완료 필요";
 	}
 
 	void Update()
     {
-        playCam.AroundPoint(10.0f);
-        finish.text = Status.GetInstance().endGame ? "완료 했음" : "완료 필요";
-        //NullReferenceException
-        //player.CommandMoveBody();
+        player.LifeCycle();
+        player.CommandMoveBody();
         player.CommandTurnEye();
+        player.WithAffectPower();
     }
 
     public void ButtonPlay()

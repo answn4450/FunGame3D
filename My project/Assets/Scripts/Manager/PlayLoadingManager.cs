@@ -15,27 +15,22 @@ public class PlayLoadingManager : MonoBehaviour
 
     IEnumerator Start()
     {
-        if (Status.GetInstance().gotPlaySet == false)
+        asyncOperation = SceneManager.LoadSceneAsync("Stage" + Status.GetInstance().currentStage.ToString());
+        nextStage.text = Status.GetInstance().currentStage.ToString() + "ì¸µ";
+        asyncOperation.allowSceneActivation = false;
+
+        while (!asyncOperation.isDone)
         {
-            Status.GetInstance().gotPlaySet = true;
+            //print(asyncOperation.progress);
+            float progress = Mathf.Clamp01(asyncOperation.progress / 0.9f);
+            loadingPercent.text = (progress * 100f).ToString() + "%";
+            //progressImage.GetComponent<Image>().fillAmount = progress;
+            yield return null;
 
-            asyncOperation = SceneManager.LoadSceneAsync("Stage" + Status.GetInstance().currentStage.ToString());
-            nextStage.text = Status.GetInstance().currentStage.ToString() + "Ãþ";
-            asyncOperation.allowSceneActivation = false;
-
-            while (!asyncOperation.isDone)
+            if (progress > 0.7f)
             {
-                //print(asyncOperation.progress);
-                float progress = Mathf.Clamp01(asyncOperation.progress / 0.9f);
-                loadingPercent.text = (progress * 100f).ToString() + "%";
-                //progressImage.GetComponent<Image>().fillAmount = progress;
-                yield return null;
-
-                if (progress > 0.7f)
-                {
-                    if (Input.GetKey(KeyCode.Space))
-                        asyncOperation.allowSceneActivation = true;
-                }
+                if (Input.GetKey(KeyCode.Space))
+                    asyncOperation.allowSceneActivation = true;
             }
         }
     }
