@@ -8,7 +8,7 @@ public class UIController : MonoBehaviour
 {
     public Text textPlayerSize;
     public Text textCountdown;
-    public Text nextElevatorDistance;
+    public Text underGroundEmptyHeight;
     public Text playerPosition;
     public Text groundMinimumHeight;
 
@@ -91,6 +91,7 @@ public class UIController : MonoBehaviour
         BuiltStructuresInfo(player.GetBuiltStructures());
         Position(player.transform.position);
         MinimumGroundHeightInfo();
+        UnderGroundEmptyHeightInfo(player.transform);
     }
 
     public void DeadCountdown(float countdown)
@@ -103,9 +104,9 @@ public class UIController : MonoBehaviour
         }
     }
 
-    public void NextElevatorDistanceInfo(Vector3 distance)
+    private void UnderGroundEmptyHeightInfo(Transform player)
     {
-        nextElevatorDistance.text = EasyVector3(distance);
+        underGroundEmptyHeight.text = "틈: " + Tools.GetInstance().GetUnderGroundEmptyHeight(player).ToString("F2");
     }
 
     public void PlayerRebirth()

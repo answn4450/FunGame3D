@@ -36,10 +36,6 @@ public class PlayerController : LivingBall
     private float physicsTimeElapseScale;
     private float shotTimer;
     private float inFallTime;
-    private float rapidATimer;
-    private float rapidDTimer;
-
-
     private bool stopFall;
     private const int maxStructure = 3;
     private List<GameObject> builtStructures = new List<GameObject>();
@@ -59,8 +55,6 @@ public class PlayerController : LivingBall
         deadSize = 0.2f;
 
         shotTimer = 0.0f;
-        rapidATimer = 0.0f;
-        rapidDTimer = 0.0f;
 
         physicsTimeElapseScale = 1.0f;
         inFallTime = 0.0f;
@@ -92,7 +86,7 @@ public class PlayerController : LivingBall
         if (shotTimer > 0.0f)
             shotTimer -= Time.deltaTime;
 
-        Fall();
+        //Fall();
         CheckDead();
         playerEye.FollowTarget(transform);
         EasyCheckColor();
@@ -182,36 +176,21 @@ public class PlayerController : LivingBall
     public void CommandTurnEye()
     {
         int dir = 0;
-        bool hardTurn = (Input.GetKey(KeyCode.LeftShift));
+        bool hardTurn = Input.GetKey(KeyCode.LeftShift);
         bool crabWalk = Input.GetKey(KeyCode.LeftControl);
-        float rotateDeg = hardTurn ? 30.0f : 20.0f;
-
-        if (Input.GetKeyDown(KeyCode.LeftArrow))
-            rapidATimer = 0.0f;
-        if (Input.GetKeyDown(KeyCode.RightArrow))
-            rapidDTimer = 0.0f;
-
+        float rotateDeg = hardTurn ? 90.0f : 50.0f;
+        
         if (!crabWalk)
         {
-            if (Input.GetKey(KeyCode.LeftArrow) && !Input.GetKeyDown(KeyCode.LeftArrow))
-                rapidATimer -= Time.deltaTime;
-            if (Input.GetKey(KeyCode.RightArrow) && !Input.GetKeyDown(KeyCode.RightArrow))
-                rapidDTimer -= Time.deltaTime;
-
-            if (Input.GetKey(KeyCode.LeftArrow) && rapidATimer <= 0.0f)
-            {
-                rapidATimer = 0.2f;
+            if (Input.GetKey(KeyCode.LeftArrow))
                 dir -= 1;
-            }
-            if (Input.GetKey(KeyCode.RightArrow) && rapidDTimer <= 0.0f)
-            {
-                rapidDTimer = 0.2f;
+            if (Input.GetKey(KeyCode.RightArrow))
                 dir += 1;
-            }
 
-            transform.Rotate(transform.up * rotateDeg * dir);
+            transform.Rotate(transform.up * rotateDeg * dir * Time.deltaTime);
             playerCamera.SwivelZ(dir);
         }
+        
     }
 
     public void WithAffectPower()
@@ -225,11 +204,17 @@ public class PlayerController : LivingBall
         affectPower += power;
     }
 
-    public void Squeeze(float size)
+    public float Squeeze(float requiredDown)
     {
         squeezeFX = PrefabManager.GetInstance().GetPrefabByName("CFXR Hit A (Red)");
         Instantiate(squeezeFX).transform.position = transform.position;
-        Hurt(size);
+
+        float localSize = transform.localScale.x;
+        float lifeMile = localSize - deadSize;
+        float downSize = lifeMile * requiredDown * Time.deltaTime;
+        SetSphere(localSize - downSize);
+
+        return downSize;
     }
 
     public void Rebirth()
@@ -248,7 +233,7 @@ public class PlayerController : LivingBall
         }
     }
 
-    public void SphereBySize()
+    public void BackToSize()
     {
         float newSize = Mathf.Lerp(
             transform.localScale.x,
@@ -262,20 +247,24 @@ public class PlayerController : LivingBall
         SetSphere(newSize);
     }
 
-
     public int GetSelectedStructureIndex()
     {
         return selectedStructureIndex;
     }
 
-    public List<GameObject> GetBuiltStructures()
-    {
-        return builtStructures;
-    }
-
     public int GetMaxStructure()
     {
         return maxStructure;
+    }
+
+    public bool IsSizeBigger()
+    {
+        return size > transform.localScale.x;
+    }
+
+    public List<GameObject> GetBuiltStructures()
+    {
+        return builtStructures;
     }
 
     private void StructOnBullet()

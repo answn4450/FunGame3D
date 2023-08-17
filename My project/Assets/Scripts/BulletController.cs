@@ -92,13 +92,13 @@ public class BulletController : MonoBehaviour
     private bool OutOfBound()
 	{
         float radius = transform.localScale.x * 0.5f;
-        if (transform.position.x + radius < Ground.GetInstance().groundX0)
+        if (transform.position.x - radius < Ground.GetInstance().groundX0)
             return true;
-        if (transform.position.x - radius > Ground.GetInstance().groundX1)
+        if (transform.position.x + radius > Ground.GetInstance().groundX1)
             return true;
-        if (transform.position.z + radius < Ground.GetInstance().groundZ0)
+        if (transform.position.z - radius < Ground.GetInstance().groundZ0)
             return true;
-        if (transform.position.z - radius > Ground.GetInstance().groundZ1)
+        if (transform.position.z + radius > Ground.GetInstance().groundZ1)
             return true;
 
         return false;

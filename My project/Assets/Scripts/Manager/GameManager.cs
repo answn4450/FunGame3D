@@ -32,7 +32,6 @@ public class GameManager : MonoBehaviour
 
         builtStructureFolder = new GameObject("Built Structure Folder").transform;
         structureManager = builtStructureFolder.gameObject.AddComponent<StructureManager>();
-
     }
     
     private void Start()
@@ -54,8 +53,7 @@ public class GameManager : MonoBehaviour
 
     private void FixedUpdate()
     {
-        groundManager.BeforeTemporailyAffect();
-        groundManager.ResetGroundsStat();
+        groundManager.BeforeCycle();
     }
 
     void Update()
@@ -104,16 +102,20 @@ public class GameManager : MonoBehaviour
                 player.Command();
                 player.CommandTurnEye();
                 player.OnGround();
+
                 if (player.rideBullet)
                     player.RideBullet();
                 else
                 {
                     player.OnGround();
                     player.CommandMoveBody();
-                    player.SphereBySize();
                     player.WithAffectPower();
+
+                    GroundController playerUnderGround = Tools.GetInstance().GetUnderGround(player.transform);
+                    if (!(playerUnderGround.NeedSqueeze() && player.IsSizeBigger()))
+                        player.BackToSize();
                 }
-                
+
                 groundManager.ReactGrounds();
                 groundManager.SqueezePlayer(player);
                 gameCamera.BehindPlayer(10.0f);
@@ -122,7 +124,8 @@ public class GameManager : MonoBehaviour
 
             UIControll();
         }
-        
+
+        Tools.GetInstance().Test();
         //Tools.GetInstance().TraceGroundBug("Player");
     }
 
@@ -137,10 +140,6 @@ public class GameManager : MonoBehaviour
     private void UIControll()
     {
         uiController.UIPlay(player);
-        if (nextElevator && player)
-            uiController.NextElevatorDistanceInfo(
-                nextElevator.transform.position - player.transform.position
-                );
     }
 
     public void TestUpdate()

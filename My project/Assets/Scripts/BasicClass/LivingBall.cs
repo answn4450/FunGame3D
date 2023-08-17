@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class LivingBall : MonoBehaviour
 {
+
     public void OnGround()
     {
         Tools.GetInstance().AddGroundCollider(transform);
@@ -23,6 +24,7 @@ public class LivingBall : MonoBehaviour
         Vector3 oriPosition = transform.position;
         RaycastHit firstHit;
         RaycastHit hit;
+
         if (Physics.Raycast(oriPosition, move, out firstHit, move.magnitude + radius))
         {
             if (Physics.Raycast(oriPosition, move, out hit, move.magnitude + radius, LayerMask.GetMask("Ground")))
@@ -54,7 +56,7 @@ public class LivingBall : MonoBehaviour
 
     public bool InAir()
     {
-        bool castBlock = (Physics.Raycast(transform.position, Vector3.down, transform.localScale.x * 0.5f));
+        bool castBlock = (Physics.Raycast(transform.position, Vector3.down, transform.localScale.x * 0.5f+ 1.0f));
         bool overTheGround = Tools.GetInstance().OverTheGround(transform);
         return !castBlock && overTheGround;
     }

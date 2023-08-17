@@ -34,7 +34,7 @@ public class EnemyController : LivingBall
     public void Living()
     {
         CheckDead();
-        SphereBySize(size);
+        BackToSize(size);
     }
    
     public void Explode()
@@ -107,7 +107,7 @@ public class EnemyController : LivingBall
         dead = size <= deadSize;
     }
 
-    private void SphereBySize(float size)
+    private void BackToSize(float size)
     {
         float newSize = Mathf.Lerp(
             transform.localScale.x,

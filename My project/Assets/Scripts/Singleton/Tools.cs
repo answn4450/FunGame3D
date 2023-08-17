@@ -196,6 +196,15 @@ public class Tools
         //Debug.Log($"{(a + c) == b}, {a}, {b}, {(b-a) == c }");
     }
 
+    public void Test()
+    {
+        Transform player = GameObject.Find("Player").transform;
+        float bottom = Tools.GetInstance().GetBottomY(player);
+        GroundController ground = GetUnderGround(player);
+        float top = Tools.GetInstance().GetTopY(ground.transform);
+        //Debug.Log(bottom - top);
+    }
+
     public void ImplementBug(string targetName)
     {
         GameObject target = GameObject.Find(targetName);
@@ -205,10 +214,10 @@ public class Tools
     public void TraceGroundBug(string name)
     {
         Transform target = GameObject.Find(name).transform;
-        bool stick = StickGround(target);
+        //bool stick = StickGround(target);
         bool inAir = target.GetComponent<LivingBall>().InAir();
         if (inAir)
-            Debug.Log(Mathf.Approximately(GetPadGround(target), 0.0f));
+            Debug.Log(Mathf.Approximately(GetGroundInterval(target), 0.0f));
     }
 
     private bool StickGround(Transform target)
@@ -230,12 +239,18 @@ public class Tools
         return MinorEqual(finalY, target.position.y);
     }
 
-    private float GetPadGround(Transform target)
+    public float GetGroundInterval(Transform target)
     {
         GroundController ground = Tools.GetInstance().GetUnderGround(target);
         float groundTopY = Tools.GetInstance().GetTopY(ground.transform);
         float targetBottomY = Tools.GetInstance().GetBottomY(target);
         return targetBottomY - groundTopY;
+    }
+
+    public float GetUnderGroundEmptyHeight(Transform target)
+    {
+        GroundController ground = Tools.GetInstance().GetUnderGround(target);
+        return ground.GetEmptyHeight();
     }
 
         /*

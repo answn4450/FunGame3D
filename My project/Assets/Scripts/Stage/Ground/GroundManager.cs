@@ -32,7 +32,6 @@ public class GroundManager : MonoBehaviour
 
         groundList = new List<List<GroundController>>();
 
-
         for (int x = 0; x < sizeX; ++x)
         {
             List<GroundController> groundZLine = new List<GroundController>();
@@ -49,26 +48,14 @@ public class GroundManager : MonoBehaviour
         }
     }
 
-    public void BeforeTemporailyAffect()
+    public void BeforeCycle()
     {
         for (int x = 0; x < sizeX; ++x)
         {
             for (int z = 0; z < sizeZ; ++z)
             {
                 GroundController ground = groundList[x][z];
-                ground.ResetTemporarilyOptions();
-            }
-        }
-    }
-
-    public void ResetGroundsStat()
-    {
-        for (int x = 0; x < sizeX; ++x)
-        {
-            for (int z = 0; z < sizeZ; ++z)
-            {
-                GroundController ground = groundList[x][z];
-                ground.EraseStats();
+                ground.BeforeCycle();
             }
         }
     }
