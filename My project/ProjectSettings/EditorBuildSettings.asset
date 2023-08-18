@@ -24,9 +24,9 @@ EditorBuildSettings:
     path: Assets/Scenes/Stages/Stage3.unity
     guid: a4476deced72edb489967c102174ba1c
   - enabled: 1
-    path: Assets/Scenes/Test.unity
-    guid: 5ff04fb02d189844c8fd30769c34895e
-  - enabled: 1
     path: Assets/Scenes/Base.unity
     guid: 85db99f022ddc084487960bf554b8927
+  - enabled: 1
+    path: Assets/Scenes/PickBall.unity
+    guid: 7d876160ea37ca2438ce9e76a2c391f8
   m_configObjects: {}

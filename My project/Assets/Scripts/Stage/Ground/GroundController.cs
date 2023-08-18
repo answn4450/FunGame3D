@@ -147,7 +147,6 @@ public class GroundController : MonoBehaviour
             float hitHeightHalf = Tools.GetInstance().GetHeight(hit) * 0.5f;
             hitY = hit.transform.position.y;
 
-            float bugPrevInterval = Tools.GetInstance().GetGroundInterval(hit.transform);
             if (hitY - hitHeightHalf < beforeTopY)
             {
                 hitNewY = hitY + regularLiftY;
@@ -161,11 +160,6 @@ public class GroundController : MonoBehaviour
                     );
 
                 beforeTopY = hitNewY + hitHeightHalf;
-                float bugNowInteravl = Tools.GetInstance().GetGroundInterval(hit.transform);
-                if (hit.transform.name == "Player" && Tools.GetInstance().TraceBugKey())
-                {
-                    //Debug.Log($"{regularLiftY}>  prev: {bugPrevInterval}, now: {bugNowInteravl}, {bugPrevInterval == bugNowInteravl}, {i}");
-                }
             }
             else
                 beforeTopY = hitY + hitHeightHalf;

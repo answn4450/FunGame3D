@@ -15,6 +15,11 @@ public class ButtonController : MonoBehaviour
 		SceneManager.LoadScene("Tutorial");
 	}
 
+    public void ButtonPickBall()
+    {
+        SceneManager.LoadScene("PickBall");
+    }
+
     public void ButtonQuitGameProgram()
     {
         Application.Quit();

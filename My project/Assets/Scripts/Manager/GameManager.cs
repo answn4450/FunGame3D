@@ -64,11 +64,6 @@ public class GameManager : MonoBehaviour
             uiController.GamePause(stopGame);
         }
 
-        if (Tools.GetInstance().TraceBugKey())
-            Time.timeScale = 1.0f;
-        else
-            Time.timeScale = 0.0f;
-
         if (prevElevator != null && prevElevator.IsWithPlayer())
             prevElevator.MovePlayer();
 
