@@ -6,7 +6,8 @@ using UnityEngine.SceneManagement;
 
 public class UIController : MonoBehaviour
 {
-    public Text textPlayerSize;
+    public Text textPlayerInSize;
+    public Text textPlayerOutSize;
     public Text textCountdown;
     public Text underGroundEmptyHeight;
     public Text playerPosition;
@@ -85,8 +86,10 @@ public class UIController : MonoBehaviour
 
     public void UIPlay(PlayerController player)
     {
-        textPlayerSize.text = player.size.ToString();
-
+        textPlayerInSize.text = player.size.ToString();
+        textPlayerOutSize.text = Tools.GetInstance().MinorFloat(
+            player.transform.localScale.x
+            ).ToString();
         AvailableStructuresInfo(player.GetSelectedStructureIndex());
         BuiltStructuresInfo(player.GetBuiltStructures());
         Position(player.transform.position);

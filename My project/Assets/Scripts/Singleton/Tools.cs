@@ -220,6 +220,25 @@ public class Tools
             Debug.Log(Mathf.Approximately(GetGroundInterval(target), 0.0f));
     }
 
+    public bool TraceBugKey()
+    {
+        return Input.GetKeyDown(KeyCode.F) || true;
+    }
+
+    public float GetGroundInterval(Transform target)
+    {
+        GroundController ground = GetInstance().GetUnderGround(target);
+        float groundTopY = GetInstance().GetTopY(ground.transform);
+        float targetBottomY = GetInstance().GetBottomY(target);
+        return targetBottomY - groundTopY;
+    }
+
+    public float GetUnderGroundEmptyHeight(Transform target)
+    {
+        GroundController ground = Tools.GetInstance().GetUnderGround(target);
+        return ground.GetEmptyHeight();
+    }
+
     private bool StickGround(Transform target)
     {
         Transform downGround = Tools.GetInstance().GetUnderGround(target).transform;
@@ -237,20 +256,6 @@ public class Tools
         if (!MinorEqual(finalY, target.position.y))
             Debug.Log($"StickGround: {diff}, {finalY}, {target.position.y}");
         return MinorEqual(finalY, target.position.y);
-    }
-
-    public float GetGroundInterval(Transform target)
-    {
-        GroundController ground = Tools.GetInstance().GetUnderGround(target);
-        float groundTopY = Tools.GetInstance().GetTopY(ground.transform);
-        float targetBottomY = Tools.GetInstance().GetBottomY(target);
-        return targetBottomY - groundTopY;
-    }
-
-    public float GetUnderGroundEmptyHeight(Transform target)
-    {
-        GroundController ground = Tools.GetInstance().GetUnderGround(target);
-        return ground.GetEmptyHeight();
     }
 
         /*

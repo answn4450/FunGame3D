@@ -566,7 +566,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   player: {fileID: 514770689}
-  ground: {fileID: 336213905}
+  groundManager: {fileID: 336213905}
   finish: {fileID: 1417268577}
 --- !u!4 &314663442
 Transform:

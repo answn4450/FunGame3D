@@ -86,7 +86,7 @@ public class PlayerController : LivingBall
         if (shotTimer > 0.0f)
             shotTimer -= Time.deltaTime;
 
-        //Fall();
+        Fall();
         CheckDead();
         playerEye.FollowTarget(transform);
         EasyCheckColor();
@@ -152,7 +152,7 @@ public class PlayerController : LivingBall
         Vector3 movement = Vector3.zero;
         bool hardTurn = (Input.GetKey(KeyCode.LeftShift));
         bool crabWalk = Input.GetKey(KeyCode.LeftControl);
-        float speed = hardTurn ? 7.0f : 10.0f;
+        float speed = hardTurn ? 6.0f : 10.0f;
         float horizontal = Input.GetAxis("Horizontal");
         float vertical = Input.GetAxis("Vertical");
 
@@ -178,7 +178,7 @@ public class PlayerController : LivingBall
         int dir = 0;
         bool hardTurn = Input.GetKey(KeyCode.LeftShift);
         bool crabWalk = Input.GetKey(KeyCode.LeftControl);
-        float rotateDeg = hardTurn ? 90.0f : 50.0f;
+        float rotateDeg = hardTurn ? 110.0f : 50.0f;
         
         if (!crabWalk)
         {
@@ -204,17 +204,12 @@ public class PlayerController : LivingBall
         affectPower += power;
     }
 
-    public float Squeeze(float requiredDown)
+    public void Squeeze(float requiredDown)
     {
         squeezeFX = PrefabManager.GetInstance().GetPrefabByName("CFXR Hit A (Red)");
         Instantiate(squeezeFX).transform.position = transform.position;
 
-        float localSize = transform.localScale.x;
-        float lifeMile = localSize - deadSize;
-        float downSize = lifeMile * requiredDown * Time.deltaTime;
-        SetSphere(localSize - downSize);
-
-        return downSize;
+        Hurt(requiredDown);
     }
 
     public void Rebirth()
@@ -245,6 +240,12 @@ public class PlayerController : LivingBall
             newSize = size;
 
         SetSphere(newSize);
+        BindGroundStandY();
+    }
+
+    public void FallInfo()
+    {
+        Debug.LogFormat("InAir: {0}, stopFall: {1}, fallTime: {2}", InAir(), stopFall, inFallTime);
     }
 
     public int GetSelectedStructureIndex()
@@ -265,6 +266,21 @@ public class PlayerController : LivingBall
     public List<GameObject> GetBuiltStructures()
     {
         return builtStructures;
+    }
+
+    private void BindGroundStandY()
+    {
+        GroundController underGround = Tools.GetInstance().GetUnderGround(transform);
+        float radius = transform.localScale.x * 0.5f;
+        float groundTop = Tools.GetInstance().GetTopY(underGround.transform);
+        
+        if (transform.position.y - radius < groundTop)
+            transform.position = new Vector3(
+                transform.position.x,
+                groundTop + radius,
+                transform.position.z
+                );
+
     }
 
     private void StructOnBullet()
@@ -325,7 +341,8 @@ public class PlayerController : LivingBall
     private void CheckDead()
     {
         bool before = dead;
-        dead = size <= deadSize;
+        float outSize = transform.localScale.x;
+        dead = size <= deadSize && outSize <= deadSize;
         if (dead && !before)
             Explode();
     }
@@ -347,7 +364,6 @@ public class PlayerController : LivingBall
         else
             inFallTime = 0.0f;
         
-        //Debug.LogFormat("InAir: {0}, stopFall: {1}, fallTime: {2}", InAir(), stopFall, inFallTime);
         AffectPower(gravity * inFallTime * inFallTime);
     }
 

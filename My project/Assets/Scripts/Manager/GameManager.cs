@@ -51,22 +51,23 @@ public class GameManager : MonoBehaviour
         uiController.SetUI(player);
     }
 
-    private void FixedUpdate()
-    {
-        groundManager.BeforeCycle();
-    }
-
     void Update()
     {
+        groundManager.BeforeCycle();
         //TestUpdate();
         /*
          */
-        if (Input.GetKeyDown(KeyCode.Escape))
+        if (Input.GetKeyDown(KeyCode.Escape) && !player.dead)
         {
             stopGame = !stopGame;
             Time.timeScale = stopGame ? 0.0f : 1.0f;
             uiController.GamePause(stopGame);
         }
+
+        if (Tools.GetInstance().TraceBugKey())
+            Time.timeScale = 1.0f;
+        else
+            Time.timeScale = 0.0f;
 
         if (prevElevator != null && prevElevator.IsWithPlayer())
             prevElevator.MovePlayer();
@@ -81,51 +82,47 @@ public class GameManager : MonoBehaviour
                 enemyManager.FollowPlayer(player);
         }
 
-        if (player)
+        player.LifeCycle();
+        if (player.dead)
         {
-            player.LifeCycle();
-            if (player.dead)
-            {
-                leftCountdown -= Time.deltaTime;
-                if (leftCountdown > 0)
-                    uiController.DeadCountdown(leftCountdown);
-                else
-                    SceneManager.LoadScene("StartMenu");
+            leftCountdown -= Time.deltaTime;
+            if (leftCountdown > 0)
+                uiController.DeadCountdown(leftCountdown);
+            else
+                SceneManager.LoadScene("StartMenu");
 
-                gameCamera.AroundPoint(leftCountdown / maxCountdown * 360.0f);
-            }
+            gameCamera.AroundPoint(leftCountdown / maxCountdown * 360.0f);
+        }
+        else
+        {
+            structureManager.LoopStructuresInFolder();
+
+            player.ChangeSelectedStructureIndex();
+            player.Command();
+            player.CommandTurnEye();
+
+            if (player.rideBullet)
+                player.RideBullet();
             else
             {
-                structureManager.LoopStructuresInFolder();
-
-                player.ChangeSelectedStructureIndex();
-                player.Command();
-                player.CommandTurnEye();
                 player.OnGround();
+                player.CommandMoveBody();
+                player.WithAffectPower();
 
-                if (player.rideBullet)
-                    player.RideBullet();
-                else
-                {
-                    player.OnGround();
-                    player.CommandMoveBody();
-                    player.WithAffectPower();
-
-                    GroundController playerUnderGround = Tools.GetInstance().GetUnderGround(player.transform);
-                    if (!(playerUnderGround.NeedSqueeze() && player.IsSizeBigger()))
-                        player.BackToSize();
-                }
-
-                groundManager.ReactGrounds();
-                groundManager.SqueezePlayer(player);
-                gameCamera.BehindPlayer(10.0f);
-                
+                GroundController playerUnderGround = Tools.GetInstance().GetUnderGround(player.transform);
+                if (true || !(playerUnderGround.NeedSqueeze() && player.IsSizeBigger()))
+                    player.BackToSize();
             }
 
-            UIControll();
+            groundManager.ReactGrounds();
+            groundManager.SqueezePlayer(player);
+            gameCamera.BehindPlayer(10.0f);
+
         }
 
-        Tools.GetInstance().Test();
+        UIControll();
+
+        //Tools.GetInstance().Test();
         //Tools.GetInstance().TraceGroundBug("Player");
     }
 

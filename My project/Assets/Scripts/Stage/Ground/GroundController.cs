@@ -12,36 +12,37 @@ public class GroundController : MonoBehaviour
     public List<float> collidersHeightRangeBottom = new List<float>();
     public List<float> collidersHeightRangeTop = new List<float>();
 
-    private bool temporailySqueezePlayer;
+    //private bool temporailySqueezePlayer;
     private const float defaultSpeed = 0.2f;
     private float groundX;
     private float groundZ;
-    private float temporarilySpeed;
+    private float temporailySpeed;
     private List<Transform> colliders;
     
     //private bool slowdownPlayer;
 
     private void Awake()
     {
-        temporarilySpeed = defaultSpeed;
+        temporailySpeed = defaultSpeed;
         collidersNumber = 0;
         colliders = new List<Transform>();
         temporailyStop = false;
         //slowdownPlayer = false;
+        //temporailySqueezePlayer = false;
         originalColor = GetComponent<Renderer>().material.color;
         heightDestination = 0.0f;
-        temporailySqueezePlayer = false;
     }
 
     public void BeforeCycle()
     {
-        temporarilySpeed = defaultSpeed;
+        temporailySpeed = defaultSpeed;
         SetColor(originalColor);
         collidersNumber = 0;
-        temporailySqueezePlayer = false;
-
-        temporarilySpeed = defaultSpeed;
+        //slowdownPlayer = false;
+        //temporailySqueezePlayer = false;
         temporailyStop = false;
+
+        temporailySpeed = defaultSpeed;
     }
 
     public void AddCollider(Transform collider)
@@ -71,14 +72,14 @@ public class GroundController : MonoBehaviour
         //slowdownPlayer = true;
     }
 
-    public void SetGroundTemporarilySpeed(float plusMinus)
+    public void SetGroundtemporailySpeed(float plusMinus)
     {
-        temporarilySpeed += plusMinus;
+        temporailySpeed += plusMinus;
     }
 
     public void MoreEvilGround()
     {
-        temporarilySpeed += 0.01f;
+        temporailySpeed += 0.01f;
         SetColor(Color.black);
     }
 
@@ -117,10 +118,9 @@ public class GroundController : MonoBehaviour
         if (height != bindedHeight)
         {
             //Debug.Log(collidersNumber.ToString() + transform.name);
-            if (collidersNumber == 2)
+            if (collidersNumber == 1)
             {
-                //Debug.Log(transform.name);
-                //Time.timeScale = 0.0f;
+                //Debug.Log($"bind height diff: {bindedHeight - height}");
             }
             SetGroundTransform(bindedHeight);
         }
@@ -129,18 +129,8 @@ public class GroundController : MonoBehaviour
     public void UpDown()
     {
         if (!temporailyStop)
-        {
-            float height = transform.localScale.y;
-            float heightDestination = GetSafeHeight(GetHeightDestination());
-            float upDownY = Mathf.Sign(heightDestination - height) * Mathf.Abs(heightDestination - height) * temporarilySpeed * Time.deltaTime;
-            
-            if (heightDestination < height && heightDestination > height + upDownY)
-                upDownY = heightDestination - height;
-            if (heightDestination > height && heightDestination < height + upDownY)
-                upDownY = heightDestination - height;
-
-            SetGroundTransform(height + upDownY);
-        }
+            SetGroundTransform(GetHeightDestination());
+    
     }
 
     public void LiftUpColliders()
@@ -150,13 +140,14 @@ public class GroundController : MonoBehaviour
         float hitNewY;
         float height = transform.localScale.y;
         float regularLiftY = Mathf.Max(height - GetMaxHeightBeforeFirstCollider(), 0.0f);
-
+        
         for (int i = 0; i < collidersNumber; ++i)
         {
             Transform hit = colliders[i];
             float hitHeightHalf = Tools.GetInstance().GetHeight(hit) * 0.5f;
             hitY = hit.transform.position.y;
 
+            float bugPrevInterval = Tools.GetInstance().GetGroundInterval(hit.transform);
             if (hitY - hitHeightHalf < beforeTopY)
             {
                 hitNewY = hitY + regularLiftY;
@@ -170,6 +161,11 @@ public class GroundController : MonoBehaviour
                     );
 
                 beforeTopY = hitNewY + hitHeightHalf;
+                float bugNowInteravl = Tools.GetInstance().GetGroundInterval(hit.transform);
+                if (hit.transform.name == "Player" && Tools.GetInstance().TraceBugKey())
+                {
+                    //Debug.Log($"{regularLiftY}>  prev: {bugPrevInterval}, now: {bugNowInteravl}, {bugPrevInterval == bugNowInteravl}, {i}");
+                }
             }
             else
                 beforeTopY = hitY + hitHeightHalf;
@@ -322,12 +318,23 @@ public class GroundController : MonoBehaviour
 
     private float GetHeightDestination()
     {
-        return transform.localScale.y + GetUpDownY();
+        if (Tools.GetInstance().SameGround(transform, GameObject.Find("Player").transform))
+        {
+            /*
+            Debug.Log(transform.localScale.y + GetUpDownY() * Time.deltaTime * temporailySpeed == GetSafeHeight(
+            transform.localScale.y + GetUpDownY() * Time.deltaTime * temporailySpeed
+            ));
+            */
+
+        }
+        return GetSafeHeight(
+            transform.localScale.y + GetUpDownY() * Time.deltaTime * temporailySpeed
+            );
     }
 
     private float GetUpDownY()
     {
-        float upDownY = 0.0f;
+        float upDownY = -1.0f;
         float upDownLimit = 3.0f;
         int i = 0;
         List<Transform> uppers = Status.GetInstance().groundUppers;
@@ -341,26 +348,23 @@ public class GroundController : MonoBehaviour
             else
             {
                 i++;
+
                 if (Tools.GetInstance().SameGround(transform, target))
                 {
-                    upDownY += target.localScale.y * 2.0f;
+                    upDownY += 3.0f;
                 }
                 else
                 {
                     float distanceXZ = Tools.GetInstance().GetDistanceXZ(transform, target);
-                    float targetSpecial = Status.GetInstance().groundUpDownWeakPower;
-                    upDownY += targetSpecial * Mathf.Max(
-                        3.0f - distanceXZ,
-                        -3.0f
-                        );
+                    
+                    if (distanceXZ < 4.0f)
+                        upDownY += Mathf.Max(3.0f - distanceXZ, -1.0f);
+
                 }
             }
         }
 
-        if (i == 0)
-            return -upDownLimit;
-        else
-            return  Mathf.Clamp(upDownY, -upDownLimit, upDownLimit);
+        return  Mathf.Clamp(upDownY, -upDownLimit, upDownLimit);
     }
 
     private List<Transform> SortByBottomY(List<Transform> hits)

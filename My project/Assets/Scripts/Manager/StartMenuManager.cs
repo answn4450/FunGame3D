@@ -7,21 +7,31 @@ using UnityEngine.UI;
 public class StartMenuManager : MonoBehaviour
 {
     public PlayerController player;
-    public GroundManager ground;
+    public GroundManager groundManager;
     public Text finish;
 
-	private void Start()
+    private void Awake()
+    {
+        Ground.GetInstance().SetGround(groundManager);
+    }
+        
+    private void Start()
 	{
-        Ground.GetInstance().SetGround(ground);
+        groundManager.CreateGrounds();
         finish.text = Status.GetInstance().endGame ? "완료 했음" : "완료 필요";
 	}
 
 	void Update()
     {
+        groundManager.BeforeCycle();
+
         player.LifeCycle();
+        player.OnGround();
         player.CommandMoveBody();
         player.CommandTurnEye();
         player.WithAffectPower();
+
+        groundManager.ReactGrounds();
     }
 
     public void ButtonPlay()
