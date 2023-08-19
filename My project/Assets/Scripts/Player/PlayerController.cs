@@ -2,7 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerController : LivingBall
+public class PlayerController : NormalBall
 {
     public CameraController playerCamera;
     public PlayerEyeController playerEye;
@@ -31,7 +31,6 @@ public class PlayerController : LivingBall
     };
 
     private int selectedStructureIndex;
-    private float deadSize = 0.2f;
     //private float physicsScale;
     private float physicsTimeElapseScale;
     private float shotTimer;
@@ -52,7 +51,6 @@ public class PlayerController : LivingBall
         rideBullet = false;
         size = 1.0f;
         maxSize = 1.0f;
-        deadSize = 0.2f;
 
         shotTimer = 0.0f;
 
