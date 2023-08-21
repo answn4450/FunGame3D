@@ -18,16 +18,18 @@ public class PlayerController : NormalBall
     public GameObject bullet;
     public GameObject turnPoint;
 
-    private int selectedStructureIndex;
     private const int maxStructure = 3;
+    private int selectedStructureIndex;
     //private float physicsScale;
+    private const float turnPointMaxLength = 5.0f;
+    private const float turnPointMinLength = 1.0f;
+    private const float hoverSpeed = 7.0f;
     private float physicsTimeElapseScale;
     private float shotTimer;
     private float inFallTime;
     private float turnPointLength;
     private bool stopFall;
-    private bool hoverPoint;
-    private bool stopTurnPoint;
+    private bool hoverTurnPoint;
 
     private GameObject effectFX;
     private GameObject explodeFX;
@@ -53,8 +55,7 @@ public class PlayerController : NormalBall
 
         dead = false;
         rideBullet = false;
-        hoverPoint = false;
-        stopTurnPoint = false;
+        hoverTurnPoint = false;
 
         size = 1.0f;
         maxSize = 1.0f;
@@ -83,7 +84,6 @@ public class PlayerController : NormalBall
     private void Start()
     {
         SetSphere(size);
-        SetTurnPointPosition();
     }
 
     public void LifeCycle()
@@ -132,19 +132,11 @@ public class PlayerController : NormalBall
         if (Input.GetKey(KeyCode.Space) && shotTimer <= 0)
             Shot();
 
-        hoverPoint = Input.GetKey(KeyCode.LeftControl);
-        stopTurnPoint = hoverPoint && Input.GetAxis("Vertical") != 0.0f;
-
-        if (hoverPoint)
-        {
-            if (!stopTurnPoint)
-                turnPointLength += Input.GetAxis("Vertical") * Time.deltaTime;
-            else
-                SetTurnPointPosition();
-        }
+        hoverTurnPoint = Input.GetKey(KeyCode.LeftControl);
+        if (hoverTurnPoint)
+            TurnPointSameY();
         else
-            SetTurnPointPosition();
-
+            TurnPointOnForward();
     }
 
     public void Explode()
@@ -168,29 +160,21 @@ public class PlayerController : NormalBall
         Vector3 movement = Vector3.zero;
         bool hardTurn = (Input.GetKey(KeyCode.LeftShift));
         float speed = hardTurn ? 6.0f : 10.0f;
-        float horizontal = Input.GetAxis("Horizontal");
-        float vertical = Input.GetAxis("Vertical");
+        float horizontal, vertical;
 
-        if (!(Input.GetKey(KeyCode.DownArrow) || Input.GetKey(KeyCode.UpArrow)))
-            vertical = 0.0f;
-        if (!(Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.RightArrow)))
+        if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.RightArrow))
+            horizontal = Input.GetAxis("Horizontal");
+        else
             horizontal = 0.0f;
 
-        if (hoverPoint)
-        {
-            float deg = Vector3.Angle(transform.position, turnPoint.transform.position);
-            float outline = Mathf.PI * turnPointLength * 2.0f;
-            float nextDeg = deg + 5.0f;
-            Vector3 nextPoint = turnPoint.transform.position + turnPointLength * new Vector3(
-                Mathf.Cos(nextDeg * Mathf.Deg2Rad),
-                Mathf.Sin(nextDeg * Mathf.Deg2Rad),
-                0.0f
-                );
+        if (Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.DownArrow))
+            vertical = Input.GetAxis("Vertical");
+        else
+            vertical = 0.0f;
 
-            movement += nextPoint - transform.position;
-        }
-
-        if (vertical != 0)
+        if (hoverTurnPoint)
+            HoverTurnPoint(horizontal, vertical);
+        else if (vertical != 0)
         {
             movement += speed * vertical * transform.forward;
             playerCamera.ChangeFieldView(vertical);
@@ -203,10 +187,9 @@ public class PlayerController : NormalBall
     {
         int dir = 0;
         bool hardTurn = Input.GetKey(KeyCode.LeftShift);
-        bool crabWalk = Input.GetKey(KeyCode.LeftControl);
         float rotateDeg = hardTurn ? 110.0f : 50.0f;
 
-        if (!crabWalk)
+        if (!hoverTurnPoint)
         {
             if (Input.GetKey(KeyCode.LeftArrow))
                 dir -= 1;
@@ -395,10 +378,70 @@ public class PlayerController : NormalBall
             GetComponent<Renderer>().material = matRed;
         else
             GetComponent<Renderer>().material = matBlue;
+
+        if (hoverTurnPoint)
+            turnPoint.GetComponent<Renderer>().material = matRed;
+        else
+            turnPoint.GetComponent<Renderer>().material = matBlue;
+
     }
 
-    private void SetTurnPointPosition()
+    private void HoverTurnPoint(float horizontal, float vertical)
+    {
+        ChangeTurnPointLength(vertical);
+        
+        /*
+        Vector3 movement = Vector3.zero;
+        
+        Vector3 playerToTurnPoint = Tools.GetInstance().GetDirectionXZ(
+            transform, turnPoint.transform);
+        float deg = Mathf.Atan2(playerToTurnPoint.x, playerToTurnPoint.z) * Mathf.Rad2Deg;
+        float diameter = Mathf.PI * turnPointLength * 2.0f;
+        float nextDeg = deg + 360.0f * hoverSpeed / diameter * horizontal;
+        Vector3 nextPos = turnPoint.transform.position + turnPointLength * new Vector3(
+            Mathf.Cos(nextDeg * Mathf.Deg2Rad),
+            turnPoint.transform.position.y,
+            Mathf.Sin(nextDeg * Mathf.Deg2Rad)
+            );
+        movement += Time.deltaTime * (nextPos - transform.position);
+        
+        SafeMove(movement);
+        */
+    }
+
+    private void ChangeTurnPointLength(float vertical)
+    {
+        Vector3 movement = Vector3.zero;
+        float lengthDiff = -vertical * hoverSpeed * Time.deltaTime;
+
+        if (turnPointLength + lengthDiff > turnPointMaxLength)
+            lengthDiff = turnPointMaxLength - turnPointLength;
+        if (turnPointLength + lengthDiff < turnPointMinLength)
+            lengthDiff = turnPointMinLength - turnPointLength;
+
+        movement += -GetTurnPointXZDirection().normalized * lengthDiff;
+        SafeMove(movement);
+
+        turnPointLength = Mathf.Clamp(
+            GetTurnPointXZDirection().magnitude,
+            turnPointMinLength,
+            turnPointMaxLength
+            );
+    }
+
+    private void TurnPointOnForward()
     {
         turnPoint.transform.position = transform.position + turnPointLength * transform.forward;
+    }
+
+    private void TurnPointSameY()
+    {
+        float diffY = transform.position.y - turnPoint.transform.position.y;
+        turnPoint.transform.position += diffY * Vector3.up;
+    }
+
+    private Vector3 GetTurnPointXZDirection()
+    {
+        return Tools.GetInstance().GetDirectionXZ(turnPoint.transform, transform);
     }
 }

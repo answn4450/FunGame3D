@@ -176,6 +176,14 @@ public class Tools
             return null;
     }
 
+    public Vector3 GetDirectionXZ(Transform a, Transform b)
+    {
+        Vector3 diff = a.position - b.position;
+        diff.y = 0.0f;
+
+        return diff;
+    }
+
     public Vector3 GetGroundIndexPosition(Vector3 position)
     {
         return new Vector3(
