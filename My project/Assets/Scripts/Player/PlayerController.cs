@@ -9,14 +9,25 @@ public class PlayerController : NormalBall
 
     [System.NonSerialized]
     public Transform structureFolder;
-    
+
     public bool dead;
     public bool rideBullet;
     public float size;
     public float maxSize;
     public LayerMask groundMask;
-
     public GameObject bullet;
+    public GameObject turnPoint;
+
+    private int selectedStructureIndex;
+    private const int maxStructure = 3;
+    //private float physicsScale;
+    private float physicsTimeElapseScale;
+    private float shotTimer;
+    private float inFallTime;
+    private float turnPointLength;
+    private bool stopFall;
+    private bool hoverPoint;
+    private bool stopTurnPoint;
 
     private GameObject effectFX;
     private GameObject explodeFX;
@@ -30,13 +41,6 @@ public class PlayerController : NormalBall
         "StopAura",
     };
 
-    private int selectedStructureIndex;
-    //private float physicsScale;
-    private float physicsTimeElapseScale;
-    private float shotTimer;
-    private float inFallTime;
-    private bool stopFall;
-    private const int maxStructure = 3;
     private List<GameObject> builtStructures = new List<GameObject>();
 
     private Vector3 gravity;
@@ -46,14 +50,17 @@ public class PlayerController : NormalBall
     private void Awake()
     {
         structureFolder = null;
-        
+
         dead = false;
         rideBullet = false;
+        hoverPoint = false;
+        stopTurnPoint = false;
+
         size = 1.0f;
         maxSize = 1.0f;
 
         shotTimer = 0.0f;
-
+        turnPointLength = 2.0f;
         physicsTimeElapseScale = 1.0f;
         inFallTime = 0.0f;
 
@@ -68,15 +75,15 @@ public class PlayerController : NormalBall
         hurtFX = PrefabManager.GetInstance().GetPrefabByName("CFXR Hit A (Red)");
         squeezeFX = PrefabManager.GetInstance().GetPrefabByName("CFXR Hit A (Red)");
 
-        matBlue = Resources.Load("Material/BasicBlue", typeof(Material)) as Material;
-        matRed = Resources.Load("Material/BasicRed", typeof(Material)) as Material;
+        matBlue = Resources.Load("Material/BasicColor/BasicBlue", typeof(Material)) as Material;
+        matRed = Resources.Load("Material/BasicColor/BasicRed", typeof(Material)) as Material;
         transform.GetComponent<Renderer>().material = matBlue;
     }
 
     private void Start()
     {
         SetSphere(size);
-        //transform.position = Vector3.zero;
+        SetTurnPointPosition();
     }
 
     public void LifeCycle()
@@ -101,7 +108,7 @@ public class PlayerController : NormalBall
     }
 
     public void Hurt(float hurt)
-	{
+    {
         if (size > deadSize)
             size -= hurt;
         if (size < deadSize)
@@ -114,19 +121,30 @@ public class PlayerController : NormalBall
             StructOnBullet();
 
         if (Input.GetKeyDown(KeyCode.S))
-		{
+        {
             rideBullet = !rideBullet;
             if (rideBullet)
                 OnRideBullet();
             else
                 OffRideBullet();
-		}
-
-        if (Input.GetKey(KeyCode.Space))
-        {
-            if (shotTimer <= 0)
-                Shot();
         }
+
+        if (Input.GetKey(KeyCode.Space) && shotTimer <= 0)
+            Shot();
+
+        hoverPoint = Input.GetKey(KeyCode.LeftControl);
+        stopTurnPoint = hoverPoint && Input.GetAxis("Vertical") != 0.0f;
+
+        if (hoverPoint)
+        {
+            if (!stopTurnPoint)
+                turnPointLength += Input.GetAxis("Vertical") * Time.deltaTime;
+            else
+                SetTurnPointPosition();
+        }
+        else
+            SetTurnPointPosition();
+
     }
 
     public void Explode()
@@ -149,7 +167,6 @@ public class PlayerController : NormalBall
     {
         Vector3 movement = Vector3.zero;
         bool hardTurn = (Input.GetKey(KeyCode.LeftShift));
-        bool crabWalk = Input.GetKey(KeyCode.LeftControl);
         float speed = hardTurn ? 6.0f : 10.0f;
         float horizontal = Input.GetAxis("Horizontal");
         float vertical = Input.GetAxis("Vertical");
@@ -159,8 +176,19 @@ public class PlayerController : NormalBall
         if (!(Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.RightArrow)))
             horizontal = 0.0f;
 
-        if (crabWalk)
-            movement += transform.right * horizontal * speed;
+        if (hoverPoint)
+        {
+            float deg = Vector3.Angle(transform.position, turnPoint.transform.position);
+            float outline = Mathf.PI * turnPointLength * 2.0f;
+            float nextDeg = deg + 5.0f;
+            Vector3 nextPoint = turnPoint.transform.position + turnPointLength * new Vector3(
+                Mathf.Cos(nextDeg * Mathf.Deg2Rad),
+                Mathf.Sin(nextDeg * Mathf.Deg2Rad),
+                0.0f
+                );
+
+            movement += nextPoint - transform.position;
+        }
 
         if (vertical != 0)
         {
@@ -177,7 +205,7 @@ public class PlayerController : NormalBall
         bool hardTurn = Input.GetKey(KeyCode.LeftShift);
         bool crabWalk = Input.GetKey(KeyCode.LeftControl);
         float rotateDeg = hardTurn ? 110.0f : 50.0f;
-        
+
         if (!crabWalk)
         {
             if (Input.GetKey(KeyCode.LeftArrow))
@@ -188,7 +216,7 @@ public class PlayerController : NormalBall
             transform.Rotate(transform.up * rotateDeg * dir * Time.deltaTime);
             playerCamera.SwivelZ(dir);
         }
-        
+
     }
 
     public void WithAffectPower()
@@ -211,10 +239,10 @@ public class PlayerController : NormalBall
     }
 
     public void Rebirth()
-	{
+    {
         dead = false;
         size = Mathf.Clamp(deadSize * 2.0f, deadSize + 0.1f, maxSize);
-	}
+    }
 
     public void ChangeSelectedStructureIndex()
     {
@@ -271,7 +299,7 @@ public class PlayerController : NormalBall
         GroundController underGround = Tools.GetInstance().GetUnderGround(transform);
         float radius = transform.localScale.x * 0.5f;
         float groundTop = Tools.GetInstance().GetTopY(underGround.transform);
-        
+
         if (transform.position.y - radius < groundTop)
             transform.position = new Vector3(
                 transform.position.x,
@@ -324,6 +352,7 @@ public class PlayerController : NormalBall
     {
         rideBullet = false;
         stopFall = false;
+
         if (bullet)
             bullet.GetComponent<BulletController>().DestroySelf();
         else
@@ -347,12 +376,7 @@ public class PlayerController : NormalBall
 
     private void SetSphere(float r)
     {
-        transform.localScale = GetSphere(r);
-    }
-
-    private Vector3 GetSphere(float r)
-    {
-        return new Vector3(r, r, r);
+        transform.localScale = Tools.GetInstance().GetSphereVector3(r);
     }
 
     private void Fall()
@@ -361,7 +385,7 @@ public class PlayerController : NormalBall
             inFallTime += Time.deltaTime;
         else
             inFallTime = 0.0f;
-        
+
         AffectPower(gravity * inFallTime * inFallTime);
     }
 
@@ -373,4 +397,8 @@ public class PlayerController : NormalBall
             GetComponent<Renderer>().material = matBlue;
     }
 
+    private void SetTurnPointPosition()
+    {
+        turnPoint.transform.position = transform.position + turnPointLength * transform.forward;
+    }
 }

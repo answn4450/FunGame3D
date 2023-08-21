@@ -5,9 +5,14 @@ using UnityEngine;
 public class EnemyManager : MonoBehaviour
 {
     private List<EnemyController> enemyList = new List<EnemyController>();
-    private List<EnemyController> enemyList2 = new List<EnemyController>();
     private GameObject followerPrefab;
     private int maxChildCount = 16;
+    private float breedingTimer;
+
+    private void Awake()
+    {
+        breedingTimer = 0.0f;
+    }
 
     void Start()
     {
@@ -16,15 +21,13 @@ public class EnemyManager : MonoBehaviour
         if (transform.childCount > 0)
         {
             for (int i = 0; i < transform.childCount; ++i)
-                enemyList2.Add(transform.GetChild(i).transform.GetComponent<EnemyController>());
+                enemyList.Add(transform.GetChild(i).transform.GetComponent<EnemyController>());
         }
         else
         {
             EnemyController enemy = Instantiate(followerPrefab, transform).GetComponent<EnemyController>();
             enemyList.Add(enemy);
         }
-
-        //StartCoroutine(AutoDoubleBreeding());
     }
 
     public void TestOnGround()
@@ -32,7 +35,6 @@ public class EnemyManager : MonoBehaviour
         int i = 0;
         while (i < 1)
         {
-            //EnemyController enemy = enemyList[i];
             LivingBall enemy = transform.GetChild(i).GetComponent<LivingBall>();
 
             enemy.OnGround();
@@ -41,6 +43,33 @@ public class EnemyManager : MonoBehaviour
     }
 
     public void LifeCycle()
+    {
+        DeleteDeadEnemy();
+
+        foreach (EnemyController enemy in enemyList)
+        {
+            enemy.OnGround();
+            enemy.Living();
+            enemy.AffectNearGround();
+            breedingTimer += Time.deltaTime;
+        }
+
+        if (breedingTimer > 5.0f)
+        {
+            breedingTimer = 0.0f;
+            DoubleBreeding();
+        }
+    }
+
+    public void FollowPlayer(PlayerController player)
+    {
+        foreach (EnemyController enemy in enemyList)
+        {
+            enemy.FollowTarget(player.transform.position);
+        }
+    }
+
+    private void DeleteDeadEnemy()
     {
         int i = 0;
         while (i < enemyList.Count)
@@ -52,39 +81,19 @@ public class EnemyManager : MonoBehaviour
                 enemy.Explode();
             }
             else
-            {
-                enemy.OnGround();
-                enemy.Living();
-                enemy.AffectNearGround();
                 ++i;
-            }
-        }    
-    }
-
-    public void FollowPlayer(PlayerController player)
-    {
-        for (int i = 0; i < enemyList.Count; ++i)
-        {
-            EnemyController enemy = enemyList[i];
-            enemyList[i].FollowTarget(player.transform.position);
         }
     }
 
     private void DoubleBreeding()
     {
-        int beforeEnemyCount = enemyList.Count;
-        for (int i = 0; i < Mathf.Min(beforeEnemyCount, maxChildCount - beforeEnemyCount); ++i)
+        int beforeCount = enemyList.Count;
+        
+        foreach (EnemyController enemy in enemyList.GetRange(0, beforeCount))
         {
-            enemyList.Add(enemyList[i].Breeding());
-        }
-    }
+            if (enemyList.Count < maxChildCount)
+                enemyList.Add(enemy.Breeding());
 
-    IEnumerator AutoDoubleBreeding()
-    {
-        while (true)
-        {
-            yield return new WaitForSeconds(3.0f);
-            DoubleBreeding();
         }
     }
 }

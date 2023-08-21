@@ -6,7 +6,7 @@ public class Tools
 {
     public LayerMask groundMask = LayerMask.GetMask("Ground");
     // 소수점 2자리 수 까지 사용
-    private int minor = 2;
+    private readonly int minor = 2;
     public float groundLiftMinorDiffrence = 2.384186E-07f;
     private static Tools instance;
 
@@ -127,11 +127,10 @@ public class Tools
         return transform.position.y + halfHeight;
     }
 
-    public float paddingGroundDistance(Transform transform)
+    public float PaddingGroundDistance(Transform transform)
     {
         LayerMask groundMask = LayerMask.GetMask("Ground");
-        RaycastHit hit;
-        bool cast = Physics.Raycast(transform.position, Vector3.down, out hit, transform.transform.localScale.x * 0.5f, groundMask);
+        bool cast = Physics.Raycast(transform.position, Vector3.down, out RaycastHit hit, transform.transform.localScale.x * 0.5f, groundMask);
         GroundController ground = GetUnderGround(transform);
         float groundTop = Tools.GetInstance().GetTopY(ground.transform);
         float playerBottom = Tools.GetInstance().GetBottomY(transform);
@@ -144,7 +143,7 @@ public class Tools
     public float PlayerCastBottomGround()
     {
         Transform player = GameObject.Find("Player").transform;
-        float distance = paddingGroundDistance(player);
+        float distance = PaddingGroundDistance(player);
         return distance;
     }
 
@@ -186,6 +185,11 @@ public class Tools
             );
     }
     
+    public Vector3 GetSphereVector3(float r)
+    {
+        return new Vector3(r, r, r);
+    }
+
     public void FloatBugTest()
     {
         float a = 0.0123456789f;

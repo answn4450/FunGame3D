@@ -30,7 +30,7 @@ public class BulletController : MonoBehaviour
 	void Update()
     {
         if (!stop)
-            transform.position += transform.forward * speed * Time.deltaTime;
+            transform.position += speed * Time.deltaTime * transform.forward;
 
         if (OutOfBound())
             DestroySelf();
@@ -62,12 +62,11 @@ public class BulletController : MonoBehaviour
             DestroySelf();
         else if (released)
         {
-            StartCoroutine(KnockBack(other.gameObject, 3.0f));
-            if (other.tag == "Player" && !transportPlayer)
+            if (other.transform.CompareTag("Player") && !transportPlayer)
             {
                 other.GetComponent<PlayerController>().Hurt();
             }
-            else if (other.tag == "Ground")
+            else if (other.transform.CompareTag("Ground"))
             {
                 other.GetComponent<GroundController>().DownSize(2.0f);
             }
@@ -82,7 +81,7 @@ public class BulletController : MonoBehaviour
             released = true;
         else if (released)
 		{
-            if (other.tag != "Player")
+            if (!other.transform.CompareTag("Player"))
                 DestroySelf();
             else if (!transportPlayer)
                 DestroySelf();
@@ -102,19 +101,5 @@ public class BulletController : MonoBehaviour
             return true;
 
         return false;
-    }
-
-    IEnumerator KnockBack(GameObject hit, float t)
-    {
-        while (t>0.0f && hit != null && gameObject != null)
-        {
-            yield return null;
-            if (hit != null)
-                hit.transform.position += transform.forward * t * Time.deltaTime;
-            t -= Time.deltaTime;
-        }
-
-        if (gameObject!=null)
-            Destroy(gameObject);
     }
 }

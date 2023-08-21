@@ -4,25 +4,29 @@ using UnityEngine;
 
 public class LivingBall : MonoBehaviour
 {
-
     public void OnGround()
     {
         Tools.GetInstance().AddGroundCollider(transform);
         Tools.GetInstance().AddGroundUpper(transform);
     }
 
-    protected void SafeMove(Vector3 move)
+    public bool InAir()
+    {
+        bool castBlock = (Physics.Raycast(transform.position, Vector3.down, transform.localScale.x * 0.5f));
+        bool overTheGround = Tools.GetInstance().OverTheGround(transform);
+        return !castBlock && overTheGround;
+    }
+
+    public void SafeMove(Vector3 move)
     {
         float radius = transform.localScale.x * 0.5f;
 
         Vector3 oriPosition = transform.position;
-        RaycastHit firstHit;
-        RaycastHit hit;
 
-        if (Physics.Raycast(oriPosition, move, out firstHit, move.magnitude + radius))
+        if (Physics.Raycast(oriPosition, move, out RaycastHit firstHit, move.magnitude + radius))
         {
             // Debug.Log("cast under stuff");
-            if (Physics.Raycast(oriPosition, move, out hit, move.magnitude + radius, LayerMask.GetMask("Ground")))
+            if (Physics.Raycast(oriPosition, move, out RaycastHit hit, move.magnitude + radius, LayerMask.GetMask("Ground")))
             {
                 if (firstHit.transform == hit.transform)
                 {
@@ -42,17 +46,10 @@ public class LivingBall : MonoBehaviour
         else
             transform.position += move;
 
-        BindPosition();        
+        BindPosition();
     }
 
-    public bool InAir()
-    {
-        bool castBlock = (Physics.Raycast(transform.position, Vector3.down, transform.localScale.x * 0.5f));
-        bool overTheGround = Tools.GetInstance().OverTheGround(transform);
-        return !castBlock && overTheGround;
-    }
-
-    protected void BindPosition()
+    private void BindPosition()
     {
         float radius = transform.localScale.x * 0.5f;
         float validX0 = Ground.GetInstance().groundX0 + radius;

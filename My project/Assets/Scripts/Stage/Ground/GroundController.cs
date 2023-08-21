@@ -14,6 +14,7 @@ public class GroundController : MonoBehaviour
 
     //private bool temporailySqueezePlayer;
     private const float defaultSpeed = 0.2f;
+    private const float evilSpeed = 0.5f;
     private float groundX;
     private float groundZ;
     private float temporailySpeed;
@@ -77,9 +78,9 @@ public class GroundController : MonoBehaviour
         temporailySpeed += plusMinus;
     }
 
-    public void MoreEvilGround()
+    public void SetEvilGround()
     {
-        temporailySpeed += 0.01f;
+        temporailySpeed = evilSpeed;
         SetColor(Color.black);
     }
 

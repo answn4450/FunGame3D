@@ -71,7 +71,7 @@ public class GroundManager : MonoBehaviour
                 ground.BindHeight();
                 ground.UpDown();
                 ground.LiftUpColliders();
-                //ground.MoreEvilGround();
+                //ground.SetEvilGround();
                 //if (Tools.GetInstance().GetBallTouchRect(player.transform, ground.transform))
                 //    ground.EffectPlayerByTouch(player);
             }

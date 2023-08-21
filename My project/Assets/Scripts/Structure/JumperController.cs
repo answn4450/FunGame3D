@@ -10,10 +10,9 @@ public class JumperController : Structure
     
     void Awake()
     {
-        power = 9.8f;
+        power = 0.0f;
         direction = transform.localRotation * Vector3.up;
     }
-
 
     private void OnTriggerEnter(Collider other)
     {
@@ -29,7 +28,7 @@ public class JumperController : Structure
         while (power < 9.8f + 3.0f)
         {
             yield return null;
-            player.AffectPower(direction * power * power);
+            player.AffectPower(direction * power);
             power += Time.deltaTime;
         }
         power = 9.8f;

@@ -17,11 +17,10 @@ public class CameraController : MonoBehaviour
 	private const float basicFieldViewDegree = 50.0f;
 	private float baseY0;
 	private float Length;
-	private PlayerController Player;
 	private float swivelDegZ;
 	private float fieldViewDegree;
 
-	private List<Renderer> objectRenderers = new List<Renderer>();
+	public List<Renderer> objectRenderers = new List<Renderer>();
 	private const string blockShader = "Legacy Shaders/Transparent/Specular";
 	private const string defaultShader = "Standard";
 	
@@ -103,55 +102,43 @@ public class CameraController : MonoBehaviour
 			swivelDegZ -= Time.deltaTime * t * 5;
 	}
 
-	public void ChangeFieldView(float t)
-	{
-		if (Mathf.Abs(fieldViewDegree + Time.deltaTime * t * 10.0f - basicFieldViewDegree) <20.0f)
-			fieldViewDegree += Time.deltaTime * t * 10.0f;
-	}
+    public void CleanBlockView()
+    {
+        List<RaycastHit> hits = new List<RaycastHit>();
+        List<Renderer> blockRenderers = new List<Renderer>();
 
-	private void BindTransform()
-	{
-		swivelDegZ = Mathf.Lerp(swivelDegZ, 0.0f, Time.deltaTime);
-		fieldViewDegree = Mathf.Lerp(fieldViewDegree, basicFieldViewDegree, Time.deltaTime);
-	}
+        Vector3 direction = GameObject.Find("Player").transform.position - transform.position;
 
-	private void CleanBlockView()
-	{
-		List<RaycastHit> hits = new List<RaycastHit>();
-		List<Renderer> blockRenderers = new List<Renderer>();
-
-		Vector3 direction = GameObject.Find("Player").transform.position - transform.position;
-
-		// ** 모든 충돌을 감지.
-		hits = Physics.RaycastAll(transform.position, direction, direction.magnitude).ToList();
+        // ** 모든 충돌을 감지.
+        hits = Physics.RaycastAll(transform.position, direction, direction.magnitude).ToList();
 
         // ** 충돌된 모든 원소들 중에 Renderer만 추출한 새로운 리스트를 생성.
         //blockRenderers.AddRange(hits.Select(hit => hit.transform.GetComponent<Renderer>()).Where(renderer => renderer != null).ToList());
         foreach (RaycastHit hit in hits)
         {
-            if (hit.transform.GetComponent<Renderer>() && hit.transform.tag != "Player")
+            if (hit.transform.GetComponent<Renderer>() && !hit.transform.CompareTag("Player"))
                 blockRenderers.Add(hit.transform.GetComponent<Renderer>());
         }
 
-		// ** 기존 리스트에는 포함되었지만 현재 ray에 감지된 리스트에는 없는 Renderer
-		List<Renderer> extractionList = objectRenderers.Where(renderer => !blockRenderers.Contains(renderer)).ToList();
+        // ** 기존 리스트에는 포함되었지만 현재 ray에 감지된 리스트에는 없는 Renderer
+        List<Renderer> extractionList = objectRenderers.Where(renderer => !blockRenderers.Contains(renderer)).ToList();
 
-		// ** 추출이 완료된 Renderer를 기존 알파값으로 되돌린다. 
-		// ** 그리고 삭제.
-		foreach (Renderer renderer in extractionList)
-		{
+        // ** 추출이 완료된 Renderer를 기존 알파값으로 되돌린다. 
+        // ** 그리고 삭제.
+        foreach (Renderer renderer in extractionList)
+        {
+            objectRenderers.Remove(renderer);
             if (renderer != null)
             {
-                objectRenderers.Remove(renderer);
                 ApplyOriginalShader(renderer);
             }
-		}
+        }
 
         float blockAlpha;
         if (blockRenderers.Count == 0)
             blockAlpha = 1.0f;
         else
-            blockAlpha = 1.0f / blockRenderers.Count;
+            blockAlpha = 0.3f / blockRenderers.Count;
 
         foreach (Renderer renderer in blockRenderers)
         // ** ray의 충돌이 감지된 Object의 Renderer를 받아옴.
@@ -162,6 +149,18 @@ public class CameraController : MonoBehaviour
             ApplyBlockShader(renderer, blockAlpha);
 
         }
+    }
+
+    public void ChangeFieldView(float t)
+	{
+		if (Mathf.Abs(fieldViewDegree + Time.deltaTime * t * 10.0f - basicFieldViewDegree) <20.0f)
+			fieldViewDegree += Time.deltaTime * t * 10.0f;
+	}
+
+	private void BindTransform()
+	{
+		swivelDegZ = Mathf.Lerp(swivelDegZ, 0.0f, Time.deltaTime);
+		fieldViewDegree = Mathf.Lerp(fieldViewDegree, basicFieldViewDegree, Time.deltaTime);
 	}
 
 	private void ApplyOriginalShader(Renderer renderer)

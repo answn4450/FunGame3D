@@ -27,8 +27,8 @@ public class EnemyController : LivingBall
 
 	private void OnTriggerEnter(Collider other)
 	{
-        //if (other.tag == "Player")
-        //    other.transform.GetComponent<PlayerController>().Hurt();
+        if (other.tag == "Player")
+            other.transform.GetComponent<PlayerController>().Hurt();
 	}
 
     public void Living()
@@ -67,7 +67,7 @@ public class EnemyController : LivingBall
         foreach (Vector3 dir in direction)
         {
             if (Physics.Raycast(transform.position, dir, out hit, 1.0f, groundMask))
-                hit.transform.GetComponent<GroundController>().MoreEvilGround();
+                hit.transform.GetComponent<GroundController>().SetEvilGround();
         }
     }
     
