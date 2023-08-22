@@ -134,11 +134,11 @@ public class CameraController : MonoBehaviour
             }
         }
 
-        float blockAlpha;
+        float blockDiffAlpha;
         if (blockRenderers.Count == 0)
-            blockAlpha = 1.0f;
+            blockDiffAlpha = 1.0f;
         else
-            blockAlpha = 0.3f / blockRenderers.Count;
+            blockDiffAlpha = (0.2f - blockRenderers.Count) / blockRenderers.Count;
 
         foreach (Renderer renderer in blockRenderers)
         // ** ray의 충돌이 감지된 Object의 Renderer를 받아옴.
@@ -146,7 +146,7 @@ public class CameraController : MonoBehaviour
             if (!objectRenderers.Contains(renderer))
                 objectRenderers.Add(renderer);
 
-            ApplyBlockShader(renderer, blockAlpha);
+            ApplyBlockShader(renderer, blockDiffAlpha);
 
         }
     }
@@ -174,14 +174,15 @@ public class CameraController : MonoBehaviour
 		renderer.material.color = color;
 	}
 
-	private void ApplyBlockShader(Renderer renderer, float alpha)
+	private void ApplyBlockShader(Renderer renderer, float diffAlpha)
 	{
 		Color color = renderer.material.color;
 
 		// ** Color값 변경이 가능한 Shader로 변경.
 		renderer.material = new Material(Shader.Find(blockShader));
 
-        color.a = alpha;
-		renderer.material.color = color;
+        color.a = Mathf.Clamp01(color.a + diffAlpha);
+        renderer.material.color = color;
 	}
+
 }

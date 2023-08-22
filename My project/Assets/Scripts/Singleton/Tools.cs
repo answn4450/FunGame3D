@@ -251,6 +251,12 @@ public class Tools
         return ground.GetEmptyHeight();
     }
 
+    public float GetYAngle(Transform start, Transform end)
+    {
+        Vector3 diff = end.position - start.position;
+        return Mathf.Atan2(diff.z, diff.x) * Mathf.Rad2Deg;
+    }
+    
     private bool StickGround(Transform target)
     {
         Transform downGround = Tools.GetInstance().GetUnderGround(target).transform;

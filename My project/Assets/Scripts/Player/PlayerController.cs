@@ -28,6 +28,9 @@ public class PlayerController : NormalBall
     private float shotTimer;
     private float inFallTime;
     private float turnPointLength;
+    private float horizontal;
+    private float vertical;
+    private bool hardTurn;
     private bool stopFall;
     private bool hoverTurnPoint;
 
@@ -64,6 +67,10 @@ public class PlayerController : NormalBall
         turnPointLength = 2.0f;
         physicsTimeElapseScale = 1.0f;
         inFallTime = 0.0f;
+
+        horizontal = 0.0f;
+        vertical = 0.0f;
+        hardTurn = false;
 
         affectPower = Vector3.zero;
         gravity = 9.8f * Vector3.down;
@@ -115,6 +122,22 @@ public class PlayerController : NormalBall
             size = deadSize;
     }
 
+    public void SetInput()
+    {
+        if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.RightArrow))
+            horizontal = Input.GetAxis("Horizontal");
+        else
+            horizontal = 0.0f;
+
+        if (Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.DownArrow))
+            vertical = Input.GetAxis("Vertical");
+        else
+            vertical = 0.0f;
+
+        hardTurn = Input.GetKey(KeyCode.LeftShift);
+
+    }
+
     public void Command()
     {
         if (Input.GetKeyDown(KeyCode.A))
@@ -132,7 +155,8 @@ public class PlayerController : NormalBall
         if (Input.GetKey(KeyCode.Space) && shotTimer <= 0)
             Shot();
 
-        hoverTurnPoint = Input.GetKey(KeyCode.LeftControl);
+        turnPoint.SetActive(!rideBullet);
+        hoverTurnPoint = Input.GetKey(KeyCode.LeftControl) && !rideBullet;
         if (hoverTurnPoint)
             TurnPointSameY();
         else
@@ -158,20 +182,8 @@ public class PlayerController : NormalBall
     public void CommandMoveBody()
     {
         Vector3 movement = Vector3.zero;
-        bool hardTurn = (Input.GetKey(KeyCode.LeftShift));
         float speed = hardTurn ? 6.0f : 10.0f;
-        float horizontal, vertical;
-
-        if (Input.GetKey(KeyCode.LeftArrow) || Input.GetKey(KeyCode.RightArrow))
-            horizontal = Input.GetAxis("Horizontal");
-        else
-            horizontal = 0.0f;
-
-        if (Input.GetKey(KeyCode.UpArrow) || Input.GetKey(KeyCode.DownArrow))
-            vertical = Input.GetAxis("Vertical");
-        else
-            vertical = 0.0f;
-
+        
         if (hoverTurnPoint)
             HoverTurnPoint(horizontal, vertical);
         else if (vertical != 0)
@@ -185,19 +197,11 @@ public class PlayerController : NormalBall
 
     public void CommandTurnEye()
     {
-        int dir = 0;
-        bool hardTurn = Input.GetKey(KeyCode.LeftShift);
         float rotateDeg = hardTurn ? 110.0f : 50.0f;
 
         if (!hoverTurnPoint)
         {
-            if (Input.GetKey(KeyCode.LeftArrow))
-                dir -= 1;
-            if (Input.GetKey(KeyCode.RightArrow))
-                dir += 1;
-
-            transform.Rotate(transform.up * rotateDeg * dir * Time.deltaTime);
-            playerCamera.SwivelZ(dir);
+            RotateY(rotateDeg * horizontal * Time.deltaTime);
         }
 
     }
@@ -390,29 +394,24 @@ public class PlayerController : NormalBall
     {
         ChangeTurnPointLength(vertical);
         
-        /*
-        Vector3 movement = Vector3.zero;
-        
-        Vector3 playerToTurnPoint = Tools.GetInstance().GetDirectionXZ(
-            transform, turnPoint.transform);
-        float deg = Mathf.Atan2(playerToTurnPoint.x, playerToTurnPoint.z) * Mathf.Rad2Deg;
+        float deg = Tools.GetInstance().GetYAngle(turnPoint.transform, transform);
         float diameter = Mathf.PI * turnPointLength * 2.0f;
-        float nextDeg = deg + 360.0f * hoverSpeed / diameter * horizontal;
+        float degStep = 360.0f * hoverSpeed * horizontal * Time.deltaTime / diameter ;
+        float nextDeg = deg + degStep;
         Vector3 nextPos = turnPoint.transform.position + turnPointLength * new Vector3(
             Mathf.Cos(nextDeg * Mathf.Deg2Rad),
-            turnPoint.transform.position.y,
+            0.0f,
             Mathf.Sin(nextDeg * Mathf.Deg2Rad)
             );
-        movement += Time.deltaTime * (nextPos - transform.position);
-        
-        SafeMove(movement);
-        */
+
+        SafeMove(nextPos - transform.position);
+        transform.LookAt(turnPoint.transform);
     }
 
     private void ChangeTurnPointLength(float vertical)
     {
         Vector3 movement = Vector3.zero;
-        float lengthDiff = -vertical * hoverSpeed * Time.deltaTime;
+        float lengthDiff = vertical * hoverSpeed * Time.deltaTime;
 
         if (turnPointLength + lengthDiff > turnPointMaxLength)
             lengthDiff = turnPointMaxLength - turnPointLength;
@@ -431,6 +430,7 @@ public class PlayerController : NormalBall
 
     private void TurnPointOnForward()
     {
+        turnPoint.transform.eulerAngles = transform.eulerAngles;
         turnPoint.transform.position = transform.position + turnPointLength * transform.forward;
     }
 
@@ -438,6 +438,13 @@ public class PlayerController : NormalBall
     {
         float diffY = transform.position.y - turnPoint.transform.position.y;
         turnPoint.transform.position += diffY * Vector3.up;
+    }
+
+    private void RotateY(float deg)
+    {
+        transform.Rotate(transform.up * deg);
+        if (deg != 0.0f)
+            playerCamera.SwivelZ(Mathf.Sign(deg));
     }
 
     private Vector3 GetTurnPointXZDirection()

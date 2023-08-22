@@ -90,9 +90,10 @@ public class GameManager : MonoBehaviour
         {
             structureManager.LoopStructuresInFolder();
 
+            player.SetInput();
             player.ChangeSelectedStructureIndex();
-            player.Command();
             player.CommandTurnEye();
+            player.Command();
 
             if (player.rideBullet)
                 player.RideBullet();
@@ -108,7 +109,7 @@ public class GameManager : MonoBehaviour
             }
 
             groundManager.ReactGrounds();
-            //groundManager.SqueezePlayer(player);
+            groundManager.SqueezePlayer(player);
             
             gameCamera.BehindPlayer(10.0f);
             gameCamera.CleanBlockView();

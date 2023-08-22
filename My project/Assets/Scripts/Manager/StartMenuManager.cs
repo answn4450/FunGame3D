@@ -25,18 +25,30 @@ public class StartMenuManager : MonoBehaviour
     {
         groundManager.BeforeCycle();
 
+        player.SetInput();
+        player.Command();
         player.LifeCycle();
-        player.OnGround();
-        player.CommandMoveBody();
+        
         player.CommandTurnEye();
-        player.WithAffectPower();
+        
+        if (player.rideBullet)
+            player.RideBullet();
+        else
+        {
+            player.OnGround();
+            player.CommandMoveBody();
+            player.WithAffectPower();
 
+            GroundController playerUnderGround = Tools.GetInstance().GetUnderGround(player.transform);
+            if (true || !(playerUnderGround.NeedSqueeze() && player.IsSizeBigger()))
+                player.BackToSize();
+        }
+        
         groundManager.ReactGrounds();
     }
 
     public void ButtonPlay()
     {
-        int loadStage = Status.GetInstance().currentStage;
-        SceneManager.LoadScene("Stage" + loadStage.ToString());
+        SceneManager.LoadScene("PlayLoading");
     }
 }

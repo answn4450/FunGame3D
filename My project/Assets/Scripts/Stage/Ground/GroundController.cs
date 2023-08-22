@@ -346,7 +346,7 @@ public class GroundController : MonoBehaviour
 
                 if (Tools.GetInstance().SameGround(transform, target))
                 {
-                    upDownY += 3.0f;
+                    upDownY += 2.6f;
                 }
                 else
                 {
