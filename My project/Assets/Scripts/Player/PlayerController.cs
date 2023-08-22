@@ -60,8 +60,8 @@ public class PlayerController : NormalBall
         rideBullet = false;
         hoverTurnPoint = false;
 
-        size = 1.0f;
-        maxSize = 1.0f;
+        size = GetStartBallSize();
+        maxSize = GetMaxBallSize();
 
         shotTimer = 0.0f;
         turnPointLength = 2.0f;
@@ -116,10 +116,10 @@ public class PlayerController : NormalBall
 
     public void Hurt(float hurt)
     {
-        if (size > deadSize)
+        if (size > GetDeadSize())
             size -= hurt;
-        if (size < deadSize)
-            size = deadSize;
+        if (size < GetDeadSize())
+            size = GetDeadSize();
     }
 
     public void SetInput()
@@ -222,13 +222,14 @@ public class PlayerController : NormalBall
         squeezeFX = PrefabManager.GetInstance().GetPrefabByName("CFXR Hit A (Red)");
         Instantiate(squeezeFX).transform.position = transform.position;
 
-        Hurt(requiredDown);
+        if (!rideBullet)
+            Hurt(requiredDown);
     }
 
     public void Rebirth()
     {
         dead = false;
-        size = Mathf.Clamp(deadSize * 2.0f, deadSize + 0.1f, maxSize);
+        size = Mathf.Clamp(GetDeadSize() * 2.0f, GetDeadSize() + 0.1f, maxSize);
     }
 
     public void ChangeSelectedStructureIndex()
@@ -356,9 +357,10 @@ public class PlayerController : NormalBall
     {
         bool before = dead;
         float outSize = transform.localScale.x;
-        dead = size <= deadSize && outSize <= deadSize;
+        dead = size <= GetDeadSize() && outSize <= GetDeadSize();
         if (dead && !before)
             Explode();
+
     }
 
     private void SetSphere(float r)
@@ -411,7 +413,7 @@ public class PlayerController : NormalBall
     private void ChangeTurnPointLength(float vertical)
     {
         Vector3 movement = Vector3.zero;
-        float lengthDiff = vertical * hoverSpeed * Time.deltaTime;
+        float lengthDiff = -vertical * hoverSpeed * Time.deltaTime;
 
         if (turnPointLength + lengthDiff > turnPointMaxLength)
             lengthDiff = turnPointMaxLength - turnPointLength;

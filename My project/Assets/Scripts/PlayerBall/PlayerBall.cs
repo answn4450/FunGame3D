@@ -2,18 +2,6 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerBall : LivingBall, IPlayerBall
+public class PlayerBall : LivingBall
 {
-    protected string ballName;
-    protected float deadSize;
-
-    public string GetBallName()
-    {
-        return ballName;
-    }
-
-    public float GetDeadSize()
-    {
-        return deadSize;
-    }
 }

@@ -68,7 +68,7 @@ public class BulletController : MonoBehaviour
             }
             else if (other.transform.CompareTag("Ground"))
             {
-                other.GetComponent<GroundController>().DownSize(2.0f);
+                other.GetComponent<GroundController>().DownSize(2.0f * Time.deltaTime);
             }
             else if (other.transform.GetComponent<EnemyController>())
                 other.transform.GetComponent<EnemyController>().Hurt();
