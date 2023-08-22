@@ -5,5 +5,7 @@ using UnityEngine;
 public interface IPlayerBall
 {
     float GetDeadSize();
+    float GetStartBallSize();
+    float GetMaxBallSize();
     string GetBallName();
 }

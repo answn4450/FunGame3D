@@ -12,7 +12,6 @@ public class GroundController : MonoBehaviour
     public List<float> collidersHeightRangeBottom = new List<float>();
     public List<float> collidersHeightRangeTop = new List<float>();
 
-    //private bool temporailySqueezePlayer;
     private const float defaultSpeed = 0.2f;
     private const float evilSpeed = 0.5f;
     private float groundX;
@@ -20,16 +19,12 @@ public class GroundController : MonoBehaviour
     private float temporailySpeed;
     private List<Transform> colliders;
     
-    //private bool slowdownPlayer;
-
     private void Awake()
     {
         temporailySpeed = defaultSpeed;
         collidersNumber = 0;
         colliders = new List<Transform>();
         temporailyStop = false;
-        //slowdownPlayer = false;
-        //temporailySqueezePlayer = false;
         originalColor = GetComponent<Renderer>().material.color;
         heightDestination = 0.0f;
     }
@@ -39,8 +34,6 @@ public class GroundController : MonoBehaviour
         temporailySpeed = defaultSpeed;
         SetColor(originalColor);
         collidersNumber = 0;
-        //slowdownPlayer = false;
-        //temporailySqueezePlayer = false;
         temporailyStop = false;
 
         temporailySpeed = defaultSpeed;
@@ -68,11 +61,6 @@ public class GroundController : MonoBehaviour
             );
     }
 
-    public void SlowdownPlayer()
-    {
-        //slowdownPlayer = true;
-    }
-
     public void SetGroundtemporailySpeed(float plusMinus)
     {
         temporailySpeed += plusMinus;
@@ -84,11 +72,6 @@ public class GroundController : MonoBehaviour
         SetColor(Color.black);
     }
 
-    public void EffectPlayerByTouch(PlayerController player)
-    {
-
-    }
-
     public void DownSize(float size)
 	{
         if (transform.localScale.y - size < Ground.GetInstance().groundMinimumHeight)
@@ -98,7 +81,9 @@ public class GroundController : MonoBehaviour
                 1.0f
                 );
         else
+        {
             transform.localScale += Vector3.down * size;
+        }
 
     }
 
@@ -117,14 +102,8 @@ public class GroundController : MonoBehaviour
             GetMaxHeightBeforeFirstCollider()
             );
         if (height != bindedHeight)
-        {
-            //Debug.Log(collidersNumber.ToString() + transform.name);
-            if (collidersNumber == 1)
-            {
-                //Debug.Log($"bind height diff: {bindedHeight - height}");
-            }
             SetGroundTransform(bindedHeight);
-        }
+
     }
 
     public void UpDown()
@@ -313,15 +292,6 @@ public class GroundController : MonoBehaviour
 
     private float GetHeightDestination()
     {
-        if (Tools.GetInstance().SameGround(transform, GameObject.Find("Player").transform))
-        {
-            /*
-            Debug.Log(transform.localScale.y + GetUpDownY() * Time.deltaTime * temporailySpeed == GetSafeHeight(
-            transform.localScale.y + GetUpDownY() * Time.deltaTime * temporailySpeed
-            ));
-            */
-
-        }
         return GetSafeHeight(
             transform.localScale.y + GetUpDownY() * Time.deltaTime * temporailySpeed
             );

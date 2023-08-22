@@ -10,7 +10,6 @@ public class UIController : MonoBehaviour
     public Text textPlayerOutSize;
     public Text textCountdown;
     public Text underGroundEmptyHeight;
-    public Text playerPosition;
     public Text groundMinimumHeight;
 
     public GameObject deadUI;
@@ -86,13 +85,10 @@ public class UIController : MonoBehaviour
 
     public void UIPlay(PlayerController player)
     {
-        textPlayerInSize.text = player.size.ToString();
-        textPlayerOutSize.text = Tools.GetInstance().MinorFloat(
-            player.transform.localScale.x
-            ).ToString();
+        textPlayerInSize.text = EasyFloat(player.size);
+        textPlayerOutSize.text = EasyFloat(player.transform.localScale.x);
         AvailableStructuresInfo(player.GetSelectedStructureIndex());
         BuiltStructuresInfo(player.GetBuiltStructures());
-        Position(player.transform.position);
         MinimumGroundHeightInfo();
         UnderGroundEmptyHeightInfo(player.transform);
     }
@@ -126,11 +122,6 @@ public class UIController : MonoBehaviour
     {
         Time.timeScale = 1.0f;
         SceneManager.LoadScene("StartMenu");
-    }
-
-    private void Position(Vector3 worldPosition)
-    {
-        playerPosition.text = EasyVector3(worldPosition - Ground.GetInstance().groundPosition0);
     }
 
     private void AvailableStructuresInfo(int selectedStructureIndex)
@@ -170,6 +161,11 @@ public class UIController : MonoBehaviour
             );
 
         return string.Format("{0:0},{1:0},{2:0}", switchYZ.x, switchYZ.y, switchYZ.z);
+    }
+
+    private string EasyFloat(float size)
+    {
+        return (decimal.Round((decimal)size, 1)).ToString();
     }
 
 }
