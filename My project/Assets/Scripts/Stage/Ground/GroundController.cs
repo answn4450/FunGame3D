@@ -192,6 +192,11 @@ public class GroundController : MonoBehaviour
             player.Squeeze(Time.deltaTime);
     }
 
+    public bool CompareOwnerName(string name)
+    {
+        return ownerName == name;
+    }
+
     public bool NeedSqueeze()
     {
         return GetEmptyHeight() < 0.01f;
@@ -349,8 +354,9 @@ public class GroundController : MonoBehaviour
 
     private float GetUpDownY()
     {
-        float upDownY = -1.0f;
+        float upDownY = 0.0f;
         float upDownLimit = 3.0f;
+        bool outRange = true;
         int i = 0;
         List<Transform> uppers = Status.GetInstance().groundUppers;
 
@@ -364,22 +370,21 @@ public class GroundController : MonoBehaviour
             {
                 i++;
 
-                if (Tools.GetInstance().SameGround(transform, target))
-                {
-                    upDownY += 2.6f;
-                }
-                else
-                {
-                    float distanceXZ = Tools.GetInstance().GetDistanceXZ(transform, target);
-                    
-                    if (distanceXZ < 4.0f)
-                        upDownY += Mathf.Max(3.0f - distanceXZ, -1.0f);
+                float distanceXZ = Tools.GetInstance().GetDistanceXZ(transform, target);
 
-                }
+                if (Tools.GetInstance().SameGround(transform, target))
+                    upDownY += 1.5f;
+                else if (distanceXZ < 4.0f)
+                    upDownY += (4.0f - distanceXZ) * 0.4f;
+
+                outRange = outRange && distanceXZ > 4.0f;
             }
         }
 
-        return  Mathf.Clamp(upDownY, -upDownLimit, upDownLimit);
+        if (outRange)
+            return -1.0f;
+        else
+            return  Mathf.Clamp(upDownY, -upDownLimit, upDownLimit);
     }
 
     private float GetDensity()

@@ -104,6 +104,7 @@ public class GameManager : MonoBehaviour
                 player.CommandMoveBody();
                 player.WithAffectPower();
                 player.RollPaint();
+                player.HealByPlayerGround();
 
                 GroundController playerUnderGround = Tools.GetInstance().GetUnderGround(player.transform);
                 if (!(playerUnderGround.NeedSqueeze() && player.IsSizeBigger()))

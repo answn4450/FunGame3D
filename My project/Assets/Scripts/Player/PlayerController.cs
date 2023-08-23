@@ -104,11 +104,6 @@ public class PlayerController : NormalBall
         EasyCheckColor();
     }
 
-    public List<string> GetAvailableStructures()
-    {
-        return availableStructures;
-    }
-
     public void Hurt()
     {
         Hurt(0.1f);
@@ -120,6 +115,14 @@ public class PlayerController : NormalBall
             size -= hurt;
         if (size < GetDeadSize())
             size = GetDeadSize();
+    }
+
+    public void Heal(float heal)
+    {
+        if (size < GetMaxBallSize())
+            size += heal;
+        if (size > GetMaxBallSize())
+            size = GetMaxBallSize();
     }
 
     public void SetInput()
@@ -177,6 +180,15 @@ public class PlayerController : NormalBall
         }
         else
             OffRideBullet();
+    }
+
+    public void HealByPlayerGround()
+    {
+        foreach (GroundController ground in GetTouchingGrounds())
+        {
+            if (ground.CompareOwnerName(Status.GetInstance().playerName))
+                Heal(0.1f * Time.deltaTime);
+        }
     }
 
     public void RollPaint()
@@ -286,6 +298,11 @@ public class PlayerController : NormalBall
     public List<GameObject> GetBuiltStructures()
     {
         return builtStructures;
+    }
+
+    public List<string> GetAvailableStructures()
+    {
+        return availableStructures;
     }
 
     private void BindGroundStandY()

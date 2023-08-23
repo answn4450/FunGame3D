@@ -6,6 +6,7 @@ public class Ground
 {
     private static Ground instance;
 
+    public const float groundXZ = 1.0f;
     public float groundX0;
     public float groundX1;
     public float groundZ0;
