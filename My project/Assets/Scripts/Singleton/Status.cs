@@ -27,6 +27,11 @@ public class Status
     public ElevatorController nextElevator = null;
     public List<Transform> groundUppers = new List<Transform>();
 
+    public string enemyName = "enemy";
+    public string playerName = "player";
+    public Color enemyColor = Color.black;
+    public Color playerColor = Color.blue;
+
     public void Read()
     {
         string recordStage = File.ReadAllText(savePath);

@@ -8,16 +8,23 @@ public class GroundController : MonoBehaviour
     public int collidersNumber;
     public bool temporailyStop;
     public float heightDestination;
-    private Color originalColor;
     public List<float> collidersHeightRangeBottom = new List<float>();
     public List<float> collidersHeightRangeTop = new List<float>();
 
     private const float defaultSpeed = 0.2f;
     private const float evilSpeed = 0.5f;
+    private const string startName = "startName";
+    private const string neutralName = "neutral";
+    private string ownerName;
+    private float colorDensitySum = 1.0f;
+    private float colorDensityMaxSum;
     private float groundX;
     private float groundZ;
     private float temporailySpeed;
     private List<Transform> colliders;
+    private Color destColor;
+    private Color startColor;
+    private Color baseColor = Color.white;
     
     private void Awake()
     {
@@ -25,14 +32,21 @@ public class GroundController : MonoBehaviour
         collidersNumber = 0;
         colliders = new List<Transform>();
         temporailyStop = false;
-        originalColor = GetComponent<Renderer>().material.color;
+        ownerName = startName;
+        startColor = GetComponent<Renderer>().material.color;
         heightDestination = 0.0f;
+    }
+
+    private void Start()
+    {
+        colorDensityMaxSum = Ground.GetInstance().groundHeight;
     }
 
     public void BeforeCycle()
     {
         temporailySpeed = defaultSpeed;
-        SetColor(originalColor);
+        SetDestColorByOwner();
+        ColorByDensity();
         collidersNumber = 0;
         temporailyStop = false;
 
@@ -72,7 +86,31 @@ public class GroundController : MonoBehaviour
         SetColor(Color.black);
     }
 
-    public void DownSize(float size)
+    public void PaintColor(string attackOwner, float paintDensity)
+    {
+        if (ownerName == attackOwner)
+            colorDensitySum += paintDensity;
+        else
+            colorDensitySum -= paintDensity;
+
+        if (colorDensitySum == 0.0f)
+        {
+            ownerName = neutralName;
+            SetDestColorByOwner();
+        }
+        else if (colorDensitySum < 0.0f)
+        {
+            ownerName = attackOwner;
+            SetDestColorByOwner();
+            colorDensitySum = -colorDensitySum;
+        }
+        else if (colorDensitySum > colorDensityMaxSum)
+        {
+            colorDensitySum = colorDensityMaxSum;
+        }
+    }
+
+    public void AttackGround(float size)
 	{
         if (transform.localScale.y - size < Ground.GetInstance().groundMinimumHeight)
             transform.localScale = new Vector3(
@@ -259,6 +297,18 @@ public class GroundController : MonoBehaviour
         GetComponent<Renderer>().material.color = destColor;
     }
 
+    private void SetDestColorByOwner()
+    {
+        destColor = GetOwnerNameColor(ownerName);
+    }
+
+    private void ColorByDensity()
+    {
+        Color newColor;
+        newColor = Tools.GetInstance().LerpColor(baseColor, destColor, GetDensity());
+        GetComponent<Renderer>().material.color = newColor;
+    }
+
     private float GetSafeHeight(float height)
     {
         return Mathf.Clamp(
@@ -332,6 +382,16 @@ public class GroundController : MonoBehaviour
         return  Mathf.Clamp(upDownY, -upDownLimit, upDownLimit);
     }
 
+    private float GetDensity()
+    {
+        float height = transform.localScale.y;
+        if (height == 0.0f)
+            return 0.0f;
+        else
+            return Mathf.Clamp01(colorDensitySum / height);
+    
+    }
+
     private List<Transform> SortByBottomY(List<Transform> hits)
     {
         for (int i = 0; i < collidersNumber; ++i)
@@ -353,5 +413,20 @@ public class GroundController : MonoBehaviour
         }
 
         return hits;
+    }
+
+    private Color GetOwnerNameColor(string ownerName)
+    {
+        Color color = baseColor;
+        if (ownerName == neutralName)
+            color = baseColor;
+        else if (ownerName == startName)
+            color = startColor;
+        else if (ownerName == Status.GetInstance().enemyName)
+            color = Status.GetInstance().enemyColor;
+        else if (ownerName == Status.GetInstance().playerName)
+            color = Status.GetInstance().playerColor;
+
+        return color;
     }
 }

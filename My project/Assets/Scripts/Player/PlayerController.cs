@@ -179,6 +179,12 @@ public class PlayerController : NormalBall
             OffRideBullet();
     }
 
+    public void RollPaint()
+    {
+        foreach (GroundController ground in GetTouchingGrounds())
+            ground.PaintColor(Status.GetInstance().playerName, Time.deltaTime);
+    }
+
     public void CommandMoveBody()
     {
         Vector3 movement = Vector3.zero;

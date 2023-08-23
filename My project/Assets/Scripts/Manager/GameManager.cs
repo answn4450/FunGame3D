@@ -32,6 +32,8 @@ public class GameManager : MonoBehaviour
 
         builtStructureFolder = new GameObject("Built Structure Folder").transform;
         structureManager = builtStructureFolder.gameObject.AddComponent<StructureManager>();
+        
+        groundManager.CreateGrounds();
     }
     
     private void Start()
@@ -46,7 +48,6 @@ public class GameManager : MonoBehaviour
         playerEye = playerSet.transform.GetChild(1).gameObject.GetComponent<PlayerEyeController>();
         gameCamera = playerEye.transform.GetChild(0).gameObject.GetComponent<CameraController>();
 
-        groundManager.CreateGrounds();
 
         uiController.SetUI(player);
     }
@@ -102,14 +103,16 @@ public class GameManager : MonoBehaviour
                 player.OnGround();
                 player.CommandMoveBody();
                 player.WithAffectPower();
+                player.RollPaint();
 
                 GroundController playerUnderGround = Tools.GetInstance().GetUnderGround(player.transform);
-                if (true || !(playerUnderGround.NeedSqueeze() && player.IsSizeBigger()))
+                if (!(playerUnderGround.NeedSqueeze() && player.IsSizeBigger()))
                     player.BackToSize();
             }
 
             groundManager.ReactGrounds();
-            groundManager.SqueezePlayer(player);
+            if (!player.rideBullet)
+                groundManager.SqueezePlayer(player);
             
             gameCamera.BehindPlayer(10.0f);
             gameCamera.CleanBlockView();

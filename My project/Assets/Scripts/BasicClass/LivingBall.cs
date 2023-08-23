@@ -49,6 +49,34 @@ public class LivingBall : MonoBehaviour
         BindPosition();
     }
 
+    public List<GroundController> GetTouchingGrounds()
+    {
+        float radius = transform.localScale.x * 0.5f;
+        //float minor = Tools.GetInstance().groundLiftMinorDiffrence;
+        float minor = 0.01f;
+        List<GroundController> touch = new List<GroundController>();
+        List<Vector3> search = new List<Vector3> { 
+            Vector3.up, Vector3.down, 
+            Vector3.right, Vector3.left, 
+            Vector3.forward, Vector3.back
+        };
+
+        foreach (Vector3 direction in search)
+        {
+            RaycastHit[] newHit;
+            newHit = Physics.RaycastAll(transform.position, direction, radius + minor, LayerMask.GetMask("Ground"));
+            foreach(RaycastHit hit in newHit)
+            {
+                if (!touch.Contains(hit.transform.GetComponent<GroundController>()))
+                {
+                    touch.Add(hit.transform.GetComponent<GroundController>());
+                }
+            }
+        }
+
+        return touch;
+    }
+
     private void BindPosition()
     {
         float radius = transform.localScale.x * 0.5f;

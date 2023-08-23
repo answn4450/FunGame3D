@@ -257,6 +257,16 @@ public class Tools
         return Mathf.Atan2(diff.z, diff.x) * Mathf.Rad2Deg;
     }
     
+    public Color LerpColor(Color startColor, Color destColor, float t)
+    {
+        return new Color(
+            Mathf.Lerp(startColor.r, destColor.r, t),
+            Mathf.Lerp(startColor.g, destColor.g, t),
+            Mathf.Lerp(startColor.b, destColor.b, t),
+            Mathf.Lerp(startColor.a, destColor.a, t)
+            );
+    }
+
     private bool StickGround(Transform target)
     {
         Transform downGround = Tools.GetInstance().GetUnderGround(target).transform;
@@ -276,24 +286,4 @@ public class Tools
         return MinorEqual(finalY, target.position.y);
     }
 
-        /*
-    public Vector3 CircleToRectCollision(Vector3 movement, Transform circle, Transform rect)
-    {
-         GetTopY(rect);
-        bool detect = false;
-        RaycastHit[] hits = Physics.RaycastAll(circle.transform.position, movement, movement.magnitude);
-        foreach(RaycastHit hit in hits)
-        {
-            if (hit.transform == rect)
-                detect = true;
-        }
-
-        if (detect)
-            return movement;
-        else
-        {
-
-        }
-    }
-        */
 }

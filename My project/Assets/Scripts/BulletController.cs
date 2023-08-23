@@ -10,6 +10,7 @@ public class BulletController : MonoBehaviour
     private string parentName;
     private bool released;
     private bool transportPlayer;
+    private string paintOwnerName;
 
     private GameObject destroyFX;
 
@@ -41,6 +42,10 @@ public class BulletController : MonoBehaviour
         transform.forward = parent.transform.forward;
         transform.position = parent.transform.position;
         parentName = parent.transform.name;
+        if (parent.name == "Player")
+            paintOwnerName = Status.GetInstance().playerName;
+        else
+            paintOwnerName = Status.GetInstance().enemyName;
     }
 
     public void RideWithPlayer(GameObject player)
@@ -68,7 +73,8 @@ public class BulletController : MonoBehaviour
             }
             else if (other.transform.CompareTag("Ground"))
             {
-                other.GetComponent<GroundController>().DownSize(2.0f * Time.deltaTime);
+                other.GetComponent<GroundController>().AttackGround(2.0f * Time.deltaTime);
+                other.GetComponent<GroundController>().PaintColor(paintOwnerName, 2.0f);
             }
             else if (other.transform.GetComponent<EnemyController>())
                 other.transform.GetComponent<EnemyController>().Hurt();
