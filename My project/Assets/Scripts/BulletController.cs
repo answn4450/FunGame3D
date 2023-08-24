@@ -48,6 +48,17 @@ public class BulletController : MonoBehaviour
             paintOwnerName = Status.GetInstance().enemyName;
     }
 
+    public void BirthBullet(GameObject parent, bool playerSide)
+    {
+        transform.forward = parent.transform.forward;
+        transform.position = parent.transform.position;
+        parentName = parent.transform.name;
+        if (playerSide)
+            paintOwnerName = Status.GetInstance().playerName;
+        else
+            paintOwnerName = Status.GetInstance().enemyName;
+    }
+
     public void RideWithPlayer(GameObject player)
     {
         transportPlayer = true;

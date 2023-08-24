@@ -5,30 +5,34 @@ using UnityEditor;
 [CanEditMultipleObjects]
 public class TestEditor : Editor
 {
-    SerializedProperty lookAtPoint;
+    SerializedProperty core;
+    SerializedProperty hover;
+    SerializedProperty hoverTransform;
+    SerializedProperty coreTransform;
+
     private void OnEnable()
     {
-        lookAtPoint = serializedObject.FindProperty("core");
-        
+        core = serializedObject.FindProperty("core");
+        coreTransform = serializedObject.FindProperty("coreTransform");
+        hover = serializedObject.FindProperty("hover");
+        hoverTransform = serializedObject.FindProperty("hoverTransform");
     }
 
     public override void OnInspectorGUI()
     {
         serializedObject.Update();
-        EditorGUILayout.PropertyField(lookAtPoint);
+        EditorGUILayout.PropertyField(coreTransform);
+        EditorGUILayout.PropertyField(hoverTransform);
+        EditorGUILayout.PropertyField(core);
+        EditorGUILayout.PropertyField(hover);
         serializedObject.ApplyModifiedProperties();
 
-        serializedObject.ApplyModifiedProperties();
-        if (lookAtPoint. vector3Value.y > (target as Test).transform.position.y)
-        {
-            EditorGUILayout.LabelField("(Above this object)");
-        }
-        if (lookAtPoint.vector3Value.y < (target as Test).transform.position.y)
-        {
-            EditorGUILayout.LabelField("(Below this object)");
-        }
+        EditorGUILayout.LabelField(Tools.GetInstance().GetZXAtan2(
+            core.vector3Value, hover.vector3Value).ToString()
+            );
     }
 
+    /*
     public void OnSceneGUI()
     {
         var t = (target as Test);
@@ -43,4 +47,5 @@ public class TestEditor : Editor
             Debug.Log("asdf");
         }
     }
+    */
 }

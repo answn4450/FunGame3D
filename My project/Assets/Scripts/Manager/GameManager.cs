@@ -10,6 +10,7 @@ public class GameManager : MonoBehaviour
     public ElevatorController nextElevator;
     public GroundManager groundManager;
     public EnemyManager enemyManager;
+    public SkyPannelController skyPannel;
 
     private CameraController gameCamera;
     private PlayerController player;
@@ -29,11 +30,11 @@ public class GameManager : MonoBehaviour
         leftCountdown = maxCountdown;
 
         Ground.GetInstance().SetGround(groundManager);
-
         builtStructureFolder = new GameObject("Built Structure Folder").transform;
         structureManager = builtStructureFolder.gameObject.AddComponent<StructureManager>();
         
         groundManager.CreateGrounds();
+        skyPannel.SetSkyPannelByGroundPannel(groundManager);
     }
     
     private void Start()
@@ -89,6 +90,7 @@ public class GameManager : MonoBehaviour
         }
         else
         {
+            skyPannel.TransparentByPlayerY(player);
             structureManager.LoopStructuresInFolder();
 
             player.SetInput();

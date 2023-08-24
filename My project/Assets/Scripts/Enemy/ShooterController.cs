@@ -6,7 +6,7 @@ public class ShooterController : MonoBehaviour
 {
     public GameObject shootHead;
     public GameObject bullet;
-    public GameObject bulletPrefab;
+    private GameObject bulletPrefab;
     public bool fire;
     public bool act;
 
@@ -24,6 +24,7 @@ public class ShooterController : MonoBehaviour
 
     void Start()
     {
+        bulletPrefab = PrefabManager.GetInstance().GetPrefabByName("Bullet");
         BindLocalY();
     }
 
@@ -34,8 +35,8 @@ public class ShooterController : MonoBehaviour
             if (fire && worldY > 0.0f)
             {
                 fire = false;
-                bullet = Instantiate(PrefabManager.GetInstance().GetPrefabByName("Bullet"));
-                bullet.GetComponent<BulletController>().BirthBullet(shootHead);
+                bullet = Instantiate(bulletPrefab);
+                bullet.GetComponent<BulletController>().BirthBullet(shootHead, true);
             }
         }
 
@@ -44,7 +45,7 @@ public class ShooterController : MonoBehaviour
 
     }
 
-	private void LateUpdate()
+	void LateUpdate()
 	{
         SetPosition();
     }
@@ -55,26 +56,12 @@ public class ShooterController : MonoBehaviour
 
         worldY = Mathf.Lerp(worldY, point.y, t);
 
-        float rotateDeg = (
-            Mathf.Rad2Deg * -Mathf.Atan2(
-                point.z - transform.position.z,
-                point.x - transform.position.x
-                )
-            + 360.0f + 90.0f) % 360.0f;
-
-        float shooterDeg = (transform.rotation.eulerAngles.y + 360.0f) % 360.0f;
-
-        if (Mathf.Abs(rotateDeg - shooterDeg) > 180.0f)
-        {
-            if (rotateDeg < shooterDeg)
-                rotateDeg += 360.0f;
-            if (shooterDeg < rotateDeg)
-                shooterDeg += 360.0f;
-        }
+        float shooterDeg = transform.rotation.eulerAngles.y;
+        float rotateDeg = 90.0f - Tools.GetInstance().GetZXAtan2(transform.position, point);
 
         transform.rotation = Quaternion.Euler(
             0.0f,
-            Mathf.Lerp(shooterDeg, rotateDeg, t),
+            shooterDeg + Mathf.DeltaAngle(shooterDeg, rotateDeg) * t,
             0.0f
             );
     }

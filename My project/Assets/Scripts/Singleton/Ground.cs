@@ -41,7 +41,7 @@ public class Ground
         
         // ground 맨 왼쪽 밑 아래 구석.
         groundX0 = ground.transform.position.x - ground.transform.localScale.x * 0.5f;
-        groundY0 = ground.transform.position.y - 0.5f;
+        groundY0 = ground.transform.position.y + 0.5f;
         groundZ0 = ground.transform.position.z - ground.transform.localScale.z * 0.5f;
 
         groundX1 = groundX0 + groundWidth;

@@ -42,7 +42,7 @@ public class PlayerController : NormalBall
     private Material matRed;
 
     private List<string> availableStructures = new List<string> {
-        "Jumper",
+        "AutoAttacker",
         "StopAura",
     };
 
@@ -102,6 +102,7 @@ public class PlayerController : NormalBall
         CheckDead();
         playerEye.FollowTarget(transform);
         EasyCheckColor();
+        turnPoint.transform.localScale = transform.localScale * 0.5f;
     }
 
     public void Hurt()
@@ -380,7 +381,7 @@ public class PlayerController : NormalBall
     {
         bool before = dead;
         float outSize = transform.localScale.x;
-        dead = size <= GetDeadSize() && outSize <= GetDeadSize();
+        dead = size <= GetDeadSize() && Tools.GetInstance().MinorFloat(outSize) <= GetDeadSize();
         if (dead && !before)
             Explode();
 
@@ -419,7 +420,7 @@ public class PlayerController : NormalBall
     {
         ChangeTurnPointLength(vertical);
         
-        float deg = Tools.GetInstance().GetYAngle(turnPoint.transform, transform);
+        float deg = Tools.GetInstance().GetZXAtan2(turnPoint.transform, transform);
         float diameter = Mathf.PI * turnPointLength * 2.0f;
         float degStep = 360.0f * hoverSpeed * horizontal * Time.deltaTime / diameter ;
         float nextDeg = deg + degStep;

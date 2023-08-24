@@ -7,12 +7,15 @@ using System.Linq;
 [ExecuteInEditMode]
 public class Test : MonoBehaviour
 {
-    public Vector3 core;
-    public Transform hover;
+    public Vector3 core = Vector3.zero;
+    public Transform coreTransform;
+    public Vector3 hover = Vector3.zero;
+    public Transform hoverTransform;
 
     public void Update()
     {
-        hover.LookAt(core);
+        core = coreTransform.position;
+        hover = hoverTransform.position;
     }
     
 }

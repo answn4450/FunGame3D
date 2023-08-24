@@ -251,12 +251,17 @@ public class Tools
         return ground.GetEmptyHeight();
     }
 
-    public float GetYAngle(Transform start, Transform end)
+    public float GetZXAtan2(Transform start, Transform end)
     {
-        Vector3 diff = end.position - start.position;
+        return GetZXAtan2(start.position, end.position);
+    }
+
+    public float GetZXAtan2(Vector3 start, Vector3 end)
+    {
+        Vector3 diff = end - start;
         return Mathf.Atan2(diff.z, diff.x) * Mathf.Rad2Deg;
     }
-    
+
     public Color LerpColor(Color startColor, Color destColor, float t)
     {
         return new Color(
@@ -266,24 +271,4 @@ public class Tools
             Mathf.Lerp(startColor.a, destColor.a, t)
             );
     }
-
-    private bool StickGround(Transform target)
-    {
-        Transform downGround = Tools.GetInstance().GetUnderGround(target).transform;
-        float groundTopY = Tools.GetInstance().GetTopY(downGround);
-        float radius = target.localScale.x * 0.5f;
-        float finalY = groundTopY + radius;
-        finalY = (float)decimal.Round((decimal)finalY, 2);
-        target.position = new Vector3(
-            target.position.x,
-            finalY,
-            target.position.z
-            );
-
-        float diff = target.position.y - finalY;
-        if (!MinorEqual(finalY, target.position.y))
-            Debug.Log($"StickGround: {diff}, {finalY}, {target.position.y}");
-        return MinorEqual(finalY, target.position.y);
-    }
-
 }

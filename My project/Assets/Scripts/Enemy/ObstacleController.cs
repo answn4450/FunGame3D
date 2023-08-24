@@ -8,7 +8,7 @@ public class ObstacleController : MonoBehaviour
     public float detectLength;
     public GameObject Top;
     public GameObject Bottom;
-    public List<GameObject> shoots = new List<GameObject>();
+    public ShooterController shoot;
 
     private float standUpY = -4.0f;
     private float standDownY = -6.0f;
@@ -26,11 +26,8 @@ public class ObstacleController : MonoBehaviour
             if ((transform.position - player.transform.position).magnitude < detectLength)
             {
                 destY = standUpY;
-                foreach (GameObject shoot in shoots)
-                {
-                    shoot.GetComponent<ShooterController>().act = true;
-                    shoot.GetComponent<ShooterController>().FollowPoint(player.transform.position);
-                }
+                shoot.act = true;
+                shoot.FollowPoint(player.transform.position);
             }
             else
             {
