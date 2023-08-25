@@ -73,7 +73,7 @@ public class UIController : MonoBehaviour
             GameObject structureImage = Instantiate(availableStructure, availableStructure.transform);
             availableStructureChild.Add(structureImage);
             Destroy(structureImage.GetComponent<HorizontalLayoutGroup>());
-            structureImage.GetComponent<Image>().sprite = Resources.Load("Images\\" +
+            structureImage.GetComponent<Image>().sprite = Resources.Load("StructureIcon\\" +
                 availablePrefabNames[i].ToString() + "Img"
                 , typeof(Sprite)) as Sprite;
             structureImage.GetComponent<RectTransform>().sizeDelta = new Vector2(
@@ -135,15 +135,28 @@ public class UIController : MonoBehaviour
 
     private void BuiltStructuresInfo(List<GameObject> builtStructures)
     {
-        for (int i = 0; i < builtStructures.Count; ++i)
+        for (int i = 0; i < builtStructureChild.Count; ++i)
         {
-            builtStructureChild[i].GetComponent<Image>().sprite = Resources.Load("Images\\" +
-                builtStructures[i].name + "Img"
-                , typeof(Sprite)) as Sprite;
-            
-            builtStructureChild[i].transform.GetChild(0).GetComponent<Text>().text = EasyVector3(
-                builtStructures[i].transform.position - Ground.GetInstance().groundPosition0
-                );
+            string imagePath;
+            string infoText;
+            if (i < builtStructures.Count)
+            {
+                imagePath = "StructureIcon\\" + builtStructures[i].name + "Img";
+                infoText = EasyVector3(
+                    builtStructures[i].transform.position - Ground.GetInstance().groundPosition0
+                    );
+            }
+            else
+            {
+                imagePath = "Empty";
+                infoText = "";
+            }
+
+            builtStructureChild[i].GetComponent<Image>().sprite = Resources.Load(
+                imagePath, typeof(Sprite)
+                ) as Sprite;
+
+            builtStructureChild[i].transform.GetChild(0).GetComponent<Text>().text = infoText;
         }
     }
 

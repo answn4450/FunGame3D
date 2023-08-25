@@ -12,9 +12,9 @@ public class TutorialController : MonoBehaviour
     public GameObject movePoint;
     [SerializeField]
     [Range(0,7)]
-    public int step;
     public List<string> ment;
 
+    public int step;
     private Sandbag whiteBall;
     private string nextElevatorName;
     private GameObject nextElevator;
@@ -24,16 +24,19 @@ public class TutorialController : MonoBehaviour
     {
         step = 0;
         ment = new List<string> {
-            "0>안녕 튜토리얼>Enter로 넘기기",
-            "1>화살표 키로 앞뒤양옆으로 이동>방향키 조작 후 Enter",
-            "2>목적지로 이동>하얀 공 수색",
-            "3>목적지 도착!>Enter로 넘기기",
+            "0>안녕 튜토리얼",
+            "1>화살표 키로 이동/회전",
+            "2>하얀 공으로 이동>하얀 공에 터치",
+            "3>목적지 도착!",
             "4>스페이스바로 하얀 공에 총알 날리기>스페이스바=총알 발사",
-            "5>현재 선택 건축물은 1번.>Enter로 넘기기",
-            "6>숫자키2로 후보 건축물 2번으로 변경>2번 건축물 StopAura",
-            "7>a로 건축물을 발사한 총알 위치에 생성>A로 총알이 없어지기 전에 StopAura 생성",
-            "8>s로 빠른 이동 시작 및 해제>S로 총알 변신",
-            "9>엘리베이터로 탑승으로 튜토리얼 종료>파란색 엘리베이터",
+            "5>turn point 조작>Enter로 넘기기",
+            "6>ctrl+위쪽/아래쪽 화살표로 간격 조정>ctrl+위쪽/아래쪽 화살표",
+            "7>이제 ctrl + 왼쪽/오른쪽 화살표로 회전>ctrl + 왼쪽/오른쪽 화살표 키",
+            "8>현재 선택 건축물은 1번.",
+            "9>숫자키2로 후보 건축물 2번으로 변경>2번 건축물 StopAura",
+            "10>a로 건축물을 발사한 총알 위치에 생성>A로 총알이 없어지기 전에 StopAura 생성",
+            "11>s로 빠른 이동 시작 및 해제>S로 총알 변신",
+            "12>엘리베이터로 탑승으로 튜토리얼 종료>파란색 엘리베이터",
         };
 
         whiteBall = GameObject.Find("whiteBall").GetComponent<Sandbag>();
@@ -42,8 +45,7 @@ public class TutorialController : MonoBehaviour
 
     void Start()
     {
-        requireInfo.text = "Enter -> 넘기기";
-        bigInfo.GetNewText("안녕 튜토리얼");
+        NewPage(step);
         nextElevatorName = "nextElevator";
         nextElevator = GameObject.Find(nextElevatorName);
         nextElevator.SetActive(false);
@@ -80,18 +82,30 @@ public class TutorialController : MonoBehaviour
                     nextStep = true;
                 break;
             case 6:
-                if (Input.GetKeyDown(KeyCode.Alpha2))
+                if (Input.GetKey(KeyCode.LeftControl) && Mathf.Abs(Input.GetAxis("Vertical")) >= 1.0f)
                     nextStep = true;
                 break;
             case 7:
-                if (GameObject.Find("StopAura"))
+                if (Input.GetKey(KeyCode.LeftControl) && Mathf.Abs(Input.GetAxis("Horizontal")) >= 1.0f)
                     nextStep = true;
                 break;
             case 8:
-                if (Input.GetKeyDown(KeyCode.S))
+                if (Input.GetKeyDown(KeyCode.Return))
                     nextStep = true;
                 break;
             case 9:
+                if (Input.GetKeyDown(KeyCode.Alpha2))
+                    nextStep = true;
+                break;
+            case 10:
+                if (GameObject.Find("StopAura"))
+                    nextStep = true;
+                break;
+            case 11:
+                if (Input.GetKeyDown(KeyCode.S))
+                    nextStep = true;
+                break;
+            case 12:
                 if (!GameObject.Find(nextElevatorName))
                 {
                     nextElevator.SetActive(true);
@@ -102,17 +116,16 @@ public class TutorialController : MonoBehaviour
 
         if (nextStep)
         {
-            step++;
-            NewPage();
+            NewPage(++step);
         }
     }
 
-    private void NewPage()
+    private void NewPage(int page)
     {
         string big, small;
-        string[] splits = ment[step].Split('>');
+        string[] splits = ment[page].Split('>');
         big = splits[1];
-        small = splits.Length > 2 ? splits[2] : "";
+        small = splits.Length > 2 ? splits[2] : "Enter로 넘기기";
         bigInfo.GetNewText(big);
         requireInfo.text = small;
     }

@@ -42,7 +42,7 @@ public class PlayerController : NormalBall, ISoundPlayable
     private Material matRed;
 
     private List<string> availableStructures = new List<string> {
-        "AutoAttacker",
+        "OliveBomb",
         "StopAura",
     };
 
@@ -109,6 +109,7 @@ public class PlayerController : NormalBall, ISoundPlayable
         playerEye.FollowTarget(transform);
         EasyCheckColor();
         turnPoint.transform.localScale = transform.localScale * 0.5f;
+        EraseNullStructures();
     }
 
     public void Hurt()
@@ -189,13 +190,10 @@ public class PlayerController : NormalBall, ISoundPlayable
             OffRideBullet();
     }
 
-    public void HealByPlayerGround()
+    public void AffectedByGround()
     {
-        foreach (GroundController ground in GetTouchingGrounds())
-        {
-            if (ground.CompareOwnerName(Status.GetInstance().playerName))
-                Heal(0.1f * Time.deltaTime);
-        }
+        HealByPlayerGround();
+        HurtByEnemyGround();
     }
 
     public void RollPaint()
@@ -423,6 +421,38 @@ public class PlayerController : NormalBall, ISoundPlayable
         else
             turnPoint.GetComponent<Renderer>().material = matBlue;
 
+    }
+
+    private void HurtByEnemyGround()
+    {
+        foreach (GroundController ground in GetTouchingGrounds())
+        {
+            if (ground.CompareOwnerName(Status.GetInstance().enemyName))
+                Hurt(0.1f * Time.deltaTime);
+        }
+    }
+
+    private void HealByPlayerGround()
+    {
+        foreach (GroundController ground in GetTouchingGrounds())
+        {
+            if (ground.CompareOwnerName(Status.GetInstance().playerName))
+                Heal(0.1f * Time.deltaTime);
+        }
+    }
+
+    private void EraseNullStructures()
+    {
+        int i = 0;
+        while (i < builtStructures.Count)
+        {
+            GameObject structure = builtStructures[i];
+            if (structure)
+                ++i;
+            else
+                builtStructures.RemoveAt(i);
+
+        }
     }
 
     private void HoverTurnPoint(float horizontal, float vertical)

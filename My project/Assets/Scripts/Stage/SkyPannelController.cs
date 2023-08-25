@@ -24,7 +24,9 @@ public class SkyPannelController : MonoBehaviour
     {
         float leftHeight = Ground.GetInstance().groundY1 - player.transform.position.y;
         if (leftHeight < 3.0f)
-            SetTransparency(1 - leftHeight * 0.2f);
+            SetTransparency(Mathf.Min(1 - leftHeight * 0.3f, 0.6f));
+        else
+            SetTransparency(0.1f);
     
     }
 

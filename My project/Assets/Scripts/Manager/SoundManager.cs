@@ -59,12 +59,6 @@ public class SoundManager : MonoBehaviour
 
     public void AddSoundClip(AudioClip _clip)
     {
-        if (soundDictionary.ContainsKey(_clip.name))
-        {
-            Debug.Log("이미 있음..");
-            return;
-        }
-
         soundDictionary[_clip.name] = _clip;
     }
 

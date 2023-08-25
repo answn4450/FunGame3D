@@ -50,7 +50,7 @@ public class EnemyManager : MonoBehaviour
         {
             enemy.OnGround();
             enemy.Living();
-            enemy.AffectNearGround();
+            enemy.RollPaint();
             breedingTimer += Time.deltaTime;
         }
 

@@ -411,6 +411,7 @@
 "Assets/Scripts/Stage/Ground/GroundController.cs"
 "Assets/Scripts/Stage/Ground/GroundManager.cs"
 "Assets/Scripts/Stage/SkyPannelController.cs"
+"Assets/Scripts/Structure/OliveBombController.cs"
 "Assets/Scripts/Structure/StopAuraController.cs"
 "Assets/Scripts/UI/BigInfoController.cs"
 "Assets/Scripts/UI/ButtonController.cs"

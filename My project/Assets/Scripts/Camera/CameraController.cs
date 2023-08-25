@@ -68,6 +68,7 @@ public class CameraController : MonoBehaviour
 
 	public void BehindPlayer(float deg)
 	{
+        deg = FilterDeg(deg);
 		anchorPosition = new Vector3(
 			0.0f,
 			baseY0 + Mathf.Sin(Mathf.Deg2Rad * deg) * Length,
@@ -185,4 +186,12 @@ public class CameraController : MonoBehaviour
         renderer.material.color = color;
 	}
 
+    private float FilterDeg(float deg)
+    {
+        float diffrence = Ground.GetInstance().groundY1 - transform.parent.position.y;
+        if (diffrence < 4.0f)
+            return deg + (diffrence - 4.0f) * 4.0f;
+        else
+            return deg;
+    }
 }

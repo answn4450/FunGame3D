@@ -51,26 +51,12 @@ public class EnemyController : LivingBall
         SafeMove(move);
     }
 
-    public void AffectNearGround()
+    public void RollPaint()
     {
-        RaycastHit hit;
-        List<Vector3> direction = new List<Vector3> {
-            Vector3.left, 
-            Vector3.right, 
-            Vector3.up, 
-            Vector3.down, 
-            Vector3.forward, 
-            Vector3.back, 
-            };
-
-        LayerMask groundMask = LayerMask.GetMask("Ground");
-        foreach (Vector3 dir in direction)
-        {
-            if (Physics.Raycast(transform.position, dir, out hit, 1.0f, groundMask))
-                hit.transform.GetComponent<GroundController>().SetEvilGround();
-        }
+        foreach (GroundController ground in GetTouchingGrounds())
+            ground.PaintColor(Status.GetInstance().enemyName, Time.deltaTime);
     }
-    
+
     public void Hurt()
     {
         if (size > deadSize)

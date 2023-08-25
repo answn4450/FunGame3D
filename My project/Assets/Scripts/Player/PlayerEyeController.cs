@@ -6,7 +6,7 @@ public class PlayerEyeController : MonoBehaviour
 {
 	private const float followSpeed = 4.0f;
 
-	// body.eulerAngles °ª ¹üÀ§ (-180.0f, 180.0f)
+	// body.eulerAngles ê°’ ë²”ìœ„ (-180.0f, 180.0f)
     public void FollowTarget(Transform body)
 	{
 		Vector3 diffPosition = body.position - transform.position;
