@@ -4,13 +4,16 @@ using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
-public class GameManager : MonoBehaviour
+public class GameManager : MonoBehaviour, ISoundPlayable
 {
     public ElevatorController prevElevator;
     public ElevatorController nextElevator;
     public GroundManager groundManager;
     public EnemyManager enemyManager;
     public SkyPannelController skyPannel;
+
+    public AudioClip stageClear;
+    public AudioClip gameClearAll;
 
     private CameraController gameCamera;
     private PlayerController player;
@@ -39,6 +42,9 @@ public class GameManager : MonoBehaviour
     
     private void Start()
     {
+        SoundManager.Instance.AddSoundClip(stageClear);
+        SoundManager.Instance.AddSoundClip(gameClearAll);
+
         GameObject playSet = GameObject.Find("PlaySet");
         GameObject playerSet = GameObject.Find("PlayerSet");
         
@@ -68,7 +74,15 @@ public class GameManager : MonoBehaviour
             prevElevator.MovePlayer();
 
         if (nextElevator != null && nextElevator.IsWithPlayer())
+        {
+            if (Status.GetInstance().currentStage == Status.GetInstance().maxStage)
+                PlaySound(gameClearAll.name);
+            else
+                PlaySound(stageClear.name);
+
             nextElevator.MovePlayer();
+
+        }
 
         if (enemyManager)
         {
@@ -164,4 +178,8 @@ public class GameManager : MonoBehaviour
         }
     }  
     
+    public void PlaySound(string _key)
+    {
+        SoundManager.Instance.PlaySound(_key);
+    }
 }

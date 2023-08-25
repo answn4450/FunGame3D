@@ -18,6 +18,7 @@ public class TestEditor : Editor
         hoverTransform = serializedObject.FindProperty("hoverTransform");
     }
 
+    /*
     public override void OnInspectorGUI()
     {
         serializedObject.Update();
@@ -31,6 +32,7 @@ public class TestEditor : Editor
             core.vector3Value, hover.vector3Value).ToString()
             );
     }
+    */
 
     /*
     public void OnSceneGUI()

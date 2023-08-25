@@ -39,7 +39,6 @@ public class SoundManager : MonoBehaviour
         audioSource.PlayOneShot(clip);
     }
 
-
     public void PlayBGM(string _key)
     {
         if (!soundDictionary.ContainsKey(_key))

@@ -34,6 +34,8 @@ public class Ground
 
     public void SetGround(GroundManager ground)
 	{
+        ground.transform.position += Vector3.down * ground.transform.localScale.y;
+
         groundWidth = (int)ground.transform.localScale.x;
         groundHeight = 7;
         groundMinimumHeight = 1.01f;

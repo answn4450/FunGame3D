@@ -331,6 +331,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   playerCamera: {fileID: 3782593153038869300}
   playerEye: {fileID: 2750305713232587706}
+  dieClip: {fileID: 8300000, guid: 5fdb13d3756c84fecac96f5a2d124370, type: 3}
   dead: 0
   rideBullet: 0
   size: 0

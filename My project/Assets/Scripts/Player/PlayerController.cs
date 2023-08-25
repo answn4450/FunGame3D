@@ -2,11 +2,11 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-public class PlayerController : NormalBall
+public class PlayerController : NormalBall, ISoundPlayable
 {
     public CameraController playerCamera;
     public PlayerEyeController playerEye;
-
+    public AudioClip dieClip;
     [System.NonSerialized]
     public Transform structureFolder;
 
@@ -90,7 +90,13 @@ public class PlayerController : NormalBall
 
     private void Start()
     {
+        SoundManager.Instance.AddSoundClip(dieClip);
         SetSphere(size);
+    }
+
+    public void PlaySound(string _key)
+    {
+        SoundManager.Instance.PlaySound(_key);
     }
 
     public void LifeCycle()
@@ -383,7 +389,10 @@ public class PlayerController : NormalBall
         float outSize = transform.localScale.x;
         dead = size <= GetDeadSize() && Tools.GetInstance().MinorFloat(outSize) <= GetDeadSize();
         if (dead && !before)
+        {
+            PlaySound(dieClip.name);
             Explode();
+        }
 
     }
 

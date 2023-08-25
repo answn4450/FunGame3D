@@ -382,6 +382,7 @@
 "Assets/Scripts/Enemy/EnemyManager.cs"
 "Assets/Scripts/Enemy/ObstacleController.cs"
 "Assets/Scripts/Enemy/ShooterController.cs"
+"Assets/Scripts/ISoundPlayable.cs"
 "Assets/Scripts/Manager/ControllManager.cs"
 "Assets/Scripts/Manager/GameManager.cs"
 "Assets/Scripts/Manager/PickBallManager.cs"
